@@ -19,11 +19,12 @@
 #mt.fire #gz,#mt.fire #mk,#mt.fire #fl{display:none}
 #mt.fire{animation:bump .5s ease-out}@keyframes bump{0%{scale:.6}35%{scale:1.35}100%{scale:1}}
 #gf{inset:0;opacity:0;background:radial-gradient(ellipse at center,#0000 45%,#39ff1480 100%)}#gf.on{animation:gfa .9s ease-out}@keyframes gfa{0%{opacity:1}100%{opacity:0}}
+#charpick{margin:10px 0 14px;padding:10px;border:1px solid #ffffff30;border-radius:12px;background:#ffffff08}#charpick h4{margin:0 0 8px;color:#ffd166;font-size:12px;letter-spacing:1px}#charpick .cpbtn{display:block;width:100%;text-align:left;padding:10px;margin:6px 0;border:1px solid #ffffff2a;border-radius:9px;background:#ffffff0c;color:#fff;font-weight:800}#charpick .cpbtn.on{border-color:#ffd23f;background:#ffd23f20}#charstatus{display:block;color:#9ee7ff;font-size:11px;margin-top:6px}
 #tabs{display:flex;gap:6px;margin-bottom:6px}#tabs button{flex:1;padding:7px;border:0;border-radius:8px;background:#fff2;color:#fff}#tabs button.on{background:#ff7a1a}#pv{width:100%;padding:9px;border:0;border-radius:10px;background:#ff7a1a;color:#fff;font-weight:700;margin-top:4px}
 #tdk{right:20px;bottom:118px;width:68px;height:68px;font-size:13px;background:#ff7a1a99}
 #hint{bottom:8px;width:100%;text-align:center;opacity:.85;font-size:12px;text-shadow:0 1px 3px #000}
 button,select,input{font:inherit}#gear{position:fixed;top:max(12px,env(safe-area-inset-top));right:12px;padding:9px 14px;border:0;border-radius:12px;background:#000a;color:#fff;z-index:6}
-#pn{position:fixed;top:56px;right:12px;width:262px;max-height:calc(100% - 70px);overflow:auto;padding:12px 14px;border-radius:14px;background:#14101cee;backdrop-filter:blur(8px);display:none;z-index:6;touch-action:pan-y}
+#pn{position:fixed;top:56px;right:12px;width:min(310px,calc(100vw - 24px));max-height:calc(100% - 70px);overflow:auto;padding:12px 14px;border-radius:14px;background:#14101cf5;backdrop-filter:blur(8px);display:block;z-index:20;touch-action:pan-y;border:1px solid #ffd16666;box-shadow:0 12px 36px #000a}
 #pn label{display:flex;justify-content:space-between;align-items:center;margin:8px 0;gap:8px}#pn input[type=color]{width:46px;height:28px;border:0;padding:0;background:none}#pn h4{margin:12px 0 2px;color:#ffb36b;font-size:12px;letter-spacing:1px}
 .sw{display:inline-block;width:30px;height:30px;border-radius:50%;margin:2px;border:3px solid transparent;cursor:pointer}.sw.on{border-color:#fff}
 .tb{position:fixed;display:none;border-radius:50%;border:2px solid #fff5;background:#fff3;color:#fff;font-weight:800;z-index:4;padding:0}@media(pointer:coarse){.tb{display:block}#hint{display:none}}
@@ -84,22 +85,13 @@ button,select,input{font:inherit}#gear{position:fixed;top:max(12px,env(safe-area
 .mx .mg{left:8px;top:8px;background:#000a;color:#fff}.mx .mb{right:8px;top:8px;background:#ffd23f;color:#111}.mx .mi{left:10px;bottom:6px;font:900 22px Impact;letter-spacing:1px;color:#ffffff55;padding:0}
 .mx .mf{padding:10px 12px 12px}.mx .mf b{display:block;font:900 15px Impact,system-ui;letter-spacing:.8px}.mx .mf small{display:block;font:500 11px/1.35 system-ui;color:#9ab;margin-top:2px;min-height:30px}.mx .mf i{display:block;margin-top:8px;font:800 11px system-ui;font-style:normal;letter-spacing:2px;color:#7ff}
 .mx.cur .mf i{color:#ffd23f}
-
-#chars{position:fixed;inset:0;z-index:40;display:none;flex-direction:column;gap:14px;padding:max(18px,env(safe-area-inset-top)) 18px 24px;background:radial-gradient(ellipse at top,#282052,#070910 70%);overflow:auto;touch-action:pan-y}
-#chars.on{display:flex}#chars h2{font:900 34px Impact;margin:8px 0;color:#9ff;letter-spacing:2px}
-#charback{align-self:flex-start;border:1px solid #ffffff44;border-radius:10px;background:#ffffff12;color:#fff;padding:10px 16px;font-weight:800}
-#chargrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px}
-.charcard{padding:16px;border:1px solid #ffffff30;background:linear-gradient(140deg,#20233b,#111522);border-radius:16px;color:white;text-align:left}
-.charcard b{display:block;font:900 24px Impact;letter-spacing:1px;color:#9ff}
-.charcard small{display:block;color:#bbc;margin:8px 0 14px;line-height:1.5}
-.charcard button{padding:10px 14px;border:0;border-radius:8px;background:#ffd23f;color:#111;font-weight:900}
-#charstatus{color:#9ff;font-weight:700;min-height:22px}
+#player-select-modal{position:fixed;inset:0;z-index:60;display:none;align-items:center;justify-content:center;padding:18px;background:#050711ed;backdrop-filter:blur(8px)}#player-select-card{width:min(520px,100%);max-height:88vh;overflow:auto;background:#171321;border:2px solid #ffd166;border-radius:18px;padding:16px;color:#fff;box-shadow:0 16px 50px #000b}#player-select-card h2{margin:0 0 8px;color:#ffd166;font-size:22px}#player-select-close{width:100%;padding:12px;margin-top:10px;border:0;border-radius:10px;background:#ff7a1a;color:white;font-weight:900}#player-select-modal #charpick{display:block!important;margin:0}#player-select-modal #charpick h4{font-size:14px}
 </style></head><body>
-<div id="chars"><button id="charback">← MAIN MENU</button><h2>CHARACTER SELECT</h2><div id="charstatus">Choose a character.</div><div id="chargrid"><div class="charcard"><b>DOCTOR</b><small>The exact Doctor 3D model. More characters coming soon.</small><button id="doctorpick">SELECT DOCTOR</button></div><div class="charcard"><b>MORE COMING SOON</b><small>New characters are in development.</small></div></div></div><button id="tbtn" style="position:fixed;top:max(12px,env(safe-area-inset-top));right:12px;z-index:7;padding:8px 12px;border:0;border-radius:10px;background:#c9962b;color:#000;font:800 13px system-ui">🏆 TOURNAMENT</button><div id="mm"><canvas id="mst" style="position:fixed;inset:0;width:100%;height:100%;z-index:-1"></canvas><div id="mtop"><b>GH</b><span id="mpn">PLAYER<i>PG · OVR 99</i></span></div><div id="mhero"><div id="lg"><span>GLITCHY</span><span>HOOPS</span></div></div><div id="mcards"><div class="gc" id="mmt"><em>🏆</em><b>TOURNAMENT</b><small>5 games · 3 buckets each · tougher every level</small></div><div class="gc" id="mmp"><em>🏀</em><b>PRACTICE</b><small>Free run. No scoreboard.</small></div><div class="gc" id="mmw"><em>📖</em><b>HOW TO PLAY</b><small>Controls &amp; moves</small></div><div class="gc" id="gh-menu-characters"><em>🧍</em><b>CHARACTER SELECT</b><small>Choose your player · Doctor available</small></div><div class="gc" id="gh-menu-leader"><em>🏆</em><b>LEADERBOARD</b><small>REP rankings · championships · player cards</small></div></div><div id="mmh"><b>Move</b> WASD · <b>Sprint</b> Shift · <b>Crossover</b> Q / E · <b>Step back</b> R · <b>Behind back</b> F<br><b>Shoot</b> hold SPACE, release in the green · <b>Dunk</b> hold X near the rim<br><b>Lose your man:</b> chain crossovers close to the defender, a well-timed one breaks his ankles.<br>Phone: joystick + on-screen buttons. Gauntlet: first to 11, 15, then 21.<br><button id="mmc">CLOSE</button></div></div><button id="mmq">☰ MENU</button><div id="gb"><div class="pl"></div><div class="bn"><i id="gbi"></i><b id="gbt">ROOKIE</b></div><div class="nm" id="gbn">PLAYER</div><div class="ps">PG</div><div class="ov"><small>OVR</small>99</div><div class="ar"><u></u>PLAYMAKING SHOT CREATOR</div><div class="bd"><b id="gbb">I</b></div></div><div id="nb"><div><span id="nbn">PLAYER<small>PLAYMAKING SHOT CREATOR</small></span><em>PG<i>OVR 99</i></em></div></div><div id="hud" class="h gh-shot-box"><div class="gh-shot-label">SHOT TRACKER</div><div class="gh-shot-main"><b id="pts">0</b><span>/</span><b id="shot-attempts">0</b></div><div class="gh-shot-caption"><span>MADE</span><span>ATTEMPTED</span></div></div><div id="ban" class="h"></div>
+<div id="player-select-modal"><div id="player-select-card"><h2>🏀 SELECT YOUR PLAYER</h2><p>Choose your player here before starting a game.</p><div id="main-player-choice-slot"></div><button id="player-select-close">DONE</button></div></div><button id="tbtn" style="position:fixed;top:max(12px,env(safe-area-inset-top));right:12px;z-index:7;padding:8px 12px;border:0;border-radius:10px;background:#c9962b;color:#000;font:800 13px system-ui">🏆 TOURNAMENT</button><div id="mm"><canvas id="mst" style="position:fixed;inset:0;width:100%;height:100%;z-index:-1"></canvas><div id="mtop"><b>GH</b><span id="mpn">PLAYER<i>PG · OVR 99</i></span></div><div id="mhero"><div id="lg"><span>GLITCHY</span><span>HOOPS</span></div></div><div id="mcards"><div class="gc" id="mmt"><em>🏆</em><b>TOURNAMENT</b><small>5 games · 3 buckets each · tougher every level</small></div><div class="gc" id="mmplayer"><em>🧍</em><b>SELECT PLAYER</b><small>Choose Original or Ch11 before you play</small></div><div class="gc" id="mmp"><em>🏀</em><b>PRACTICE</b><small>Free run. No scoreboard.</small></div><div class="gc" id="mmw"><em>📖</em><b>HOW TO PLAY</b><small>Controls &amp; moves</small></div><div class="gc" id="gh-menu-leader"><em>🏆</em><b>LEADERBOARD</b><small>REP rankings · championships · player cards</small></div></div><div id="mmh"><b>Move</b> WASD · <b>Sprint</b> Shift · <b>Crossover</b> Q / E · <b>Step back</b> R · <b>Behind back</b> F<br><b>Shoot</b> hold SPACE, release in the green · <b>Dunk</b> hold X near the rim<br><b>Lose your man:</b> chain crossovers close to the defender, a well-timed one breaks his ankles.<br>Phone: joystick + on-screen buttons. Gauntlet: first to 11, 15, then 21.<br><button id="mmc">CLOSE</button></div></div><button id="mmq">☰ MENU</button><div id="gb"><div class="pl"></div><div class="bn"><i id="gbi"></i><b id="gbt">ROOKIE</b></div><div class="nm" id="gbn">PLAYER</div><div class="ps">PG</div><div class="ov"><small>OVR</small>99</div><div class="ar"><u></u>PLAYMAKING SHOT CREATOR</div><div class="bd"><b id="gbb">I</b></div></div><div id="nb"><div><span id="nbn">PLAYER<small>PLAYMAKING SHOT CREATOR</small></span><em>PG<i>OVR 99</i></em></div></div><div id="hud" class="h gh-shot-box"><div class="gh-shot-label">SHOT TRACKER</div><div class="gh-shot-main"><b id="pts">0</b><span>/</span><b id="shot-attempts">0</b></div><div class="gh-shot-caption"><span>MADE</span><span>ATTEMPTED</span></div></div><div id="ban" class="h"></div>
 <div id="gf" class="h"></div><div id="ntag"></div><div id="dfx" class="h"></div><div id="hf" class="h"></div><div id="mt" class="h"><div id="fire"></div><div id="ring"></div><div id="bar"><div id="fl"></div><div id="gz"></div><div id="mk"></div></div></div>
 <div id="hint" class="h">WASD move · Shift sprint · Q/E crossover L/R · R step back · F behind back · hold SPACE, release in green · hold X dunk (near rim) or shoot · B ball</div>
 <button id="mapb">🗺 Map</button><div id="ld"><i></i><div>Joining new map…</div><small id="ldn"></small></div><div id="mp"><div id="mph"><div><small>SELECT YOUR COURT</small><h3>Choose Your Map</h3></div><button id="mpx">✕</button></div><div id="mpnm"><label for="pname">PLAYER NAME</label><input id="pname" maxlength="14" placeholder="Enter your name" autocomplete="off"></div><div id="mpf"><button class="on" data-g="all">All</button><button data-g="city">🌆 City</button><button data-g="beach">🏖 Beach</button><button data-g="luxury">💎 Luxury</button><button data-g="wild">🚀 Wild</button><button id="mpr">🎲 Random</button></div><div id="mpc"></div></div><button id="gear">⚙ Customize</button>
-<div id="pn"><div id="tabs"><button data-t="1" class="on">Player</button><button data-t="2">Game</button><button type="button" id="gh-avatar-btn" class="gh-tab-btn">💾 Saved Avatars</button></div><div id="tp1"><b>Player</b> <button id="rnd" style="float:right;padding:6px 10px;border:0;border-radius:8px;background:#ff7a1a;color:#fff">🎲 Randomize</button><div id="skins"></div>
+<div id="pn"><div id="tabs"><button data-t="1" class="on">Player</button><button data-t="2">Game</button><button type="button" id="gh-avatar-btn" class="gh-tab-btn">💾 Saved Avatars</button></div><div id="tp1"><div id="charpick"><h4>🏀 SELECT YOUR PLAYER</h4><button type="button" class="cpbtn" id="char-original">🧍 Original GlitchyHoops Player</button><button type="button" class="cpbtn on" id="char-mixamo">🏀 MY MODEL — Ch11</button><button type="button" class="cpbtn" id="char-load-file" style="display:none">Load model file</button><input id="char-file-input" type="file" accept=".fbx,application/octet-stream" style="display:none"><small id="charstatus">Loading built-in Ch11 player…</small></div><b>Player customization</b> <button id="rnd" style="float:right;padding:6px 10px;border:0;border-radius:8px;background:#ff7a1a;color:#fff">🎲 Randomize</button><div id="skins"></div>
 <h4>HAIR</h4><label>Style<select data-k="hair"><option value="buzz">Buzz<option value="short">Short<option value="afro">Afro<option value="bun">Bun<option value="long">Long<option value="mohawk">Mohawk<option value="cornrows">Cornrows<option value="twists">Twists<option value="dreads">Dreads<option value="dreadsL">Long dreads<option value="dreadsTop">Top dreads<option value="dreadBun">Dread bun<option value="fade">Fade<option value="hightop">High-top fade<option value="waves">360 waves<option value="curly">Curly<option value="braids">Box braids<option value="ponytail">Ponytail<option value="pigtails">Pigtails<option value="puffs">Afro puffs<option value="bob">Bob<option value="topknot">Top knot<option value="bald">Bald</select></label>
 <label>Hair color<input type="color" data-k="hc"></label>
 <h4>CLOTHES</h4><label>Top<select data-k="top"><option value="tank">Tank jersey<option value="tee">T-shirt<option value="long">Long sleeve<option value="hood">Hoodie<option value="jacket">Bomber jacket<option value="varsity">Varsity jacket<option value="puffer">Puffer jacket<option value="sweater">Knit sweater<option value="oversize">Oversized tee<option value="polo">Polo<option value="henley">Henley<option value="thermal">Thermal<option value="zip">Zip hoodie<option value="track">Track jacket<option value="warmup">Warm-up jacket<option value="crew">Crewneck<option value="vest">Puffer vest<option value="shooter">Shooting shirt<option value="flannel">Flannel<option value="windbreaker">Windbreaker<option value="mesh">Mesh jersey<option value="vneck">V-neck tee<option value="denim">Denim jacket<option value="coach">Coach jacket<option value="rugby">Rugby shirt<option value="sleeveless">Sleeveless</select></label>
@@ -115,7 +107,10 @@ button,select,input{font:inherit}#gear{position:fixed;top:max(12px,env(safe-area
 <h4>NAME</h4><input id="pname2" maxlength="14" placeholder="Your name" style="width:100%;padding:8px;border-radius:8px;border:0;background:#fff2;color:#fff"><h4>SOUND</h4><label>Sound effects<input type="checkbox" id="snd" checked></label><label>Volume<input type="range" id="vol" min="0" max="1" step=".05" value="1" style="width:120px"></label><button id="stest" style="width:100%;padding:8px;border:0;border-radius:10px;background:#3a7bd5;color:#fff;font-weight:700;margin:4px 0">🔊 Test sound</button>
 <h4>DUNK</h4><small>Hold X / DUNK: dunks if you are near the rim, otherwise starts your shot (release to shoot). Different dunk every time. Moving + shooting = fadeaway, standing = jumper.</small></div></div>
 <button class="tb" id="tsh">SHOOT</button><button class="tb mvb" id="tcl">← CROSS</button><button class="tb mvb" id="tcr">CROSS →</button><button class="tb mvb" id="tbl">STEP BACK</button><button class="tb mvb" id="tbb">BEHIND</button><button class="tb mvb" id="tdk">DUNK</button>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script><script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<!-- FBXLoader needs fflate for compressed FBX data; load it before FBXLoader. -->
+<script src="https://cdn.jsdelivr.net/npm/fflate@0.8.2/umd/index.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/FBXLoader.js"></script>
 <script>
 const R=THREE,$=i=>document.getElementById(i),V=(x,y,z)=>new R.Vector3(x,y,z),cl=(v,a,b)=>Math.max(a,Math.min(b,v)),lerp=(a,b,t)=>a+(b-a)*t,PI=Math.PI;
 let _s=11;const rnd=()=>(_s=_s*16807%2147483647)/2147483647,pick=a=>a[rnd()*a.length|0];
@@ -356,6 +351,67 @@ function makeRig(){
   const k=L.hair;if(hk!=k){hk=k;hairB(L)}const c=new R.Color(L.jc),lu=.3*c.r+.59*c.g+.11*c.b;nx.clearRect(0,0,128,128);nx.fillStyle=lu>.5?'#111':'#fff';nx.font='bold 100px Impact,sans-serif';nx.textAlign='center';nx.textBaseline='middle';nx.fillText(L.num,64,68);nT.needsUpdate=true}}}
 const look=Object.assign({skin:'#8d5524',hair:'dreads',hc:'#17120f',top:'tank',jc:'#ff5a36',bot:'shorts',sh:'#13214f',shs:'hightop',sc:'#ffffff',so:'#ffffff',sk:'#ffffff',num:5,hb:false,sl:false,cn:false,jc2:'#ffd23f',dsg:'none',body:'normal',bm:'rain',def:'on',cel:'0',gfx:'0',ico:'none',fit:'reg'},(()=>{try{return JSON.parse(localStorage.look2)}catch(e){return{}}})());
 const rig=makeRig(),{P,hip,tor,head,A,Lg}=rig,dfr=makeRig();sn.add(P);sn.add(dfr.P);P.position.set(0,GY,2);
+// Mixamo player model: the existing gameplay rig remains active for ball/shot logic,
+// while the skinned FBX character supplies the visible player and its animation clip.
+let mixamoMixer=null, mixamoReady=false, mixamoObject=null, mixamoBones={}, mixamoBase={}, selectedCharacter=(()=>{try{return localStorage.getItem('gh-selected-character')||'mixamo'}catch(e){return 'mixamo'}})();
+function updateCharacterChoice(){const mix=selectedCharacter==='mixamo'&&mixamoReady;if(hip)hip.visible=!mix;if(mixamoObject)mixamoObject.visible=mix;const a=document.getElementById('char-original'),b=document.getElementById('char-mixamo'),st=document.getElementById('charstatus');if(a){a.classList.toggle('on',selectedCharacter==='original');a.textContent=selectedCharacter==='original'?'✅ ORIGINAL — EQUIPPED':'🧍 EQUIP ORIGINAL PLAYER';}if(b){b.classList.toggle('on',selectedCharacter==='mixamo');b.textContent=selectedCharacter==='mixamo'?'✅ CH11 — EQUIPPED (tap to unequip)':'🏀 EQUIP CH11 MODEL';}try{localStorage.setItem('gh-selected-character',selectedCharacter)}catch(e){}if(st&&mixamoReady)st.textContent=selectedCharacter==='mixamo'?'✅ Ch11 is equipped. Tap its button to unequip.':'Ch11 is saved and ready. Equip it whenever you want.';}
+function useMixamoModel(obj){
+  try {
+    if(mixamoObject){P.remove(mixamoObject);mixamoObject=null;}
+    if(mixamoMixer){mixamoMixer.stopAllAction();mixamoMixer=null;}
+    obj.name='GlitchyHoops_Mixamo_Player';
+    mixamoBones={};mixamoBase={};
+    obj.traverse(n=>{if(n.isBone){const k=n.name.toLowerCase().replace(/[^a-z]/g,'');mixamoBones[k]=n;mixamoBase[k]=n.rotation.clone();}if(n.isMesh){n.castShadow=true;n.receiveShadow=true;if(n.material){const mats=Array.isArray(n.material)?n.material:[n.material];mats.forEach(m=>{m.side=THREE.DoubleSide;m.needsUpdate=true;});}}});
+    let box=new THREE.Box3().setFromObject(obj), size=box.getSize(new THREE.Vector3());
+    if(!isFinite(size.y)||size.y<0.001)throw new Error('The FBX has no visible character mesh.');
+    obj.scale.setScalar(2.12/size.y);obj.updateMatrixWorld(true);
+    box=new THREE.Box3().setFromObject(obj);obj.position.y-=box.min.y;obj.rotation.y=Math.PI;
+    P.add(obj);mixamoObject=obj;mixamoReady=true;selectedCharacter='mixamo';
+    // The supplied Ch11 FBX is a rigged T-pose without basketball clips. Drive its Mixamo bones from the game's live gameplay state instead.
+    // Do not autoplay a generic clip: the game drives the player pose from its actual gameplay state.
+    updateCharacterChoice();
+    const st=document.getElementById('charstatus');if(st)st.textContent='✅ Your model is in the game! '+(obj.animations?.length?'Animation clip loaded.':'Game-controlled movement, dribble, shot and dunk poses enabled.');
+    console.info('[GlitchyHoops] Mixamo player loaded',{height:size.y,animations:obj.animations?.length||0});
+  }catch(e){console.error(e);const st=document.getElementById('charstatus');if(st)st.textContent='Could not use this model: '+e.message;}
+}
+function animateMixamoPlayer(){
+ if(!mixamoReady||!mixamoObject||selectedCharacter!=='mixamo')return;
+ const find=(part,side='')=>{const keys=Object.keys(mixamoBones);return keys.find(k=>k.includes(part)&&(!side||k.includes(side)))||null};
+ const set=(part,side,x=0,y=0,z=0)=>{const k=find(part,side);if(!k)return;const b=mixamoBones[k],r=mixamoBase[k];b.rotation.set(r.x+x,r.y+y,r.z+z);};
+ const moving=Math.min(1,Math.max(vel.length()/4.5,mvA?.7:0)),run=Math.sin(ph),dribble=S==='dr',shoot=S==='sh'||S==='ch',jump=S==='dk';
+ // Mixamo's T-pose arms are rotated down around the shoulder's local Z axis.
+ // Keep the gameplay state machine untouched; only pose the replacement mesh.
+ set('leftarm','',0,0,1.52);set('rightarm','',0,0,-1.52);
+ set('leftforearm','',-.12,0,-.18);set('rightforearm','',-.12,0,.18);
+ set('leftupleg','',run*.48*moving,0,0);set('rightupleg','',-run*.48*moving,0,0);
+ set('leftleg','',Math.max(0,-run)*.65*moving,0,0);set('rightleg','',Math.max(0,run)*.65*moving,0,0);
+ set('spine','',dribble?-.08:shoot?-.10:0,0,dribble?Math.sin(tm*9)*.04:0);
+ set('head','',shoot?-.10:0,0,0);
+ if(dribble){
+   // Low dribble stance: both upper arms remain down; only the ball-side forearm reaches forward/down.
+   const bounce=Math.sin(tm*9);
+   set('rightarm','',-.32,0,-1.48);set('rightforearm','',-.38-Math.max(0,bounce)*.24,0,.08);
+   set('leftarm','',-.22,0,1.48);set('leftforearm','',-.28,0,-.08);
+ }
+ if(shoot){
+   // Compact gather, then right-handed shot: guide hand stays lower/outside;
+   // shooting arm rises only as the existing charge/release state progresses.
+   const u=S==='ch'?Math.min(1,ch/Math.max(RM,.01)):Math.min(1,shT/SHD);
+   const lift=Math.sin(u*Math.PI*.5);
+   set('leftarm','',-.08-.18*lift,0,1.02-.18*lift);
+   set('rightarm','',-.18-1.18*lift,0,-1.12+.20*lift);
+   set('leftforearm','',-.18-.20*lift,0,-.08);
+   set('rightforearm','',-.35-1.02*lift,0,.08);
+ }
+ if(jump){set('leftupleg','',-.35,0,0);set('rightupleg','',-.35,0,0);set('leftarm','',-.15,0,.18);set('rightarm','',-1.05,0,-.18);set('leftforearm','',-.65,0,-.05);set('rightforearm','',-1.05,0,.05);}
+}
+if(window.THREE&&THREE.FBXLoader){
+  new THREE.FBXLoader().load('Ch11_nonPBR.fbx',obj=>useMixamoModel(obj),undefined,err=>{console.warn('[GlitchyHoops] Automatic FBX load unavailable; use Choose My Model File.',err);const st=document.getElementById('charstatus');if(st)st.textContent='Tap 📂 CHOOSE MY MODEL FILE and select Ch11_nonPBR.fbx from Files. If opening this HTML in Files preview, try the hosted game URL instead.';});
+}
+document.getElementById('char-original')?.addEventListener('click',()=>{selectedCharacter=selectedCharacter==='original'?'mixamo':'original';updateCharacterChoice()});
+document.getElementById('char-mixamo')?.addEventListener('click',()=>{selectedCharacter=selectedCharacter==='mixamo'?'original':'mixamo';updateCharacterChoice()});
+document.getElementById('char-load-file')?.addEventListener('click',()=>document.getElementById('char-file-input')?.click());
+document.getElementById('char-file-input')?.addEventListener('change',async e=>{const file=e.target.files&&e.target.files[0];if(!file)return;const st=document.getElementById('charstatus');if(st)st.textContent='Loading '+file.name+'…';try{const buffer=await file.arrayBuffer();const obj=new THREE.FBXLoader().parse(buffer,'');useMixamoModel(obj);}catch(err){console.error(err);if(st)st.textContent='FBX load error: '+(err&&err.message?err.message:String(err))+' — make sure you selected the original Ch11_nonPBR.fbx file.';}e.target.value='';});
 {const _a=dfr.apply;dfr.apply=L=>{dfr.last=L;_a(L)}}dfr.apply({skin:'#5c3a21',hair:'dreadsTop',hc:'#120d0a',top:'tank',jc:'#2563eb',bot:'shorts',sh:'#0b1020',shs:'chunky',sc:'#ffffff',so:'#d4202c',sk:'#ffffff',num:23,hb:false,sl:true,cn:true});
 function applyLook(){rig.apply(look);try{localStorage.look2=JSON.stringify(look)}catch(e){}}
 const skins=['#f6d5b4','#e0ac69','#c68642','#8d5524','#5c3a21','#3b2417'],mark=()=>[...$('skins').children].forEach((b,i)=>b.classList.toggle('on',skins[i]==look.skin));
@@ -364,7 +420,7 @@ const ins=[...document.querySelectorAll('#pn [data-k]')];ins.forEach(e=>{const k
 const PRE={Bred:['#d62828','#111111'],Royal:['#1d4ed8','#ffffff'],'Triple white':['#ffffff','#e8e8e8'],Volt:['#ccff00','#111111'],Pink:['#ff5fa2','#ffffff'],Gold:['#f5c518','#111111'],Grape:['#7b2cbf','#e0aaff'],Blackout:['#151515','#151515'],Sunset:['#ff7a1a','#ffffff']};
 Object.keys(PRE).forEach(n=>{const o=document.createElement('option');o.textContent=n;$('pre').append(o)});$('pre').onchange=()=>{const p=PRE[$('pre').value];if(!p)return;look.sc=p[0];look.so=p[1];ins.forEach(e=>{if(e.dataset.k=='sc'||e.dataset.k=='so')e.value=look[e.dataset.k]});applyLook();$('pre').blur()};
 {const NC=['#111111','#ffffff','#1f2a44','#6b7280','#b91c1c','#1d4ed8','#166534','#7a1f2b','#c8b08a','#f59e0b','#4b5d78'];['hc','jc','jc2','sh','sc'].forEach(k=>{const e=ins.find(i=>i.dataset.k==k),r=document.createElement('div');r.style.cssText='text-align:right;margin:-4px 0 4px';NC.forEach(c=>{const b=document.createElement('span');b.className='sw';b.style.cssText='background:'+c+';width:18px;height:18px;margin:1px;border-width:2px;border-color:#fff4';b.onclick=()=>{look[k]=c;e.value=c;applyLook()};r.append(b)});e.parentNode.after(r)})}
-$('gear').onclick=()=>{const p=$('pn');p.style.display=p.style.display=='block'?'none':'block'};applyLook();mark();
+$('gear').onclick=()=>{const p=$('pn');p.style.display=p.style.display=='block'?'none':'block';if(p.style.display==='block')p.scrollTop=0};applyLook();mark();
 /* ---------- NPCs: fans + pedestrians ---------- */
 const npcs=[],SK=skins.map(c=>M(c,.6)),SH=['#e63946','#f1c453','#2a9d8f','#457b9d','#e76f51','#ffffff','#6a4c93','#222','#8ab17d','#ff7aa2'].map(c=>M(c,.8)),PN=['#222','#2b3a67','#4a4a4a','#6b4f3a','#1d3557','#8d99ae'].map(c=>M(c,.85)),HR=['#111','#2a1a10','#5a3a1e','#999','#c9a14a'].map(c=>M(c,.9));
 const NG={t:new R.CylinderGeometry(.17,.14,.55,10),h:new R.SphereGeometry(.1,10,8),c:new R.SphereGeometry(.105,8,6,0,6.283,0,1.7),l:new R.CylinderGeometry(.07,.06,.8,8),a:new R.CylinderGeometry(.045,.04,.55,8)};
@@ -846,7 +902,7 @@ function openMaps(){if(mapBusy)return;const mp=$('mp'),box=$('mpc');box.innerHTM
 $('mapb').onclick=openMaps;$('mpx').onclick=()=>$('mp').style.display='none';
 mapId='venice';setMap('venice');
 setName((()=>{try{return localStorage.pname}catch(e){return''}})()||'');$('pname').oninput=e=>setName(e.target.value);{const ids=MAPS.map(m=>m.id);let lm='';try{lm=localStorage.lastMap||''}catch(e){}const pool=ids.filter(i=>i!=lm),pk=(pool.length?pool:ids)[Math.random()*(pool.length?pool.length:ids.length)|0];try{localStorage.lastMap=pk}catch(e){}setMap(pk);$('mp').style.display='none'}
-let last=performance.now();(function loop(n){requestAnimationFrame(loop);const dt=Math.min((n-last)/1e3,.05);last=n;upd(hs>0?dt*.15:dt);hs=Math.max(0,hs-dt);rd.render(sn,cam)})(last);
+let last=performance.now();(function loop(n){requestAnimationFrame(loop);const dt=Math.min((n-last)/1e3,.05);last=n;if(mixamoMixer)mixamoMixer.update(dt);upd(hs>0?dt*.15:dt);animateMixamoPlayer();hs=Math.max(0,hs-dt);rd.render(sn,cam)})(last);
 
 ;(function(){const b=$('nb'),show=()=>{$('nbn').firstChild.nodeValue=($('ntag').textContent||'PLAYER');b.classList.add('on');setTimeout(()=>b.classList.remove('on'),4500)};setTimeout(show,1500);const m=$('mapb');if(m)m.addEventListener('click',()=>setTimeout(show,2500))})();
 
@@ -860,6 +916,9 @@ b.onclick=()=>{if(T){end();return}T={r:0};sco.p=0;sco.m=0;sco.a=0;hud();b.textCo
 setInterval(()=>{if(!T||sco.m<3)return;window.repAdd&&repAdd(50);if(T.r==4){ban('CHAMPION! 🏆','#f1d27a',1);end();return}T.r++;sco.p=0;sco.m=0;sco.a=0;hud();begin(T.r)},400)})();
 
 ;(function(){const m=$('mm'),on=()=>$('tbtn').textContent.includes('END'),go=t=>{if(t!=on())$('tbtn').click();m.style.display='none';if(t)openMaps();else joinMap(['nyc','park','sunset','mansion','nba','yacht','brooklyn','space'][Math.random()*8|0])};
+// Put the real character controls in the main-menu selector, not inside Customize.
+const cps=$('charpick'),slot=$('main-player-choice-slot'),modal=$('player-select-modal');if(cps&&slot)slot.appendChild(cps);
+$('mmplayer').onclick=()=>{modal.style.display='flex';};$('player-select-close').onclick=()=>{modal.style.display='none';};modal.addEventListener('click',e=>{if(e.target===modal)modal.style.display='none';});
 $('mmt').onclick=()=>go(true);$('mmp').onclick=()=>go(false);$('mmw').onclick=()=>{$('mmh').style.display='block'};$('mmc').onclick=()=>{$('mmh').style.display='none'};$('mmq').onclick=()=>{$('mp').style.display='none';m.style.display='flex'}})();
 
 ;(function(){const c=$('mst'),g=c.getContext('2d'),N=450,st=[],rs=()=>{c.width=innerWidth;c.height=innerHeight};rs();addEventListener('resize',rs);
@@ -1056,34 +1115,4 @@ if(pl){g.style.transform=`translate(${pl[0]}px,${pl[1]}px) scale(${SC})`;g.style
  persist();
 })();
 </script>
-<script>
-;(()=>{const menu=$('gh-menu-characters'),panel=$('chars'),status=$('charstatus');if(!menu||!panel)return;
- menu.onclick=()=>{ $('mm').style.display='none';panel.classList.add('on');status.textContent='Choose a character.'};
- $('charback').onclick=()=>{panel.classList.remove('on');$('mm').style.display='flex'};
- $('doctorpick').onclick=()=>{
-   if(!window.THREE||!THREE.GLTFLoader){status.textContent='Model loader did not load. Check your internet connection.';return}
-   status.textContent='Loading Doctor model…';
-   const loader=new THREE.GLTFLoader();
-   loader.load('./doctor.glb',gltf=>{
-     try{
-       const model=gltf.scene;
-       model.updateMatrixWorld(true);
-       const box=new THREE.Box3().setFromObject(model),size=box.getSize(new THREE.Vector3());
-       const h=size.y||1;model.scale.setScalar(1.8/h);
-       model.updateMatrixWorld(true);
-       const b2=new THREE.Box3().setFromObject(model);
-       model.position.y-=b2.min.y;
-       // Replace the procedural player visuals while keeping the game's player rig and controls.
-       if(typeof P!=='undefined'&&P&&P.add){
-         for(const child of [...P.children]) child.visible=false;
-         model.name='DoctorSelectedModel';
-         P.add(model);
-         window.__ghDoctorModel=model;
-         localStorage.setItem('gh_character','doctor');
-         status.textContent='Doctor selected! Start Practice or Tournament to play.';
-       }else{status.textContent='Doctor loaded, but the player rig is not ready. Return to the main menu and try again.'}
-     }catch(e){status.textContent='Could not attach Doctor model: '+e.message}
-   },undefined,err=>{status.textContent='Could not load doctor.glb. Keep doctor.glb beside this HTML file.';console.error(err)});
- };
-})();
-</script></body></html>
+</body></html>

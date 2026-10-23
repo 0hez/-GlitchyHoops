@@ -370,7 +370,7 @@ function useMixamoModel(obj){
     // The supplied Ch11 FBX is a rigged T-pose without basketball clips. Drive its Mixamo bones from the game's live gameplay state instead.
     // Do not autoplay a generic clip: the game drives the player pose from its actual gameplay state.
     updateCharacterChoice();
-    const st=document.getElementById('charstatus');if(st)st.textContent='✅ Your model is in the game! '+(obj.animations?.length?'Animation clip loaded.':'Game-controlled movement, dribble, shot and dunk poses enabled.');
+    const st=document.getElementById('charstatus');if(st)st.textContent='✅ Your model is in the game! '+(obj.animations?.length?'Animation clip loaded.':'Automatic equip enabled; game-controlled dribble, shooting and dunk poses active.');
     console.info('[GlitchyHoops] Mixamo player loaded',{height:size.y,animations:obj.animations?.length||0});
   }catch(e){console.error(e);const st=document.getElementById('charstatus');if(st)st.textContent='Could not use this model: '+e.message;}
 }
@@ -389,9 +389,13 @@ function animateMixamoPlayer(){
  set('head','',shoot?-.10:0,0,0);
  if(dribble){
    // Low dribble stance: both upper arms remain down; only the ball-side forearm reaches forward/down.
-   const bounce=Math.sin(tm*9);
-   set('rightarm','',-.32,0,-1.48);set('rightforearm','',-.38-Math.max(0,bounce)*.24,0,.08);
-   set('leftarm','',-.22,0,1.48);set('leftforearm','',-.28,0,-.08);
+   const bounce=Math.sin(tm*9), low=Math.max(0,bounce)*.28, ballRight=side>=0;
+   // Both shoulders stay relaxed; the ball-side arm reaches down while the off hand balances.
+   set('rightarm','',ballRight?-.30: -.10,0,-1.43);
+   set('rightforearm','',ballRight?-.34-low:-.10,0,ballRight?.06:.18);
+   set('leftarm','',ballRight?-.10:-.30,0,1.43);
+   set('leftforearm','',ballRight?-.10:-.34-low,0,ballRight?-.18:-.06);
+   set('spine','',-.10+low*.08,0,Math.sin(tm*4)*.025);
  }
  if(shoot){
    // Compact gather, then right-handed shot: guide hand stays lower/outside;
@@ -406,12 +410,29 @@ function animateMixamoPlayer(){
  if(jump){set('leftupleg','',-.35,0,0);set('rightupleg','',-.35,0,0);set('leftarm','',-.15,0,.18);set('rightarm','',-1.05,0,-.18);set('leftforearm','',-.65,0,-.05);set('rightforearm','',-1.05,0,.05);}
 }
 if(window.THREE&&THREE.FBXLoader){
-  new THREE.FBXLoader().load('Ch11_nonPBR.fbx',obj=>useMixamoModel(obj),undefined,err=>{console.warn('[GlitchyHoops] Automatic FBX load unavailable; use Choose My Model File.',err);const st=document.getElementById('charstatus');if(st)st.textContent='Tap 📂 CHOOSE MY MODEL FILE and select Ch11_nonPBR.fbx from Files. If opening this HTML in Files preview, try the hosted game URL instead.';});
+  // Ch11 is split into GitHub-web-upload-safe binary parts. Fetch them automatically;
+  // the player never needs to open Files or pick the model manually.
+  (async()=>{
+    const st=document.getElementById('charstatus');
+    try{
+      if(st)st.textContent='Loading your built-in Ch11 player…';
+      const names=['Ch11_part1.bin','Ch11_part2.bin','Ch11_part3.bin'];
+      const parts=[];
+      for(let i=0;i<names.length;i++){
+        if(st)st.textContent=`Loading Ch11 model part ${i+1}/${names.length}…`;
+        const res=await fetch(names[i],{cache:'force-cache'});
+        if(!res.ok)throw new Error(`${names[i]} returned HTTP ${res.status}. Upload all 3 Ch11_part files beside index.html.`);
+        parts.push(await res.arrayBuffer());
+      }
+      const total=parts.reduce((n,b)=>n+b.byteLength,0),buffer=new Uint8Array(total);let offset=0;
+      for(const part of parts){buffer.set(new Uint8Array(part),offset);offset+=part.byteLength;}
+      const obj=new THREE.FBXLoader().parse(buffer.buffer,'');
+      useMixamoModel(obj);
+    }catch(err){console.error('[GlitchyHoops] Ch11 auto-load failed:',err);if(st)st.textContent='Ch11 could not load: '+err.message+' Check that index.html and all 3 Ch11_part files are in the same GitHub folder, then refresh.';}
+  })();
 }
 document.getElementById('char-original')?.addEventListener('click',()=>{selectedCharacter=selectedCharacter==='original'?'mixamo':'original';updateCharacterChoice()});
 document.getElementById('char-mixamo')?.addEventListener('click',()=>{selectedCharacter=selectedCharacter==='mixamo'?'original':'mixamo';updateCharacterChoice()});
-document.getElementById('char-load-file')?.addEventListener('click',()=>document.getElementById('char-file-input')?.click());
-document.getElementById('char-file-input')?.addEventListener('change',async e=>{const file=e.target.files&&e.target.files[0];if(!file)return;const st=document.getElementById('charstatus');if(st)st.textContent='Loading '+file.name+'…';try{const buffer=await file.arrayBuffer();const obj=new THREE.FBXLoader().parse(buffer,'');useMixamoModel(obj);}catch(err){console.error(err);if(st)st.textContent='FBX load error: '+(err&&err.message?err.message:String(err))+' — make sure you selected the original Ch11_nonPBR.fbx file.';}e.target.value='';});
 {const _a=dfr.apply;dfr.apply=L=>{dfr.last=L;_a(L)}}dfr.apply({skin:'#5c3a21',hair:'dreadsTop',hc:'#120d0a',top:'tank',jc:'#2563eb',bot:'shorts',sh:'#0b1020',shs:'chunky',sc:'#ffffff',so:'#d4202c',sk:'#ffffff',num:23,hb:false,sl:true,cn:true});
 function applyLook(){rig.apply(look);try{localStorage.look2=JSON.stringify(look)}catch(e){}}
 const skins=['#f6d5b4','#e0ac69','#c68642','#8d5524','#5c3a21','#3b2417'],mark=()=>[...$('skins').children].forEach((b,i)=>b.classList.toggle('on',skins[i]==look.skin));

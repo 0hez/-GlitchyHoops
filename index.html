@@ -368,7 +368,11 @@ function buildModel(obj){
  let box=new THREE.Box3().setFromObject(obj),size=box.getSize(new THREE.Vector3());
  if(!isFinite(size.y)||size.y<0.001)throw new Error('The FBX has no visible character mesh.');
  obj.scale.setScalar(2.12/size.y);obj.updateMatrixWorld(true);
- box=new THREE.Box3().setFromObject(obj);obj.position.y-=box.min.y;obj.rotation.y=Math.PI;
+ box=new THREE.Box3().setFromObject(obj);obj.position.y-=box.min.y;
+ /* some Mixamo exports face +z, others -z: work out which way this one faces from its shoulders and turn it to face -z (the game's forward) */
+ {obj.rotation.y=0;obj.updateMatrixWorld(true);const lb=bones.mixamorigleftshoulder||bones.mixamorigleftarm,rb=bones.mixamorigrightshoulder||bones.mixamorigrightarm;let yaw=Math.PI;
+  if(lb&&rb){const r=_wp(rb).sub(_wp(lb));r.y=0;if(r.lengthSq()>1e-8){r.normalize();const f=new THREE.Vector3(0,1,0).cross(r);yaw=Math.PI-Math.atan2(f.x,f.z)}}
+  obj.rotation.y=yaw;obj.updateMatrixWorld(true);const hb=bones.mixamorighips;if(hb){const hp=_wp(hb);obj.position.x-=hp.x;obj.position.z-=hp.z}}
  return bones}
 function waitTex(obj){return new Promise(res=>{let n=0;const ok=()=>{let all=true;obj.traverse(m=>{if(m.isMesh)(Array.isArray(m.material)?m.material:[m.material]).forEach(t=>{if(t&&t.map&&!(t.map.image&&(t.map.image.width||t.map.image.naturalWidth)))all=false})});return all},t=setInterval(()=>{if(ok()||++n>60){clearInterval(t);res()}},100)})}
 /* render a small face portrait with the game's own renderer into a render target */
@@ -415,21 +419,25 @@ function mixCapture(obj,bones){
  P.updateMatrixWorld(true);
  const pq=P.getWorldQuaternion(new THREE.Quaternion()).invert();
  ['LeftFoot','RightFoot'].forEach(n=>{if(rest[n])rest[n].fq=pq.clone().multiply(rest[n].b.getWorldQuaternion(new THREE.Quaternion()))});
+ {const back=new THREE.Vector3(0,0,1).applyQuaternion(P.getWorldQuaternion(new THREE.Quaternion()));['Spine2','Hips'].forEach(n=>{if(rest[n])rest[n].bk=back.clone().applyQuaternion(rest[n].b.getWorldQuaternion(new THREE.Quaternion()).invert())})}
  return{rest,baseY:obj.position.y};
 }
 const _wp=o=>o.getWorldPosition(new THREE.Vector3()),_wq=o=>o.getWorldQuaternion(new THREE.Quaternion());
 function mxSetWorldQ(b,wq){const pq=_wq(b.parent).invert();b.quaternion.copy(pq.multiply(wq));b.updateMatrixWorld(true)}
 function mxAim(b,child,dir){const cur=_wp(child).sub(_wp(b)).normalize(),qd=new THREE.Quaternion().setFromUnitVectors(cur,dir);mxSetWorldQ(b,qd.multiply(_wq(b)))}
-function mxLimbIK(b1,b2,b3,T,pole){
- const S=_wp(b1),E=_wp(b2),W=_wp(b3),l1=S.distanceTo(E),l2=E.distanceTo(W);
+function mxBasis(a,p){const x=a.clone().normalize();let z=p.clone().sub(x.clone().multiplyScalar(p.dot(x)));if(z.lengthSq()<1e-8){z=Math.abs(x.y)<.9?new THREE.Vector3(0,1,0):new THREE.Vector3(1,0,0);z.sub(x.clone().multiplyScalar(z.dot(x)))}z.normalize();return new THREE.Matrix4().makeBasis(x,new THREE.Vector3().crossVectors(z,x),z)}
+function mxFrameRot(a0,p0,a1,p1){return new THREE.Quaternion().setFromRotationMatrix(mxBasis(a1,p1).multiply(mxBasis(a0,p0).transpose()))}
+/* two-bone IK. Both bones are turned from their bind frames into the same bend plane (pole), so there is no twisting / candy-wrapper at elbows and knees */
+function mxLimbIK(b1,b2,b3,T,pole,ref0){
+ const S=_wp(b1),E=_wp(b2),W=_wp(b3),l1=S.distanceTo(E),l2=E.distanceTo(W),Q1=_wq(b1),Q2=_wq(b2),d1=E.clone().sub(S).normalize(),d2=W.clone().sub(E).normalize();
  const toT=T.clone().sub(S),d=Math.max(Math.abs(l1-l2)*1.001+1e-4,Math.min((l1+l2)*.999,toT.length())),ax=toT.normalize();
- const pv=pole.clone().sub(ax.clone().multiplyScalar(pole.dot(ax)));
- if(pv.lengthSq()<1e-6){pv.set(0,0,-1);pv.sub(ax.clone().multiplyScalar(pv.dot(ax)))}
+ let pv=pole.clone().sub(ax.clone().multiplyScalar(pole.dot(ax)));
+ if(pv.lengthSq()<1e-6)pv.copy(ref0).sub(ax.clone().multiplyScalar(ref0.dot(ax)));
  pv.normalize();
  const cA=Math.max(-1,Math.min(1,(l1*l1+d*d-l2*l2)/(2*l1*d))),sA=Math.sqrt(1-cA*cA);
- const E2=S.clone().add(ax.clone().multiplyScalar(l1*cA)).add(pv.multiplyScalar(l1*sA)),W2=S.clone().add(ax.clone().multiplyScalar(d));
- mxAim(b1,b2,E2.clone().sub(S).normalize());
- mxAim(b2,b3,W2.clone().sub(_wp(b2)).normalize());
+ const E2=S.clone().add(ax.clone().multiplyScalar(l1*cA)).add(pv.clone().multiplyScalar(l1*sA)),W2=S.clone().add(ax.clone().multiplyScalar(d)),a1=E2.clone().sub(S).normalize(),a2=W2.clone().sub(E2).normalize();
+ mxSetWorldQ(b1,mxFrameRot(d1,ref0,a1,pv).multiply(Q1));
+ mxSetWorldQ(b2,mxFrameRot(d2,ref0,a2,pv).multiply(Q2));
 }
 function animateMixamoPlayer0(){
  if(!mixamoReady||!mixamoObject||selectedCharacter==='original'||!MX.rest)return;
@@ -445,18 +453,19 @@ function animateMixamoPlayer0(){
  lean(hip,P,B('Hips'),1);
  ['Spine','Spine1','Spine2'].forEach(n=>lean(tor,hip,B(n),1/3));
  lean(head,tor,B('Neck'),.35);lean(head,tor,B('Head'),.65);
+ const bkOf=n=>rs[n]&&rs[n].bk?rs[n].bk.clone().applyQuaternion(_wq(rs[n].b)):new THREE.Vector3(0,0,1).applyQuaternion(_wq(P)),chestBack=bkOf('Spine2'),hipBack=bkOf('Hips'),air=Math.max(0,Math.min(1,(P.position.y-GY)/.25));
  /* arms: hands go where the game rig's hands are (dunk reach, dribble, shot, crossover...) */
  A.forEach(a=>{const nm=a.s>0?'Right':'Left',u=B(nm+'Arm'),f=B(nm+'ForeArm'),h=B(nm+'Hand');if(!u||!f||!h)return;
   const Sp=_wp(a.sh),Ep=_wp(a.el),Wp=a.el.localToWorld(V(0,-.34,0)),S=_wp(u),len=S.distanceTo(_wp(f))+_wp(f).distanceTo(_wp(h)),lp=Sp.distanceTo(Ep)+Ep.distanceTo(Wp);
-  mxLimbIK(u,f,h,S.clone().add(Wp.clone().sub(Sp).multiplyScalar(len/lp)),Ep.clone().sub(Sp))});
+  mxLimbIK(u,f,h,S.clone().add(Wp.clone().sub(Sp).multiplyScalar(len/lp)),Ep.clone().sub(Sp),chestBack)});
  /* legs + flat feet */
  Lg.forEach(l=>{const nm=l.s>0?'Right':'Left',u=B(nm+'UpLeg'),f=B(nm+'Leg'),ft=B(nm+'Foot');if(!u||!f||!ft)return;
   const Sp=_wp(l.th),Ep=_wp(l.kn),Ap=l.kn.localToWorld(V(0,-.46,0)),S=_wp(u),len=S.distanceTo(_wp(f))+_wp(f).distanceTo(_wp(ft)),lp=Sp.distanceTo(Ep)+Ep.distanceTo(Ap);
-  mxLimbIK(u,f,ft,S.clone().add(Ap.clone().sub(Sp).multiplyScalar(len/lp)),Ep.clone().sub(Sp));
-  if(rs[nm+'Foot'].fq)mxSetWorldQ(ft,_wq(P).multiply(rs[nm+'Foot'].fq))});
+  mxLimbIK(u,f,ft,S.clone().add(Ap.clone().sub(Sp).multiplyScalar(len/lp)),Ep.clone().sub(Sp),hipBack.clone().negate());
+  if(rs[nm+'Foot'].fq){const fw=_wq(P).multiply(rs[nm+'Foot'].fq),pt=new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(1,0,0).applyQuaternion(_wq(P)),-.75*air);mxSetWorldQ(ft,pt.multiply(fw))}})
 }
 function mxMsg(t,c,ms){let d=document.getElementById('gh-mx');if(!d){d=document.createElement('div');d.id='gh-mx';d.style.cssText='position:fixed;left:8px;bottom:70px;z-index:99;font:700 11px system-ui;padding:4px 8px;border-radius:8px;background:#000a;pointer-events:none;max-width:80vw';document.body.append(d)}d.style.color=c;d.textContent=t;d.style.display='block';if(ms)setTimeout(()=>{d.style.display='none'},ms)}
-function animateMixamoPlayer(){try{animateMixamoPlayer0();if(MX.rest&&!MX.ok&&mixamoReady&&selectedCharacter!=='original'){MX.ok=1;mxMsg(CHARS[selectedCharacter].name+' arm retarget v4 active','#7CFC00',6000)}}catch(e){console.error(e);mxMsg('Ch11 pose error: '+e.message,'#ff6b6b',0)}}
+function animateMixamoPlayer(){try{animateMixamoPlayer0();if(MX.rest&&!MX.ok&&mixamoReady&&selectedCharacter!=='original'){MX.ok=1;mxMsg(CHARS[selectedCharacter].name+' arm retarget v5 active','#7CFC00',6000)}}catch(e){console.error(e);mxMsg('Ch11 pose error: '+e.message,'#ff6b6b',0)}}
 document.querySelectorAll('#charpick .cpcard').forEach(c=>c.addEventListener('click',()=>{setChar(c.dataset.c);setTimeout(refreshOriginalFace,50)}));
 paintCards();
 if(window.THREE&&THREE.FBXLoader){
@@ -607,10 +616,10 @@ function dkArms(){const k=dk,D2=k.D,u=k.u,s=cl((u-.24)/.38,0,1),r=P.worldToLocal
  if(D2.spread){const b=Math.sin(PI*cl((u-.3)/.35,0,1));Lg.forEach(l=>{l.th.rotation.z=l.s*.6*b;l.th.rotation.x=lerp(l.th.rotation.x,.9,b);l.kn.rotation.x=lerp(l.kn.rotation.x,-.9,b)})}
  if(u<.62){const dm=rc(A[1],D2.dom(s,r)),wd=P.localToWorld(dm.clone()),cb=sm((u-.5)/.12)*.85;wd.x=lerp(wd.x,0,cb);wd.z=lerp(wd.z,hz,cb); /* ball is guided over the middle of the hoop */
   if(k.t<.2)ball.position.lerp(wd,.4);else ball.position.copy(wd);
-  A.forEach(a=>ik(rig,a,a.s>0?dm:D2.two?rc(a,V(dm.x-.2,dm.y,dm.z)):rc(a,dm.clone().add(V(-.3,0,0)).lerp(V(-.34,1.02+.04*Math.sin(k.t*7),-.1),sm(s/.3)))))}
- else{const rr=sm((u-.72)/.2);A.forEach(a=>ik(rig,a,a.s>0?rc(a,r.clone().lerp(V(.35,1.5,-.3),rr)):D2.two?rc(a,r.clone().add(V(-.2,0,0)).lerp(V(-.4,1.4,-.2),rr)):rc(a,V(-.34,1.02,-.1))))}
+  A.forEach(a=>ik(rig,a,a.s>0?dm:D2.two?rc(a,V(dm.x-.2,dm.y,dm.z)):rc(a,dm.clone().add(V(-.3,0,0)).lerp(V(-.6,1.22+.04*Math.sin(k.t*7),.05),sm(s/.3)))))}
+ else{const rr=sm((u-.72)/.2);A.forEach(a=>ik(rig,a,a.s>0?rc(a,r.clone().lerp(V(.35,1.5,-.3),rr)):D2.two?rc(a,r.clone().add(V(-.2,0,0)).lerp(V(-.4,1.4,-.2),rr)):rc(a,V(-.5,1.12,0))))}
  if(D2.hang&&u>.6)Lg.forEach(l=>{l.th.rotation.x=.12+.12*Math.sin(k.t*5+l.s);l.kn.rotation.x=-.25;l.th.rotation.z=0});
- if(D2.bd){const b=D2.bd(cl((u-.24)/.7,0,1)),w2=sm((u-.24)/.1);tor.rotation.set(b[0]*w2,b[1]*w2,b[2]*w2)}else{tor.rotation.x=((D2.tx||0)-.1)*bell+(u>.62?.06*sm((u-.62)/.2):0);tor.rotation.z=(D2.tz||0)*bell;tor.rotation.y=(D2.ty||0)*bell}head.rotation.x=-.2}
+ if(D2.bd){const b=D2.bd(cl((u-.24)/.7,0,1)),w2=sm((u-.24)/.1);tor.rotation.set(b[0]*w2,b[1]*w2,b[2]*w2)}else{tor.rotation.x=((D2.tx||0)+.02)*bell+(u>.62?.06*sm((u-.62)/.2):0);tor.rotation.z=(D2.tz||0)*bell;tor.rotation.y=(D2.ty||0)*bell}head.rotation.x=.14*sm(cl((u-.24)/.2,0,1))-.1*(1-sm(cl((u-.24)/.2,0,1)))}
 function dunkD(dt){const k=D.k,q=dfr,F=k.F,pp=P.position;k.t+=dt;const t=k.t,u=dk?dk.u:1;let x=D.x,z=D.z,jh=0;
  if(k.hx===undefined){const a=sm(t/k.mt);x=lerp(k.sx,k.ix,a);z=lerp(k.sz,k.iz,a);jh=.34*Math.sin(PI*cl((u-.26)/.3,0,1));
   const sx=pp.x-x,sz=pp.z-z,sp=Math.hypot(sx,sz)||1e-3;
@@ -660,7 +669,7 @@ function upd(dt){tm+=dt;
    if(m.u>=1){side=m.to;mvA=null;dph=0;const q=mq.shift();if(q)startMove(q[0],q[1])}}
   else{const db=Math.floor(dph+.5);if(db!==SFX.lastDb){SFX.lastDb=db;SFX.bounce(.45+n*.3)}const u=dph%1,v=(u<.5?u:1-u)*2;bp.set(side*.27,BR+(1.1-BR)*(1-v*v),-.4-n*.14)}}
  tzv+=(tz-tzv)*(1-Math.exp(-14*dt));tor.rotation.z=tzv;
- legs(rig,ph,n,cr,ju>.03);tor.rotation.x=S=='dr'?-.3*(.4+n):S=='sh'?-.06-.14*Math.sin(PI*Math.min(shT/SHD,1)):-n*.1;head.rotation.x=S=='sh'||S=='ch'?-.25:S=='dr'?.16:0;if(S=='sh'||S=='ch'){const q=JFx();tor.rotation.z+=q.l;tor.rotation.y=q.t;head.rotation.z=q.h;tor.rotation.x+=q.f}if(S=='sh'){const kk=JFx().kk,kb=Math.sin(PI*Math.min(shT/SHD,1));if(kk)Lg.forEach(l=>{l.th.rotation.x+=(l.s>0?kk:-kk*.5)*kb;l.kn.rotation.x-=(l.s>0?kk*.4:0)*kb})}if(S=='sh'&&shot.fade)fadePose(Math.min(shT/SHD,1));
+ legs(rig,ph,n,cr,ju>.03);tor.rotation.x=S=='dr'?-.3*(.4+n):S=='sh'?-.06-.14*Math.sin(PI*Math.min(shT/SHD,1)):-n*.1;head.rotation.x=S=='sh'||S=='ch'?.26:S=='dr'?.16:0;if(S=='sh'||S=='ch'){const q=JFx();tor.rotation.z+=q.l;tor.rotation.y=q.t;head.rotation.z=q.h;tor.rotation.x+=q.f}if(S=='sh'){const kk=JFx().kk,kb=Math.sin(PI*Math.min(shT/SHD,1));if(kk)Lg.forEach(l=>{l.th.rotation.x+=(l.s>0?kk:-kk*.5)*kb;l.kn.rotation.x-=(l.s>0?kk*.4:0)*kb})}if(S=='sh'&&shot.fade)fadePose(Math.min(shT/SHD,1));
  if(cel>0){cel=Math.max(0,cel-dt);if(S!='fr')cel=0}else if(S=='fr'&&!fl&&ft<=0)S='dr';
  P.updateMatrixWorld(true);
  if(S=='dr')A.forEach(a=>{const w=a.s>0?(side+1)/2:(1-side)/2;ik(rig,a,V(a.s*.36,1.08,-.3).lerp(V(bp.x,cl(bp.y+.08,.92,1.12),Math.min(bp.z,-.3)),w))});

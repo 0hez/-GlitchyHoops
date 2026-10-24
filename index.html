@@ -394,6 +394,14 @@ function faceOriginal(){const par=P.parent,hv=hip.visible,mv=Object.values(MODEL
  try{hip.visible=true;mv.forEach(([o])=>o.visible=false);sc.add(P);P.updateMatrixWorld(true);const hp=head.getWorldPosition(new THREE.Vector3()),f=new THREE.Vector3(0,0,-1).applyQuaternion(P.getWorldQuaternion(new THREE.Quaternion()));
   const cam=new THREE.PerspectiveCamera(28,1,.05,10);cam.position.copy(hp).addScaledVector(f,.62);cam.position.y+=.01;cam.lookAt(hp);cam.updateMatrixWorld(true);return renderFace(sc,cam)}
  finally{sc.remove(P);if(par)par.add(P);hip.visible=hv;mv.forEach(([o,v])=>o.visible=v)}}
+/* Phones crash on huge model textures (a 4096px map is ~64MB of memory each, and these models have several). Shrink every map to 1024px max and drop the maps the game doesn't need. */
+function shrinkTex(obj,MAXS=1024){
+ const seen=new Set();
+ obj.traverse(n=>{if(!n.isMesh)return;(Array.isArray(n.material)?n.material:[n.material]).forEach(m=>{if(!m)return;
+  ['specularMap','lightMap','aoMap','bumpMap','roughnessMap','metalnessMap','alphaMap'].forEach(k=>{if(m[k]&&k!=='alphaMap'){m[k]=null;m.needsUpdate=true}});
+  ['map','normalMap','emissiveMap'].forEach(k=>{const t=m[k];if(!t||seen.has(t))return;seen.add(t);
+   try{const im=t.image,w=im&&(im.width||im.naturalWidth),h=im&&(im.height||im.naturalHeight);
+    if(w&&h&&Math.max(w,h)>MAXS){const s=MAXS/Math.max(w,h),c=document.createElement('canvas');c.width=Math.max(1,Math.round(w*s));c.height=Math.max(1,Math.round(h*s));c.getContext('2d').drawImage(im,0,0,c.width,c.height);t.image=c;t.needsUpdate=true}}catch(e){console.warn('texture shrink failed',e)}})})})}
 let loadChain=Promise.resolve();const queueLoad=fn=>{const p=loadChain.then(fn);loadChain=p.catch(()=>{});return p};   /* one model download/parse at a time (phones run out of memory otherwise) */
 async function fetchBuild(id,prog){
  const names=CHARS[id].parts,nm=CHARS[id].name,parts=[];
@@ -407,7 +415,7 @@ async function fetchBuild(id,prog){
  const tot=parts.reduce((a,b)=>a+b.byteLength,0),j=new Uint8Array(tot);let o=0;for(const p of parts){j.set(new Uint8Array(p),o);o+=p.byteLength}
  if(String.fromCharCode.apply(null,j.subarray(0,18))!=='Kaydara FBX Binary')throw new Error(nm+' files are not a valid FBX. Re-upload '+names.join(', ')+' (all three, unchanged).');
  parts.length=0;await new Promise(r=>setTimeout(r,80));
- const obj=new THREE.FBXLoader().parse(j.buffer,''),bones=buildModel(obj);await waitTex(obj);
+ const obj=new THREE.FBXLoader().parse(j.buffer,''),bones=buildModel(obj);await waitTex(obj);shrinkTex(obj);
  if(!FACES[id]){try{FACES[id]=faceOfModel(obj,bones);try{localStorage.setItem('gh-face2-'+id,FACES[id])}catch(e){}paintCards()}catch(e){console.warn('face preview failed',e)}}
  return{obj,bones}}
 function attachChar(id,raw){const obj=raw.obj;obj.name='GH_'+id;obj.visible=false;P.add(obj);P.updateMatrixWorld(true);const cap=mixCapture(obj,raw.bones);MODELS[id]={obj,bones:raw.bones,rest:cap.rest,baseY:cap.baseY}}
@@ -503,7 +511,7 @@ if(window.THREE&&THREE.FBXLoader){
  setTimeout(refreshOriginalFace,1200);
  /* start loading right away: equipped model first, then portraits for the other models, so every card is ready to tap when the game opens */
  /* let the game draw its first frames before the heavy model download/parse starts */
- if(selectedCharacter==='original')setChar('original');else setTimeout(()=>setChar(selectedCharacter),2500);
+ if(selectedCharacter==='original')setChar('original');else setTimeout(()=>setChar(selectedCharacter),1200);
  if(crashedChar)setTimeout(()=>chStatus((CHARS[crashedChar]?CHARS[crashedChar].name:'The model')+' ran out of memory last time, so Original is equipped. Close other tabs/apps, then tap '+(CHARS[crashedChar]?CHARS[crashedChar].name:'it')+' to try again.'),400);
 }else{selectedCharacter='original';applyChar()}
 /* no background model loading: loading a second 55MB FBX just for a portrait crashes phones. A portrait is made (and saved) the first time a model is equipped. */

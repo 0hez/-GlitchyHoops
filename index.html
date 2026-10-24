@@ -678,7 +678,7 @@ FALLS=[
 {n:'back-slam',FD:.5,rot:f=>1.6*sm(f),legs:(q,f)=>q.Lg.forEach(l=>{l.th.rotation.x=lerp(.15,.85,f);l.kn.rotation.x=-.2*f})},
 {n:'sit-back',FD:.8,rot:f=>f<.5?sm(f/.5):1+.58*sm((f-.5)/.5),legs:(q,f)=>{const k=Math.sin(PI*cl((f-.5)/.5,0,1));q.Lg.forEach(l=>{l.th.rotation.x=.2+.9*k;l.kn.rotation.x=-.6*k})}},
 {n:'stumble-back',FD:.95,rot:f=>f<.3?.35*sm(f/.3):.35+1.23*sm((f-.3)/.7),legs:(q,f)=>q.Lg.forEach(l=>{const w=Math.sin(f*PI*5+(l.s>0?0:PI))*(1-f);l.th.rotation.x=.2+.55*w;l.kn.rotation.x=-.5-.45*w})},
-{n:'side-fall',FD:.7,lat:1,rot:f=>.12*sm(f),rz:f=>1.58*sm(f),legs:(q,f)=>q.Lg.forEach(l=>{l.th.rotation.x=lerp(.15,l.s>0?.9:.3,f);l.kn.rotation.x=lerp(-.2,l.s>0?-1.1:-.5,f)})},
+{n:'back-twist',FD:.7,rot:f=>1.58*sm(f),rz:f=>.45*sm(f),legs:(q,f)=>q.Lg.forEach(l=>{l.th.rotation.x=lerp(.15,l.s>0?.9:.3,f);l.kn.rotation.x=lerp(-.2,l.s>0?-1.1:-.5,f)})},
 {n:'spin-out',FD:.85,rot:f=>1.55*sm(f),yw:f=>6.283*sm(f),legs:(q,f)=>q.Lg.forEach(l=>{const w=Math.sin(f*PI*3+(l.s>0?0:PI))*(1-f);l.th.rotation.x=.25+.5*w;l.kn.rotation.x=-.45-.3*w})},
 {n:'knees-slump',FD:.65,rot:f=>1.6*sm(f),legs:(q,f)=>q.Lg.forEach(l=>{l.th.rotation.x=lerp(.15,l.s>0?1.2:.7,sm(f));l.kn.rotation.x=lerp(-.2,-1.7,sm(f))})}],
 RD=.7,FTD=4.2;
@@ -687,27 +687,28 @@ const CDK=['TWO-HAND POWER','TWO-HAND TOMAHAWK','TWO-HAND SLAM','COCK BACK','WES
 FALLS.forEach(F=>{F.arm=(a,f)=>a.s>0?V(.45,2.1,.1):V(-.7,.95,-.15)}); /* one arm up / one down (also used when the CPU posterizes you) */
 let lastCD='',lastF=-1;function nextFall(){let i;do{i=Math.random()*FALLS.length|0}while(i==lastF);lastF=i;return FALLS[i]} /* never the same fall twice in a row */ /* dunker stays this far from the rim centre: body + head never over the ring */
 function nextDunk(c){if(c){const pl=DKS.filter(d=>CDK.includes(d.n)&&d.n!=lastCD),d=pl[Math.random()*pl.length|0]||DKS[0];lastCD=d.n;return d}if(!bag.length){bag=DKS.map((_,i)=>i).sort(()=>Math.random()-.5);if(bag[bag.length-1]==lastD)bag.unshift(bag.pop())}lastD=bag.pop();return DKS[lastD]}
+let arcA=0,arcS=1;
 function doDunk(forceClean){if((S!='dr'&&S!='ch')||dist()>DKR)return;if(mvA){side=mvA.to;mvA=null}mq.length=0;const Lh=dist()||1,ddx=D.x-P.position.x,ddz=D.z-P.position.z,dl=Math.hypot(ddx,ddz)||1,inG=false; /* contact (poster) dunk ONLY if the defender is already touching me or standing in the rim area, and is not behind me */
- if(look.def!='off'&&!window.CPUP&&!D.k&&!forceClean){const uhx=-P.position.x,uhz=hz-P.position.z,uhl=Math.hypot(uhx,uhz)||1,rel=(ddx*uhx+ddz*uhz)/(uhl*dl),dHd=Math.hypot(D.x,D.z-hz);inG=rel>-.25&&(dl<3.6||dHd<4.6)} /* defender in front of you / guarding the lane = poster dunk, from the FT line or at the rim */
- const px=P.position.x,pz=P.position.z,L=Math.hypot(px,pz-hz)||1;let dx=px/L,dz=(pz-hz)/L;if(dz<.4){dz=.4;const n=Math.hypot(dx,dz);dx/=n;dz/=n}{let a=Math.atan2(dx,dz);const sg=Math.abs(dx)<.04?(Math.random()<.5?-1:1):Math.sign(dx);a=sg*Math.max(Math.abs(a),.45);dx=Math.sin(a);dz=Math.cos(a)}
- const ty=vel.length()>1.8||L>3.2?'drive':'stand',D2=nextDunk(inG),Rt=Math.max(RD+.35,Math.min(L,FTD)),ta=cl(Math.abs(L-Rt)/6.5,.12,1.1),sc=1+cl((Rt-2)/2.2,0,1)*.45,Ta=.95*sc,T=ta+Ta; /* run-up, plant, jump */
- dk={t:0,T,ty,contact:inG,hang:D2.hang?1:0,u:0,x0:px,z0:pz,tx:dx*Rt,tz:hz+dz*Rt,Rt,ta,Ta,sc,dx,dz,H:D2.H*(inG?1:.93)*(1+(1-(BODY[look.body]||[1,1])[1])*1.1)*(ty=='drive'?1:.95),rel:0,D:D2,spin:0};vel.set(0,0,0);dash.set(0,0,0);S='dk';SFX.squeak();
- if(inG){const F=nextFall(),sd=Math.random()<.5?-1:1,close=Rt<2.2,Rq=close?Math.max(.9,Rt*.8):Math.max(1.05,Rt*.5),lat=close?.45*sd:0; /* at the rim he steps up beside the lane, from the FT line he meets you mid-air */
-  D.k={F,t:0,sx:D.x,sz:D.z,ix:dx*Rq+dz*lat,iz:hz+dz*Rq-dx*lat,dx,dz,yaw:Math.atan2(-dx,-dz),ya:(Math.random()-.5)*.6,mt:ta+.25,sd}}
+ if(look.def!='off'&&!window.CPUP&&!D.k&&!forceClean){const uhx=-P.position.x,uhz=hz-P.position.z,uhl=Math.hypot(uhx,uhz)||1,rel=(ddx*uhx+ddz*uhz)/(uhl*dl),dHd=Math.hypot(D.x,D.z-hz);inG=rel>-.25&&(dl<4.6||dHd<5.6)} /* defender in front of you / guarding the lane = poster dunk, from the FT line or at the rim */
+ const px=P.position.x,pz=P.position.z,L=Math.hypot(px,pz-hz)||1;let dx=px/L,dz=(pz-hz)/L;if(dz<.4){dz=.4;const n=Math.hypot(dx,dz);dx/=n;dz/=n}{let a=Math.atan2(dx,dz);const sg=Math.abs(dx)<.04?(Math.random()<.5?-1:1):Math.sign(dx);a=sg*Math.max(Math.abs(a),.45);dx=Math.sin(a);dz=Math.cos(a);arcA=a;arcS=sg}
+ const ty=vel.length()>1.8||L>3.2?'drive':'stand',D2=nextDunk(inG),Rt=inG?cl(L,4.0,4.8):Math.max(RD+.35,Math.min(L,FTD)),ta=cl(Math.abs(L-Rt)/6.5,.12,1.1),sc=1+cl((Rt-2)/2.2,0,1)*.45,Ta=.95*sc,T=ta+Ta; /* run-up, plant, jump */
+ dk={t:0,T,ty,contact:inG,hang:D2.hang?1:0,u:0,x0:px,z0:pz,tx:dx*Rt,tz:hz+dz*Rt,Rt,ta,Ta,sc,dx,dz,th0:arcA,dth:inG?-arcS*1.0:0,cdx:dx,cdz:dz,H:D2.H*(inG?1:.93)*(1+(1-(BODY[look.body]||[1,1])[1])*1.1)*(ty=='drive'?1:.95),rel:0,D:D2,spin:0};vel.set(0,0,0);dash.set(0,0,0);S='dk';SFX.squeak();
+ if(inG){const F=nextFall(),sd=Math.random()<.5?-1:1,pc=.3,Rq=lerp(Rt,RD,pc),thq=arcA+dk.dth*pc,thc=arcA+dk.dth*.2; /* path point just ahead of the dunker: he meets you in the air, well in front of the rim */
+  D.k={F,t:0,sx:D.x,sz:D.z,ix:Math.sin(thq)*Rq,iz:hz+Math.cos(thq)*Rq,dx:Math.sin(thc),dz:Math.cos(thc),yaw:Math.atan2(-Math.sin(thc),-Math.cos(thc)),ya:0,mt:ta+.25,sd}}
  return true}
 function dkStep(dt){const k=dk,pp=P.position;k.t+=dt;const ta=k.ta,Ta=k.Ta,tau=k.t-ta,u=k.t<ta?.24*k.t/ta:.24+.76*Math.min(tau/Ta,1);k.u=u;
  const sc=k.sc,Hp=Math.min(1,k.H*.7*(1+(sc-1)*.35));let ju=0,cr=.05; /* explosive take-off, short hang at the top, then gravity back down */
  if(tau>0){if(tau<.44*sc){const w=tau/(.44*sc);ju=Hp*(1-(1-w)*(1-w))}else if(tau<.56*sc)ju=Hp*(1-.03*sm((tau-.44*sc)/(.12*sc)));else{const w=cl((tau-.56*sc)/(.39*sc),0,1);ju=Hp*.97*(1-w*w)}}
  if(k.t<ta)cr=.05+.4*sm((k.t-(ta-.13))/.13);else if(tau<.12)cr=.45*(1-sm(tau/.12));else if(u>.88)cr=.6*sm((u-.88)/.12);
  if(k.t<ta){const a=k.t/ta;pp.x=lerp(k.x0,k.tx,a);pp.z=lerp(k.z0,k.tz,a)}
- else{const R_=u<.66?lerp(k.Rt,RD,sm(cl(tau/(.5*sc),0,1))):lerp(RD,RD+.7,sm((u-.66)/.34));pp.x=k.dx*R_;pp.z=hz+k.dz*R_}
+ else{const R_=u<.66?lerp(k.Rt,RD,sm(cl(tau/(.5*sc),0,1))):lerp(RD,RD+(k.contact?.9:.7),sm((u-.66)/.34));const pr_=u<.66?sm(cl(tau/(.5*sc),0,1)):1,th_=k.th0+k.dth*pr_;k.cdx=Math.sin(th_);k.cdz=Math.cos(th_);pp.x=k.cdx*R_;pp.z=hz+k.cdz*R_}
  if(k.bt!==undefined){const e=Math.exp(-5*(k.t-k.bt));pp.x+=k.bx*e;pp.z+=k.bz*e}
  {const Hs=(BODY[look.body]||[1,1])[1];ju=Math.min(ju,Math.max(.45,RY-.16-GY-1.92*Hs))} /* head always a little under the rim; the arms do the reaching */
  k.cr=cr;k.ju=ju;k.spin=k.D.sp&&u>=.24?k.D.sp((u-.24)/.38,u):0;if(!k.hit&&u>=.4){k.hit=1;if(k.contact)shk=1.8}
  if(u>=.62&&!k.rel){k.rel=1;hs=0;shk=0;dfx();{const q=ball.position,dd=Math.hypot(q.x,q.z-hz);if(dd>.11){q.x*=.11/dd;q.z=hz+(q.z-hz)*.11/dd}q.y=Math.max(q.y,RY+.14);bv.set(-q.x*6,-5,(hz-q.z)*6)}SFX.dunk();fl=true;ft2=0;prevY=RY+.3;made=true;shot={d:1,g:false,make:true,con:0};sco.a++;sco.p+=2;swishNet();rattleNet(0,0,0,hz,9);rimT=true;sco.m++;streak++;netB=1;cheer=2.6;hud()}
  if(u>=1||k.t>=ta+Ta){dk=null;S='fr';ft=.12;cel=0}
  return{ju,cr}}
-function dkArms(){const k=dk,D2=k.D,u=k.u,s=cl((u-.24)/.38,0,1),r=P.worldToLocal(V(k.dx*.1,RY+.02,hz+k.dz*.1)),bell=Math.sin(PI*cl((u-.24)/.7,0,1)),
+function dkArms(){const k=dk,D2=k.D,u=k.u,s=cl((u-.24)/.38,0,1),r=P.worldToLocal(V((k.cdx||k.dx)*.1,RY+.02,hz+(k.cdz||k.dz)*.1)),bell=Math.sin(PI*cl((u-.24)/.7,0,1)),
  rc=(a,t)=>{const S0=V(a.s*.26,1.69,0);return S0.add(t.clone().sub(S0).clampLength(0,.64))};
  if(u>.24&&u<.9){const w=sm((u-.24)/.07)*(1-sm((u-.72)/.16)),e=sm((u-.58)/.16); /* knee drive, then legs reach down for the landing */
   Lg.forEach(l=>{const tr=l.s>0,th=tr?lerp(-.15,.12,e):lerp(1,.3,e),kn=tr?lerp(-1,-.6,e):lerp(-1.3,-.5,e);l.th.rotation.x=lerp(l.th.rotation.x,th,w);l.kn.rotation.x=lerp(l.kn.rotation.x,kn,w)})}
@@ -727,13 +728,13 @@ function dunkD(dt){const k=D.k,q=dfr,F=k.F,pp=P.position;k.t+=dt;const t=k.t,u=d
    if(sp<.6&&sp>.01){x=pp.x-sx/sp*.55;z=pp.z-sz/sp*.55}
    k.hx=t;const nx=-(pp.x-x)/(Math.hypot(pp.x-x,pp.z-z)||1),nz=-(pp.z-z)/(Math.hypot(pp.x-x,pp.z-z)||1);
    /* pick the direction he flies/falls so his whole body lands on open floor: never into the hoop, backboard or out of bounds */
-   const Fl=k.F,slide=1.3,len=1.95,offs=[0,.45,-.45,.9,-.9,1.4,-1.4,1.9,-1.9,2.5,-2.5];let best=null,bs=-1e9;
+   const Fl=k.F,slide=1.3,len=1.95,offs=[0,.2,-.2,.4,-.4];let best=null,bs=-1e9;
    for(const o0 of offs){const o=o0*k.sd,c=Math.cos(o),sn_=Math.sin(o),dx_=nx*c-nz*sn_,dz_=nx*sn_+nz*c,fx=x+dx_*slide,fz=z+dz_*slide,hx_=fx+dx_*len,hz_=fz+dz_*len,
      rr=Math.min(Math.hypot(fx,fz-hz),Math.hypot(hx_,hz_-hz)),zz=Math.min(fz,hz_)-hz,ob=Math.max(0,Math.abs(hx_)-7.1)+Math.max(0,Math.abs(fx)-7.1)+Math.max(0,hz_-8.2),
      sc_=Math.min(0,Math.min(rr-1.25,(zz-.75)*1.3))*4-ob*3-Math.abs(o0)*.08; /* any clear direction scores ~0, so the most natural (straight back) wins */
      if(sc_>bs){bs=sc_;best=[dx_,dz_]}}
-   const fd=best,fy=Fl.lat?Math.atan2(k.sd*fd[1],-k.sd*fd[0]):Math.atan2(fd[0],fd[1]);let dy=fy-k.yaw;dy=Math.atan2(Math.sin(dy),Math.cos(dy));
-   k.fd=fd;k.ya=dy;k.vx=fd[0]*4.4;k.vz=fd[1]*4.4;
+   const fd=best,fy=Math.atan2(fd[0],fd[1]);let dy=fy-k.yaw;dy=Math.atan2(Math.sin(dy),Math.cos(dy));
+   k.fd=fd;k.ya=dy;k.vx=fd[0]*3.6;k.vz=fd[1]*3.6;
    if(dk){dk.bx=nz*k.sd*.12;dk.bz=-nx*k.sd*.12;dk.bt=dk.t}shk=2.4;hs=.12;dfx();try{SFX.bounce(1.4);SFX.squeak();ban('POSTERIZED!','#ffd84a',true)}catch(e){}}} /* body-to-body hit: screen shake, flash, thud */
  else{x+=k.vx*dt;z+=k.vz*dt;const f=Math.exp(-2.8*dt);k.vx*=f;k.vz*=f;jh=.22*Math.sin(PI*cl((t-k.hx)/.5,0,1));
   const sx=x-pp.x,sz=z-pp.z,sp=Math.hypot(sx,sz)||1e-3;if(sp<.5){x=pp.x+sx/sp*.5;z=pp.z+sz/sp*.5}}

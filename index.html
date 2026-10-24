@@ -1954,14 +1954,20 @@ function cpuStep(dt){
  /* facing */
  {let dy=Math.atan2(D.x,D.z-hz)-PP.rotation.y;dy=Math.atan2(Math.sin(dy),Math.cos(dy));PP.rotation.order='YXZ';PP.rotation.y+=dy*(1-Math.exp(-10*dt));PP.rotation.x=0;PP.rotation.z=0}
  PP.position.set(D.x,GY+jh,D.z);D.jh=jh;
- c.lph+=n*5*dt*2.2;c.dph+=dt*(2.3+n*.7);
- legs(q,c.lph,n,cr,air);
+ c.pk=(c.pk||0)+((pose=='dribble'&&dP<2.4?1:0)-(c.pk||0))*(1-Math.exp(-10*dt)); /* guarded: hard low pound dribble */
+ if(c.xs===undefined){c.xs=c.side;c.sx=c.side;c.xa=c.side;c.xp=1}
+ if(c.xs!==c.side){c.xs=c.side;c.xa=c.sx;c.xp=0}   /* hand switch = crossover: X LERPs to the other hand over .3s */
+ if(c.xp<1){c.xp=Math.min(1,c.xp+dt/.3);const e=c.xp*c.xp*(3-2*c.xp);c.sx=lerp(c.xa,c.xs,e)}else c.sx=c.xs;
+ c.lph+=n*5*dt*2.2;c.dph+=dt*(2.3+n*.7)*(1+1.0*c.pk);
+ legs(q,c.lph,n,cr+.12*c.pk,air);
+ if(pose=='dribble'&&c.xp<1){const w=Math.sin(PI*c.xp),sg=c.xs;q.Lg.forEach(l=>{l.th.rotation.z=l.s*.14+sg*(l.s==sg?.5*w:.35*w)})}   /* side shuffle on the cross */
  PP.updateMatrixWorld(true);
  let ballL=null;
  if(pose=='dribble'){
-  const u=c.dph%1,v=(u<.5?u:1-u)*2,bp2=V(c.side*.27,BR+(1.1-BR)*(1-v*v),-.4-n*.14);
+  const xw=c.xp<1,bh=xw?BR+(.85-BR)*Math.abs(Math.cos(PI*c.xp)):BR+((1.1-.25*c.pk)-BR)*Math.abs(Math.cos(PI*c.dph)),   /* sine bounce, peak at the hand; low V-shaped dip mid-crossover */
+  bp2=V(c.sx*(xw?.33:.27+.03*c.pk),bh,-.4-n*.14-.08*c.pk);
   q.tor.rotation.x=isM?-.2-.15*n:-.3*(.4+n);q.head.rotation.x=.14-q.tor.rotation.x*.75;
-  q.A.forEach(a=>{const w=a.s>0?(c.side+1)/2:(1-c.side)/2;ik(q,a,V(a.s*.4,1.2,-.34).lerp(V(bp2.x,cl(bp2.y+.08,.92,1.12),Math.min(bp2.z,-.3)),w))});
+  q.A.forEach(a=>{const w=a.s>0?(c.sx+1)/2:(1-c.sx)/2;ik(q,a,V(a.s*.4,1.2,-.34).lerp(V(bp2.x,cl(bp2.y+.08,.92,1.12),Math.min(bp2.z,-.3)),w))});
   ballL=bp2;
  }else if(pose=='shoot'){
   q.tor.rotation.x=-.08;q.head.rotation.x=.2;

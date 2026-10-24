@@ -102,7 +102,7 @@ button,select,input{font:inherit}#gear{position:fixed;top:max(12px,env(safe-area
 <label>Preset<select id="pre"><option value="">Pick…</select></label><label>Shoe color<input type="color" data-k="sc"></label><label>Sole color<input type="color" data-k="so"></label>
 <h4>BALL</h4><label>Colors<select data-k="bm"><option value="rain">Rainbow fade<option value="neon">Neon cycle<option value="strobe">Strobe switch<option value="cls">Classic orange</select></label></div><div id="tp2" style="display:none"><h4>JUMPSHOT</h4><label>Form<select data-k="jf"><option value="1">1. Classic One-Hand<option value="2">2. Chest Set (2-Hand)<option value="3">3. Underhand Granny<option value="4">4. Sky Hook<option value="5">5. Shot Put<option value="6">6. Side Sling<option value="7">7. Forehead Push<option value="8">8. Lefty Fadeaway<option value="9">9. Overhead Throw<option value="10">10. Floater Flick</select></label>
 <h4>DEFENDER</h4><button id="rdef" style="width:100%;padding:9px;border:0;border-radius:10px;background:#7b2cbf;color:#fff;font-weight:700;margin:4px 0">🎲 Randomize defender</button><label>Mode<select data-k="def"><option value="on">Defender ON<option value="off">No defender</select></label>
-<h4>GREEN CELEBRATION</h4><label>Style<select data-k="cel"><option value="0">Night Night<option value="1">Money Counter<option value="2">Time-Out T<option value="3">Floss<option value="4">Jab Combo<option value="5">Sniper<option value="6">Shrug<option value="7">Airplane<option value="8">Rock the Baby<option value="9">Karate Chop<option value="10">Jog In Place<option value="11">Spin Cycle<option value="12">Namaste Bow</select></label><button id="pv">▶ Preview</button>
+<h4>GREEN CELEBRATION</h4><label>Style<select data-k="cel"><option value="-1">None (no celebration)<option value="0">Night Night<option value="1">Money Counter<option value="2">Time-Out T<option value="3">Floss<option value="4">Jab Combo<option value="5">Sniper<option value="6">Shrug<option value="7">Airplane<option value="8">Rock the Baby<option value="9">Karate Chop<option value="10">Jog In Place<option value="11">Spin Cycle<option value="12">Namaste Bow</select></label><button id="pv">▶ Preview</button>
 <h4>GREEN LIGHT</h4><label>Style<select data-k="gfx"><option value="0">Halo Ring<option value="1">Green Crown<option value="2">Green Flames<option value="3">Bolt Strike<option value="4">Spark Fountain<option value="5">Starburst<option value="6">Rising Chevrons<option value="7">Orbit Orbs<option value="8">Pulse Rings<option value="9">GREEN Pop</select></label><button id="gpv" style="width:100%;padding:9px;border:0;border-radius:10px;background:#1fb500;color:#fff;font-weight:700;margin:4px 0">▶ Preview green</button>
 <h4>NAME</h4><input id="pname2" maxlength="14" placeholder="Your name" style="width:100%;padding:8px;border-radius:8px;border:0;background:#fff2;color:#fff"><h4>SOUND</h4><label>Sound effects<input type="checkbox" id="snd" checked></label><label>Volume<input type="range" id="vol" min="0" max="1" step=".05" value="1" style="width:120px"></label><button id="stest" style="width:100%;padding:8px;border:0;border-radius:10px;background:#3a7bd5;color:#fff;font-weight:700;margin:4px 0">🔊 Test sound</button>
 <h4>DUNK</h4><small>Hold X / DUNK: dunks if you are near the rim, otherwise starts your shot (release to shoot). Different dunk every time. Moving + shooting = fadeaway, standing = jumper.</small></div></div>
@@ -620,8 +620,7 @@ function ik(r,a,t){const Sy=r.hip.position.y+.1+.6,dy=t.y-Sy,dz=t.z,rr=Math.min(
  a.sh.rotation.x=Math.atan2(-dz,-dy)-Math.acos(cl(rr/(2*L),-1,1));a.el.rotation.x=PI-Math.acos(cl((2*L*L-rr*rr)/(2*L*L),-1,1));a.sh.rotation.z=Math.atan2(t.x-a.s*.26,rr)}
 function legs(r,ph,n,cr,air){r.Lg.forEach(l=>{const p=ph+(l.s>0?0:PI);l.th.rotation.z=0;l.th.rotation.x=air?.25+cr*.4:Math.sin(p)*.75*n+cr*.7;l.kn.rotation.x=air?(l.s>0?-.35:-.75):-(Math.max(0,Math.sin(p+1.3))*.95*n+cr*1.4)});r.hip.position.y=.985*Math.cos(.7*cr)+Math.cos(ph*2)*.012*n}
 function celeb(t){const id=+look.cel||0,w=t*42,ra=A[1],la=A[0];
- if(t<.22){ra.sh.rotation.set(PI-.15,0,.1);ra.el.rotation.x=.25+.55*Math.max(0,Math.sin(w*.55));la.sh.rotation.set(.15,0,-.3);la.el.rotation.x=.3;return}
- const T=(t-.22)/.78,I=(a,x,y,z)=>ik(rig,a,V(x,y,z)),s=Math.sin,sq=(l)=>Lg.forEach(q=>{q.th.rotation.x=l;q.kn.rotation.x=-l*2});
+ const T=t,I=(a,x,y,z)=>ik(rig,a,V(x,y,z)),s=Math.sin,sq=(l)=>Lg.forEach(q=>{q.th.rotation.x=l;q.kn.rotation.x=-l*2});
  switch(id){
  case 0:I(ra,.17,1.62,-.1);I(la,.07,1.58,-.12);head.rotation.z=-.4+.04*s(w*.4);tor.rotation.z=-.08;sq(.2);break; /* Night Night */
  case 1:I(ra,.1,1.36,-.3+.14*s(w*2.2));I(la,-.1,1.36,-.3-.14*s(w*2.2));head.rotation.x=.25;tor.rotation.x=.12;break; /* Money Counter */
@@ -639,7 +638,7 @@ function celeb(t){const id=+look.cel||0,w=t*42,ra=A[1],la=A[0];
 function fadePose(u){const b=Math.sin(PI*cl((u-.14)/.8,0,1)),f=shot.fade,fs=shot.fs;
  if(f=='fade'){tor.rotation.x=.08+.4*b;head.rotation.x=-.1}else if(f=='fadeS'){tor.rotation.x=.2*b;tor.rotation.z=fs*.3*b;tor.rotation.y=fs*.5*b}else tor.rotation.x=.25*b;
  Lg.forEach(l=>{const a=l.s>0;if(f=='step'){l.th.rotation.x=.25+.4*b;l.kn.rotation.x=-.3-.8*b}else{l.th.rotation.x=a?.25+.55*b:-.3*b;l.kn.rotation.x=a?-.25:-.7*b}if(f=='fadeS')l.th.rotation.z=l.s*.28*b})}
-function prevCel(){if(S!='dr'||fl)return;S='fr';ft=0;cel=CD;const p=$('pn');if(innerWidth<700){p.style.visibility='hidden';setTimeout(()=>p.style.visibility='',CD*1000+300)}}
+function prevCel(){if(S!='dr'||fl||look.cel=='-1')return;S='fr';ft=0;cel=CD;const p=$('pn');if(innerWidth<700){p.style.visibility='hidden';setTimeout(()=>p.style.visibility='',CD*1000+300)}}
 /* ---- dunks ---- */
 let hs=0,shk=0,bag=[],lastD=-1,mv0=0;
 const wmDom=(a,b,sp)=>(s,r)=>{const th=lerp(a,b,sm(Math.min(s/sp,1))),p=V(.36,1.7-.6*Math.cos(th),.6*Math.sin(th));return s>sp?p.lerp(r,sm((s-sp)/(1-sp))):p};
@@ -739,7 +738,7 @@ function upd(dt){tm+=dt;
  if(S=='ch'){ch+=dt;cr=cl(ch*.85,0,.7);if(ch>RM)doShot()}
  if(S=='sh'){shT+=dt;const u=Math.min(shT/SHD,1);cr=u<.2?lerp(crS,.78,u/.2):cl(.78*(1-(u-.2)/.2),0,.78);ju=u<.16?0:JFx().j*(shot.fade?.75:.62)*Math.sin(PI*cl((u-.16)/.84,0,1));
   if(u>=.16&&shot.fade){const Lr=Math.hypot(pp.x,pp.z-hz)||1,ax=pp.x/Lr,az=(pp.z-hz)/Lr,sd=shot.fade=='fadeS'?shot.fs*1.2:0,k=(shot.fade=='step'?38:28)*Math.exp(-5*(u-.16))*dt;dash.x+=(ax-az*sd+shot.fv.x*.5)*k;dash.z+=(az+ax*sd+shot.fv.z*.5)*k} /* decaying drift force */
-  if(u>=.52&&!rel)launch();if(u>=1){S='fr';ft=.2;if(shot.g)cel=CD}}
+  if(u>=.52&&!rel)launch();if(u>=1){S='fr';ft=.2;if(shot.g&&look.cel!='-1')cel=CD}}
  if(S=='dk'){const r=dkStep(dt);ju=r.ju;cr=r.cr;P.rotation.y=face+(dk?dk.spin:0)}if(ft>0)ft-=dt;if(S=='fr'&&ft>0&&!ju)cr=.4*ft/.5;pp.y=GY+ju;
  if(S=='dr'){dph+=dt*(2.3+n*.7);
   if(mvA){const m=mvA;m.u+=dt/m.d;const u=Math.min(m.u,1),e=u*u*(3-2*u),k=Math.abs(2*u-1),mu=Math.sin(PI*u),sd2=(m.t=='x'&&m.from==m.to)?m.to*(1-.8*mu):lerp(m.from,m.to,e);side=sd2;

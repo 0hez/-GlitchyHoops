@@ -759,7 +759,6 @@ J('ONE-HAND HANG JAM',1.66,V(.28,2.82,.2),{hang:1,tx:.12,bd:s=>[.12*Math.sin(PI*
 J('ONE-HAND TOMAHAWK',1.68,V(.28,2.78,.95),{inc:1,tx:.1,bd:s=>[s<.5?.75*sm(s/.5):.75-1.45*sm((s-.5)/.36),0,.1*Math.sin(PI*s)],dom:(s,r)=>s<.5?arc(C0(),V(.28,2.78,.95),s/.5,.1):V(.28,2.78,.95).lerp(r,Math.pow(sm((s-.5)/.5),.55))}),
 J('ONE-HAND ARCH-BACK SLAM',1.7,V(.3,2.7,1.1),{inc:1,bd:s=>[s<.52?.85*sm(s/.52):.85-1.5*sm((s-.52)/.34),0,0],dom:(s,r)=>s<.52?arc(C0(),V(.3,2.7,1.1),s/.52,0):V(.3,2.7,1.1).lerp(r,Math.pow(sm((s-.52)/.48),.5))}),
 J('ONE-HAND BENT-BACK HAMMER',1.66,V(.26,2.85,.8),{inc:1,pw:2,bd:s=>[s<.45?.7*sm(s/.45):.7-1.3*sm((s-.45)/.4),0,.12*Math.sin(PI*s)],dom:(s,r)=>s<.45?arc(C0(),V(.26,2.85,.8),s/.45,.12):V(.26,2.85,.8).lerp(r,Math.pow(sm((s-.45)/.55),.5))}),
-J('SUPERMAN DUNK',1.74,V(.2,2.7,-.55),{inc:1,sup:1,oa:4,bd:s=>[.2*Math.sin(PI*s),0,0],dom:(s,r)=>s<.5?arc(C0(),V(.2,2.7,-.55),s/.5,.1):V(.2,2.7,-.55).lerp(r,Math.pow(sm((s-.5)/.5),.6))}),
 J('COCK BACK',1.52,V(.2,2.62,1.25),{bd:s=>[s<.5?.62*sm(s/.5):.62-1.2*sm((s-.5)/.38),0,0],dom:(s,r)=>s<.52?arc(C0(),V(.2,2.62,1.25),s/.52,0):V(.2,2.62,1.25).lerp(r,Math.pow(sm((s-.52)/.48),.7)),off:()=>V(-.55,2,-.2)}),
 J('WESTBROOK SLAM',1.62,V(.26,2.65,.95),{bd:s=>[s<.5?.5*sm(s/.5):.5-1.1*sm((s-.5)/.4),0,0],dom:(s,r)=>s<.52?arc(C0(),V(.26,2.65,.95),s/.52,0):V(.26,2.65,.95).lerp(r,Math.pow(sm((s-.52)/.48),.55)),off:()=>V(-.55,1.3,-.1)}),
 J('WESTBROOK TOMAHAWK',1.6,V(.22,2.95,.4),{tx:.2,bd:s=>[.3*Math.sin(PI*s)-.25*sm(cl((s-.55)/.4,0,1)),0,0],off:()=>V(-.5,1.3,-.1)}),
@@ -774,27 +773,49 @@ J('WINDMILL HANG',1.58,V(.2,2.5,0),{hang:1,bd:s=>[.1*Math.sin(PI*s),0,0],dom:wmD
 
 
 
-{n:'BACK SCRATCHER',H:1.52,tx:.14,two:1,sp:(s,u)=>u<.64?PI*sm(s/.6):PI*(1-sm((u-.78)/.16)),dom:(s,r)=>arc(C0(),V(.05,2.65,.75),cl(s/.6,0,1),0).lerp(r,sm((s-.6)/.4)),off:()=>V(-.55,1.9,-.15)}])
+/* ---- more tomahawks, meaner back scratchers, one-hand toss-ins that hold the rim ---- */
+CBH('ONE-HAND TOMAHAWK LOCKDOWN',1.72,V(.3,3.0,.5),.5,{inc:1,pw:2,tx:.16,hold:1}),
+CBH('ONE-HAND WIND-UP TOMAHAWK',1.74,V(.26,3.0,.9),.62,{inc:1,pw:2,tx:.18,hold:1}),
+CBH('SAVAGE TOMAHAWK HOLD',1.78,V(.32,3.05,.6),.56,{inc:1,pw:3,hang:1}),
+CBH('REVERSE ONE-HAND TOMAHAWK',1.72,V(.2,2.95,1.0),.66,{inc:1,pw:2,tx:.16,hold:1}),
+J('ONE-HAND CHOP TOMAHAWK',1.7,V(.3,3.0,.35),{inc:1,pw:2,hold:1,tx:.2,bd:s=>[s<.45?.4*sm(s/.45):.4-.9*sm((s-.45)/.35),0,.08*Math.sin(PI*s)],dom:(s,r)=>s<.5?arc(C0(),V(.3,3.0,.35),s/.5,.1):V(.3,3.0,.35).lerp(r,Math.pow(sm((s-.5)/.5),.5))}),
+EB('MONSTER BACK SCRATCHER',1.86,V(.1,2.9,.95),.82,{c0:.57,hold:1}),
+EB('SAVAGE BACK SCRATCHER SLAM',1.88,V(.12,2.95,.9),.86,{c0:.57,pw:3,hold:1}),
+EB('BACK SCRATCHER RIM HOLD',1.84,V(.1,2.75,1.0),.78,{hold:1}),
+EB('FURIOUS DEEP BACK SCRATCHER',1.86,V(.08,2.7,1.15),.88,{c0:.57}),
+CBH('AGGRESSIVE ONE-HAND BACK SCRATCHER',1.8,V(.2,2.75,.85),.66,{inc:1,pw:2,hold:1,oa:1}),
+CBH('LOW CRADLE SWING DUNK',1.68,V(.42,1.3,.62),.18,{inc:1,noExt:1,pw:2,tx:.1}),
+CBH('ONE-HAND THROW-DOWN',1.74,V(.3,2.9,.5),.52,{inc:1,pw:2,toss:1,hold:1}),
+CBH('ONE-HAND TOSS-IN HOLD',1.72,V(.26,2.85,.7),.5,{inc:1,pw:2,toss:1,hold:1}),
+J('ONE-HAND TOSS SLAM',1.76,V(.34,2.95,.45),{inc:1,pw:2,toss:1,hold:1,tx:.14,bd:s=>[.2*Math.sin(PI*Math.min(s/.7,1))-.35*sm(cl((s-.55)/.35,0,1)),0,.1*Math.sin(PI*s)]}),
+])
 ((n,H,p1,o)=>Object.assign({n,H,tx:.1,dom:(s,r)=>s<.5?arc(C0(),p1,s/.5,0):p1.clone().lerp(r,sm((s-.5)/.5)),off:()=>V(-.5,1.95,-.1)},o)),
 FALLS=[
 {n:'flat',FD:.55,sl:.55,rot:f=>1.58*sm(f),legs:(q,f)=>q.Lg.forEach(l=>{l.th.rotation.x=lerp(.15,.5,f);l.kn.rotation.x=-.3*f}),arm:(a,f)=>V(a.s*.75,1.5,-.45)},
 {n:'sit',FD:.8,sl:.4,rot:f=>f<.5?sm(f/.5):1+.58*sm((f-.5)/.5),legs:(q,f)=>{const k=Math.sin(PI*cl((f-.5)/.5,0,1));q.Lg.forEach(l=>{l.th.rotation.x=.2+.9*k;l.kn.rotation.x=-.6*k})},arm:(a,f)=>V(a.s*.8,1,.15)},
-{n:'stumble',FD:.75,sl:.9,rot:f=>f<.3?.35*sm(f/.3):.35+1.23*sm((f-.3)/.7),legs:(q,f)=>q.Lg.forEach(l=>{const w=Math.sin(f*PI*4+(l.s>0?0:PI))*(1-f);l.th.rotation.x=.2+.5*w;l.kn.rotation.x=-.5-.4*w}),arm:(a,f)=>V(a.s*.9,1.7,-.2+.5*Math.sin(f*PI*3))},
+{n:'stumble',stm:1,FD:.75,sl:.9,rot:f=>f<.3?.35*sm(f/.3):.35+1.23*sm((f-.3)/.7),legs:(q,f)=>q.Lg.forEach(l=>{const w=Math.sin(f*PI*4+(l.s>0?0:PI))*(1-f);l.th.rotation.x=.2+.5*w;l.kn.rotation.x=-.5-.4*w}),arm:(a,f)=>V(a.s*.9,1.7,-.2+.5*Math.sin(f*PI*3))},
 {n:'knees',FD:.62,sl:.5,rot:f=>1.6*sm(f),legs:(q,f)=>q.Lg.forEach(l=>{l.th.rotation.x=lerp(.15,l.s>0?1.2:.7,sm(f));l.kn.rotation.x=lerp(-.2,-1.7,sm(f))}),arm:(a,f)=>V(a.s*.55,1.2,-.6)},
-{n:'spin',FD:.7,sl:.6,rot:f=>1.58*sm(f),yw:f=>PI*1.1*sm(f),legs:(q,f)=>q.Lg.forEach(l=>{l.th.rotation.x=lerp(.2,.6,sm(f));l.kn.rotation.x=-.4*f}),arm:(a,f)=>V(a.s*.9,1.5+.3*Math.sin(f*PI*2),-.1)},
-{n:'side',FD:.66,sl:.6,rot:f=>.5*sm(f),rz:f=>1.5*sm(f),legs:(q,f)=>q.Lg.forEach(l=>{l.th.rotation.x=lerp(.2,.7,sm(f));l.kn.rotation.x=-.5*f}),arm:(a,f)=>V(a.s*.8,1.3,-.35)},
 {n:'crumple',FD:.78,sl:.6,rot:f=>f<.45?.45*sm(f/.45):.45+1.13*sm((f-.45)/.55),legs:(q,f)=>q.Lg.forEach(l=>{l.th.rotation.x=lerp(.15,l.s>0?1.3:.9,sm(f));l.kn.rotation.x=lerp(-.2,-1.9,sm(f))}),arm:(a,f)=>V(a.s*.4,1.9-.5*f,-.45)},
 {n:'sprawl',FD:.6,sl:.6,rot:f=>1.58*sm(f),legs:(q,f)=>q.Lg.forEach(l=>{l.th.rotation.x=lerp(.2,.4,sm(f));l.th.rotation.z=l.s*.55*sm(f);l.kn.rotation.x=-.3*f}),arm:(a,f)=>V(a.s*1.0,1.1,.1)},
+{n:'side',FD:.66,sl:.6,rot:f=>.55*sm(f),rz:f=>1.5*sm(f),legs:(q,f)=>q.Lg.forEach(l=>{l.th.rotation.x=lerp(.2,.7,sm(f));l.kn.rotation.x=-.5*f}),arm:(a,f)=>V(a.s*.8,1.3,-.35)},
+{n:'stumbleback',stm:1,FD:1.1,sl:.9,rot:f=>f<.6?.3*sm(f/.6):.3+1.3*sm((f-.6)/.4),legs:(q,f)=>q.Lg.forEach(l=>{const w=Math.sin(f*PI*6+(l.s>0?0:PI))*(1-f*.8);l.th.rotation.x=.25+.55*w;l.kn.rotation.x=-.5-.45*w}),arm:(a,f)=>V(a.s*.9,1.7+.3*Math.sin(f*PI*3),-.15+.45*Math.sin(f*PI*2.5))},
+{n:'stumbleside',stm:1,FD:1.0,sl:.9,rot:f=>f<.55?.3*sm(f/.55):.3+.35*sm((f-.55)/.45),rz:f=>f<.55?0:1.45*sm((f-.55)/.45),legs:(q,f)=>q.Lg.forEach(l=>{const w=Math.sin(f*PI*5+(l.s>0?0:PI))*(1-f*.8);l.th.rotation.x=.2+.5*w;l.kn.rotation.x=-.45-.4*w}),arm:(a,f)=>V(a.s*.9,1.6+.3*Math.sin(f*PI*3),-.1+.4*Math.sin(f*PI*2.5))},
+{n:'flail',FD:.6,sl:.5,rot:f=>1.6*Math.pow(sm(f),.8),legs:(q,f)=>q.Lg.forEach(l=>{l.th.rotation.x=lerp(.1,l.s>0?1.1:.5,sm(f));l.kn.rotation.x=-lerp(.1,l.s>0?.9:.4,sm(f))}),arm:(a,f)=>V(a.s*1.0,1.9-.8*f,.1+.2*Math.sin(f*PI))},
+{n:'kickup',FD:.7,sl:.5,rot:f=>1.62*sm(f),legs:(q,f)=>q.Lg.forEach(l=>{l.th.rotation.x=lerp(.15,(l.s>0?1.35:1.05),Math.sin(PI*.5*cl(f*1.4,0,1)));l.kn.rotation.x=-lerp(.1,.55,sm(f))}),arm:(a,f)=>V(a.s*.7,1.6-.5*f,-.2+.3*f)},
+{n:'slump',FD:.85,sl:.5,rot:f=>f<.55?.5*sm(f/.55):.5+1.1*sm((f-.55)/.45),legs:(q,f)=>q.Lg.forEach(l=>{l.th.rotation.x=lerp(.15,l.s>0?1.0:.8,sm(f));l.kn.rotation.x=lerp(-.2,-1.5,sm(f))}),arm:(a,f)=>V(a.s*.6,1.7-.7*f,-.3+.4*f)},
 {n:'poster',FD:.62,sl:.6,rot:f=>1.62*Math.pow(sm(f),.85),legs:(q,f)=>q.Lg.forEach(l=>{l.th.rotation.x=lerp(.15,.95,sm(f))*(l.s>0?1:.85);l.kn.rotation.x=-lerp(.2,.75,sm(f));l.th.rotation.z=l.s*.35*Math.sin(PI*cl(f*1.2,0,1))}),arm:(a,f)=>V(a.s*.95,1.8-.5*f,.25+.3*Math.sin(f*PI))}],
-RD=.46,FTD=6.4; /* dunker stays this far from the rim centre: body + head never over the ring */
-function pickFall(){return Math.random()<.35?FALLS[FALLS.length-1]:FALLS[Math.random()*(FALLS.length-1)|0]}
-function nextDunk(contact){if(!bag.length){bag=DKS.map((_,i)=>i).filter(i=>(DKS[i].two&&/BACK SCRATCHER/.test(DKS[i].n))||DKS[i].inc).sort(()=>Math.random()-.5);if(bag[bag.length-1]==lastD)bag.unshift(bag.pop())}lastD=bag.pop();return DKS[lastD]} /* back scratchers + one-hand tomahawk + superman */
+RD=.56,FTD=6.4; /* dunker stays this far from the rim centre: body + head never over the ring */
+DKS.forEach(d=>{if((d.one||d.inc)&&!d.noExt&&!/BACK SCRATCHER/.test(d.n)){d.ext=1;d.c0=.47;d.bd=q=>[.34*sm(q/.28)-.78*sm((q-.48)/.3),0,.06*Math.sin(PI*q)]}});
+const pickSide=()=>{const b=FALLS.find(f=>f.n==(Math.random()<.5?'side':'stumbleside'));return Object.assign({},b,{FD:b.FD*(.85+.35*Math.random())})};
+function pickFall(){const B=FALLS.filter(f=>/^(flat|sit|poster|crumple|flail|kickup|slump|stumble|stumbleback)$/.test(f.n)),b=B[Math.random()*B.length|0];return Object.assign({},b,{FD:b.FD*(.85+.35*Math.random())})}   /* different fall every time: style + speed */   /* always goes down on his back */
+function nextDunk(contact){if(!bag.length){bag=DKS.map((_,i)=>i).filter(i=>!DKS[i].sup&&((DKS[i].two&&/BACK SCRATCHER/.test(DKS[i].n))||DKS[i].inc)).sort(()=>Math.random()-.5);if(bag[bag.length-1]==lastD)bag.unshift(bag.pop())}lastD=bag.pop();return DKS[lastD]} /* back scratchers + one-hand tomahawk + superman */
+const mkJ=()=>({jf:.3+Math.random()*.3,as:Math.random()*4|0,ls:Math.random()*4|0,ln:(Math.random()-.5)*.14,jd:Math.random()*.12,sj:Math.random()<.4?1:0});   /* each defender gets his own jump height, arms, legs and lean */
 function doDunk(){if((S!='dr'&&S!='ch')||dist()>7.2)return;if(mvA){side=mvA.to;mvA=null}mq.length=0;const Lh=dist()||1,ddx=D.x-P.position.x,ddz=D.z-P.position.z,dl=Math.hypot(ddx,ddz)||1,inG=look.def!='off'; /* defender in front = contact dunk */
  const px=P.position.x,pz=P.position.z,L=Math.hypot(px,pz-hz)||1;let dx=px/L,dz=(pz-hz)/L;if(dz<0){dz=0;dx=dx>=0?1:-1} /* dunk from wherever you are around the front of the rim: left wing, middle, right wing, down toward the baseline */
  const ty=vel.length()>1.8||L>3.2?'drive':'stand',D2=nextDunk(inG),Rt=Math.max(RD+.35,Math.min(L,FTD)),ta=cl(Math.abs(L-Rt)/9,.14,.8),sc=1+cl((Rt-2)/3.6,0,1)*.6,Ta=.95*sc,T=ta+Ta; /* run-up, plant, jump */
- dk={t:0,T,ty,contact:inG,hang:D2.hang?1:0,u:0,x0:px,z0:pz,tx:dx*Rt,tz:hz+dz*Rt,Rt,ta,Ta,sc,dx,dz,H:D2.H*.86*(1+(1-(BODY[look.body]||[1,1])[1])*1.1)*(ty=='drive'?1:.95),rel:0,D:D2,spin:0,oa:Math.random()*4|0,side:(!D2.sp&&Math.abs(px)<1.6)?1:0};{const rch=dkReach(),need=RY+.34-GY-rch.sh-.93*rch.L;dk.maxJu=RY+.06-GY-(rch.sh+.39);dk.Hp=Math.min(cl(need+.22+(D2.H-1.5)*.3,.5,1.5),dk.maxJu);dk.lift=0}vel.set(0,0,0);dash.set(0,0,0);S='dk';SFX.squeak();
- if(inG){const F=pickFall(),Rq=Math.max(1.05,Rt*.5);D.k={F,t:0,sx:D.x,sz:D.z,ix:dx*Rq,iz:hz+dz*Rq,dx,dz,yaw:Math.atan2(-dx,-dz),ya:(Math.random()-.5)*.24,mt:ta+.25,sd:Math.random()<.5?-1:1};if(Math.abs(px)<1.6){D.k.mid=1;D.k.F=FALLS[FALLS.length-1];D.k.ya=0;if(dk.side){const th=Math.atan2(dx,dz)+1.3,cx=-Math.sin(th),cz=-Math.cos(th);D.k.cs=[cx,cz];D.k.ix=dx*Rq+cx*.62;D.k.iz=hz+dz*Rq+cz*.62}}   /* body turned sideways: he is in front of your chest, not behind you */
-  const mainIn=inPaint(D.x,D.z);XD.filter(X=>mainIn&&inPaint(X.x,X.z)).forEach((X,i)=>{const F2=pickFall(),Rq2=Rq+.15*(i>>1),lat=(i%2?-1:1)*(.62+.35*(i>>1));X.k={F:F2,t:0,sx:X.x,sz:X.z,ix:dx*Rq2-dz*lat,iz:hz+dz*Rq2+dx*lat,dx,dz,yaw:Math.atan2(-dx,-dz),ya:(Math.random()-.5)*.24,mt:ta+.25+.04*i,sd:Math.random()<.5?-1:1}})}}
+ dk={t:0,T,ty,ss:Math.random()<.5?-1:1,ls:Math.random()*4|0,contact:inG,hang:D2.hang?1:0,u:0,x0:px,z0:pz,tx:dx*Rt,tz:hz+dz*Rt,Rt,ta,Ta,sc,dx,dz,H:D2.H*.86*(1+(1-(BODY[look.body]||[1,1])[1])*1.1)*(ty=='drive'?1:.95),rel:0,D:D2,spin:0,oa:Math.random()*4|0,side:0};{const rch=dkReach(),need=RY+.34-GY-rch.sh-.93*rch.L;dk.maxJu=RY+.06-GY-(rch.sh+.39);dk.Hp=Math.min(cl(need+.22+(D2.H-1.5)*.3,.5,1.5),dk.maxJu);dk.lift=0}vel.set(0,0,0);dash.set(0,0,0);S='dk';SFX.squeak();
+ if(inG){const F=pickFall(),Rq=Math.max(1.05,Rt*.5);D.k={F,...mkJ(),gap:.85,lat:0,t:0,sx:D.x,sz:D.z,ix:dx*Rq,iz:hz+dz*Rq,dx,dz,yaw:Math.atan2(-dx,-dz),ya:(Math.random()-.5)*.24,mt:ta+.25,sd:Math.random()<.5?-1:1};if(Math.abs(px)<1.6){D.k.mid=1;D.k.F=FALLS[FALLS.length-1];D.k.ya=0;if(dk.side){const th=Math.atan2(dx,dz)+1.3,cx=-Math.sin(th),cz=-Math.cos(th);D.k.cs=[cx,cz];D.k.ix=dx*Rq+cx*.62;D.k.iz=hz+dz*Rq+cz*.62}}   /* body turned sideways: he is in front of your chest, not behind you */
+  if(D.k.sj)D.k.F=pickSide();const mainIn=inPaint(D.x,D.z);XD.filter(X=>mainIn&&inPaint(X.x,X.z)).forEach((X,i)=>{const F2=pickFall(),Rq2=Rq+.15*(i>>1),lat=(i%2?-1:1)*(.62+.35*(i>>1));X.k={F:F2,...mkJ(),gap:.85+.2*(i>>1),lat:(i%2?-1:1)*(.62+.35*(i>>1)),t:0,sx:X.x,sz:X.z,ix:dx*Rq2-dz*lat,iz:hz+dz*Rq2+dx*lat,dx,dz,yaw:Math.atan2(-dx,-dz),ya:(Math.random()-.5)*.24,mt:ta+.25+.04*i,sd:Math.random()<.5?-1:1};if(X.k.sj)X.k.F=pickSide()})}}
 const RIMR=.25*HK;
 function dkReach(){ /* shoulder height above the root + total arm length of whichever body is on court */
  if(isMX()&&MX.rest){const rs=MX.rest,a=rs.RightArm&&rs.RightArm.b,f=rs.RightForeArm&&rs.RightForeArm.b,h=rs.RightHand&&rs.RightHand.b;
@@ -803,75 +824,86 @@ function dkReach(){ /* shoulder height above the root + total arm length of whic
 const dkShort=(a,t)=>Math.max(0,Math.hypot(t.y-(rig.hip.position.y+.7),t.z)-.665); /* how far the original rig's arm falls short of a target */
 function dkStep(dt){const k=dk,pp=P.position;k.t+=dt;const ta=k.ta,Ta=k.Ta,tau=k.t-ta,u=k.t<ta?.24*k.t/ta:.24+.76*Math.min(tau/Ta,1);k.u=u;
  const sc=k.sc,Hp=k.Hp*(1+(sc-1)*.32);let ju=0,cr=.05; /* explosive take-off, short hang at the top, then gravity back down */
- if(tau>0){if(tau<.44*sc){const w=tau/(.44*sc);ju=Hp*(1-(1-w)*(1-w))}else if(tau<.56*sc)ju=Hp*(1-.03*sm((tau-.44*sc)/(.12*sc)));else{const w=cl((tau-.56*sc)/(.39*sc),0,1);ju=Hp*.97*(1-w*w)}}
+ if(tau>0){if(tau<.44*sc){const w=tau/(.44*sc);ju=Hp*Math.sin(w*PI/2)}else if(tau<.56*sc)ju=Hp*(1-.03*sm((tau-.44*sc)/(.12*sc)));else{const w=cl((tau-.56*sc)/(.39*sc),0,1);ju=Hp*.97*(1-w*w*(1.15-.15*w))}}
  if(k.t<ta)cr=.05+.4*sm((k.t-(ta-.13))/.13);else if(tau<.12)cr=.45*(1-sm(tau/.12));else if(u>.88)cr=.6*sm((u-.88)/.12);
  if(k.t<ta){const a=k.t/ta;pp.x=lerp(k.x0,k.tx,a);pp.z=lerp(k.z0,k.tz,a)}
  else{const w_=cl(tau/(.4*sc),0,1),R_=u<.66?lerp(k.Rt,RD,lerp(w_,sm(w_),.5)):lerp(RD,RD+.7,sm((u-.66)/.34));pp.x=k.dx*R_;pp.z=hz+k.dz*R_}
  if(k.bt!==undefined){const e=Math.exp(-5*(k.t-k.bt));pp.x+=k.bx*e;pp.z+=k.bz*e}
- k.cr=cr;k.ju=ju;k.pt=k.D.sup?-1.05*sm((u-.26)/.12)*(1-sm((u-.76)/.16)):0;k.sy=k.side?1.3*sm((u-.2)/.1)*(1-sm((u-.8)/.18)):0;k.spin=k.D.sp&&u>=.24?k.D.sp((u-.24)/.38,u):0;if(!k.hit&&u>=.4){k.hit=1;if(k.contact||k.D.pw)shk=k.D.pw>1?3.8:k.D.pw?2.6:1.8}
- if(u>=.62&&!k.rel){k.rel=1;hs=.1;shk=Math.min(6,3.4+(k.D.pw||1)*1.2);dfx();window.rimJ=1;ban(k.D.pw>2?'EXPLOSIVE SLAM!':'SLAM!','#ffd23f');{const q=ball.position,dd=Math.hypot(q.x,q.z-hz);if(dd>.11){q.x*=.11/dd;q.z=hz+(q.z-hz)*.11/dd}q.y=Math.max(q.y,RY+.14);bv.set(-q.x*6,-16,(hz-q.z)*6)}SFX.dunk();fl=true;ft2=0;prevY=RY+.3;made=true;shot={d:1,g:false,make:true,con:0};sco.a++;sco.p+=2;swishNet();swishNet();rattleNet(0,0,0,hz,20);rimT=true;sco.m++;streak++;netB=1;cheer=3.2;hud()}
+ k.cr=cr;k.ju=ju;k.pt=(-.12*sm((u-.24)/.12)*(1-sm((u-.4)/.1))+(k.contact?.1:.12)*sm((u-.4)/.12)*(1-sm((u-.6)/.08))-.2*sm((u-.58)/.08)*(1-sm((u-.82)/.12)))*(k.D.two?.7:1);   /* leans into the rim on the way up, arches back to reach, drives forward on the slam */k.sy=k.D.ext?k.ss*1.2*sm((u-.2)/.1)*(1-sm((u-.32)/.14)):0;   /* one-hand dunks: body sideways in the air, squares up to the rim as the ball goes in */k.spin=k.D.sp&&u>=.24?k.D.sp((u-.24)/.38,u):0;if(!k.hit&&u>=.4){k.hit=1;}
+ if(u>=.62&&!k.rel){k.rel=1;hs=k.contact?.17:.1;dfx();window.rimJ=1;ban(k.D.pw>2?'EXPLOSIVE SLAM!':'SLAM!','#ffd23f');{const q=ball.position,dd=Math.hypot(q.x,q.z-hz);if(dd>.11){q.x*=.11/dd;q.z=hz+(q.z-hz)*.11/dd}q.y=Math.max(q.y,RY+.14);bv.set(-q.x*6,-16,(hz-q.z)*6)}SFX.dunk();fl=true;ft2=0;prevY=RY+.3;made=true;shot={d:1,g:false,make:true,con:0};sco.a++;sco.p+=2;swishNet();swishNet();rattleNet(0,0,0,hz,20);rimT=true;sco.m++;streak++;netB=1;cheer=3.2;hud()}
  if(u>.3){const sht=MXO.short||0;if(sht>.004)k.lift=Math.min(.6,k.lift+sht*.85);else k.lift=Math.max(0,k.lift-dt*.35)} /* if the hands fall short of the rim, rise until they reach it */
- const lw=1-sm(cl((u-(k.D.hang?.93:.78))/.1,0,1));
+ const lw=1-sm(cl((u-(k.D.hang?.93:k.D.hold?.87:.78))/.1,0,1));
  if(u>=1||k.t>=ta+Ta){dk=null;S='fr';ft=.12;cel=0}
- return{ju:Math.min(ju+k.lift*lw,k.maxJu)+(k.D.sup?.95*Math.sin(-(k.pt||0)):0),cr}}
-const OAP=[t=>V(-.78,1.9+.05*Math.sin(t*6),.08),t=>V(-.5,2.2,.12),t=>V(-.24,1.5,-.3),t=>V(-.85,1.65+.04*Math.sin(t*5),.3),t=>V(-.3,1.9,-.55)]; /* off arm: out for balance, up high, tucked across the chest, flared back */
+ return{ju:Math.min(ju+k.lift*lw,k.maxJu),cr}}
+const EXT=(s,r)=>{const P=V(.3,2.55,.85);return s<.5?C0().lerp(P,sm(s/.4)):P.clone().lerp(r,Math.pow(sm((s-.5)/.5),.6))};   /* ball cocked behind the head, then arm and ball extend out from there into the rim */
+const OAP=[t=>V(-.82,1.78+.04*Math.sin(t*6),-.12),t=>V(-.5,2.2,.12),t=>V(-.24,1.5,-.3),t=>V(-.85,1.65+.04*Math.sin(t*5),.3),t=>V(-.3,1.9,-.55)]; /* off arm: out for balance, up high, tucked across the chest, flared back */
 function dkArms(){const k=dk,D2=k.D,u=k.u,s=cl((u-.24)/.38,0,1),r=P.worldToLocal(V(k.dx*.1,RY+.02,hz+k.dz*.1)),bell=Math.sin(PI*cl((u-.24)/.7,0,1)),
  rc=(a,t)=>{const S0=V(a.s*.26,1.69,0);return S0.add(t.clone().sub(S0).clampLength(0,.64))};
  if(u>.24&&u<.9){const w=sm((u-.24)/.07)*(1-sm((u-.72)/.16)),e=sm((u-.58)/.16); /* knee drive, then legs reach down for the landing */
   Lg.forEach(l=>{const tr=l.s>0,th=tr?lerp(-.15,.12,e):lerp(1,.3,e),kn=tr?lerp(-1,-.6,e):lerp(-1.3,-.5,e);l.th.rotation.x=lerp(l.th.rotation.x,th,w);l.kn.rotation.x=lerp(l.kn.rotation.x,kn,w)})}
- if(D2.sup){const b=Math.sin(PI*cl((u-.26)/.5,0,1));Lg.forEach(l=>{l.th.rotation.x=lerp(l.th.rotation.x,-.15,b);l.kn.rotation.x=lerp(l.kn.rotation.x,-.1,b);l.th.rotation.z=l.s*.12*b})}   /* superman: body laid out flat, legs trailing straight */
  if(D2.spread){const b=Math.sin(PI*cl((u-.3)/.35,0,1));Lg.forEach(l=>{l.th.rotation.z=l.s*.6*b;l.th.rotation.x=lerp(l.th.rotation.x,.9,b);l.kn.rotation.x=lerp(l.kn.rotation.x,-.9,b)})}
- if(D2.bd){const b=D2.bd(cl((u-.24)/.7,0,1)),w2=sm((u-.24)/.1);tor.rotation.set(b[0]*w2,b[1]*w2,b[2]*w2)}else{tor.rotation.x=((D2.tx||0)+.02+(isMX()?.05:0))*bell+(u>.62?.06*sm((u-.62)/.2):0);tor.rotation.z=(D2.tz||0)*bell;tor.rotation.y=(D2.ty||0)*bell}
+ if(D2.bd){const b=D2.bd(cl((u-.24)/.7,0,1)),w2=sm((u-.24)/.1);const cw=(D.k&&D.k.hx!==undefined)?Math.exp(-5*(D.k.t-D.k.hx)):0;tor.rotation.set(b[0]*w2-.07*cw,b[1]*w2,b[2]*w2)}else{tor.rotation.x=((D2.tx||0)+.02+(isMX()?.05:0))*bell+(u>.62?.06*sm((u-.62)/.2):0);tor.rotation.z=(D2.tz||0)*bell;tor.rotation.y=(D2.ty||0)*bell}
+ {const pw=sm((u-(k.contact?.4:.5))/.08)*(1-sm((u-.8)/.12));if(pw>0){tor.rotation.x=lerp(tor.rotation.x,lerp(k.contact?.16:.2,-.2,sm((u-.58)/.1)),pw*.9);tor.rotation.y*=1-pw;tor.rotation.z*=1-pw*.7}}   /* ball going in: torso upright and square to the rim, not hunched over it */
  hip.rotation.z=D2.side?tor.rotation.z*.6:0;P.updateMatrixWorld(true);   /* lean is set first so the arms can reach around it */
  const toV=w=>tor.worldToLocal(w.clone()).add(V(0,hip.position.y+.1,0));   /* world point -> the upright shoulder frame the arm IK expects */
  MXO.Right=MXO.Left=null;let shT2=0;const mxo=isMX();
  if(u<.62){ /* style path in the air, then the ball + hand are brought to the exact middle of the hoop (world space), so the hand is really at the rim */
-  const dm0=rc(A[1],D2.dom(s,r)),wd0=P.localToWorld(dm0.clone()),c0=D2.c0||(D2.late?.46:D2.out?.47:.38),cb=sm((u-c0)/Math.min(.22,.615-c0)),wd=wd0.lerp(V(k.dx*.15,RY+.17,hz+k.dz*.15),cb),dm=toV(wd),outW=D2.out?sm(s/.18)*(1-sm((s-.72)/.2)):0,shw=(k.shu!==undefined&&D.k&&!D2.two)?sm((u-k.shu)/.05)*(1-sm((u-k.shu-.16)/.08)):0,shT=shw>0?toV(V(D.x,GY+1.3+(D.jh||0)*.9,D.z).addScaledVector(V(D.x-P.position.x,0,D.z-P.position.z).normalize(),-.22)):null;
+  const dm0=rc(A[1],D2.ext?EXT(s,r):D2.dom(s,r)),wd0=P.localToWorld(dm0.clone()),c0=D2.c0||(D2.late?.46:D2.out?.47:.38),cb=sm((u-c0)/Math.min(.22,.615-c0)),wd=wd0.lerp(V(k.dx*.15,RY+.17+(D2.toss?.2:0),hz+k.dz*.15),cb),dm=toV(wd),outW=D2.out?sm(s/.18)*(1-sm((s-.72)/.2)):0,shw=(k.shu!==undefined&&D.k&&!D2.two)?sm((u-k.shu)/.05)*(1-sm((u-k.shu-.16)/.08)):0,shT=shw>0?toV(V(D.x,GY+1.3+(D.jh||0)*.9,D.z).addScaledVector(V(D.x-P.position.x,0,D.z-P.position.z).normalize(),-.22)):null;
   A.forEach(a=>{let t;if(a.s>0){if(D2.two)t=V(dm.x+.1,dm.y,dm.z);else{const Sv=V(.26,hip.position.y+.7,0);t=dm.clone().addScaledVector(dm.clone().sub(Sv).normalize(),-.09)}}   /* hand sits just behind the ball, hands on its sides */
-   else if(D2.two)t=V(dm.x-.1,dm.y,dm.z);else{t=rc(a,dm.clone().add(V(-.3,0,0)).lerp(OAP[(D2.oa!==undefined?D2.oa:k.oa)%OAP.length](k.t),sm(s/.3)));if(D2.out)t=t.lerp(rc(a,D2.off()),outW)}
+   else if(D2.two)t=V(dm.x-.1,dm.y,dm.z);else{t=rc(a,dm.clone().add(V(-.3,0,0)).lerp(OAP[((D2.one||D2.inc||D2.ext)?0:(D2.oa!==undefined?D2.oa:k.oa))%OAP.length](k.t),sm(s/.3)));if(D2.out)t=t.lerp(rc(a,D2.off()),outW)}
    if(a.s<0&&shw>0)t=t.lerp(rc(a,shT),shw);   /* off hand shoves the defender out of the way */
    ik(rig,a,t);if(a.s>0||D2.two)shT2=Math.max(shT2,dkShort(a,t))});
   /* the ball is glued to the real wrist(s): it can never get ahead of the arm */
   P.updateMatrixWorld(true);{const wr=a=>a.el.localToWorld(V(0,-.34,0)),wR=wr(A[1]);let bp;if(D2.two)bp=wR.add(wr(A[0])).multiplyScalar(.5);else{const eR=A[1].el.localToWorld(V(0,0,0));bp=wR.clone().addScaledVector(wR.clone().sub(eR).normalize(),.09)}
    if(k.t<.2)ball.position.lerp(bp,.4);else ball.position.copy(bp)}}
  else{ /* hand(s) hook the rim: wrist above the ring, fingers curled over the front of it. Hang dunks keep hold until the end */
-  const gend=D2.hang?.93:.78,gw=sm((u-.6)/.05)*(1-sm((u-gend)/.1)),rr=sm((u-(gend-.04))/.2),dX=k.dx,dZ=k.dz,rvx=dZ,rvz=-dX,
+  const gend=D2.hang?.93:D2.hold?.87:.78,gw=sm((u-.6)/.05)*(1-sm((u-gend)/.1)),rr=sm((u-(gend-.04))/.2),dX=k.dx,dZ=k.dz,rvx=dZ,rvz=-dX,
    fdv=V(-dX*.85,-.5,-dZ*.85).normalize(),pnv=V(0,-1,0).addScaledVector(fdv,fdv.y).normalize(),
    ringPt=th=>{const c=Math.cos(th),sn=Math.sin(th);return V((dX*c+rvx*sn)*RIMR,RY,hz+(dZ*c+rvz*sn)*RIMR)};
   A.forEach(a=>{const dom=a.s>0;
    if(dom||D2.two){const g=ringPt(dom?(D2.two?.5:.25):-.5);
     if(mxo)MXO[dom?'Right':'Left']={pt:g,fd:fdv,pn:pnv,w:gw,c:.9};
-    const hw=V(0,RY+.17,hz).lerp(g.clone().add(V(0,.05,0)).addScaledVector(fdv,-.03),sm((u-.6)/.05)),t=toV(hw).lerp(dom?V(.35,1.5,-.3):V(-.4,1.4,-.2),rr);
+    const hw=V(0,RY+.17+(D2.toss?.2:0),hz).lerp(g.clone().add(V(0,.05,0)).addScaledVector(fdv,-.03),sm((u-.6)/.05)),t=toV(hw).lerp(dom?V(.35,1.5,-.3):V(-.4,1.4,-.2),rr);
     ik(rig,a,t);shT2=Math.max(shT2,dkShort(a,t))}
    else ik(rig,a,rc(a,V(-.5,1.12,0)))})}
  if(!mxo)MXO.short=shT2;
- if(D2.hang&&u>.6)Lg.forEach(l=>{l.th.rotation.x=.12+.12*Math.sin(k.t*5+l.s);l.kn.rotation.x=-.25;l.th.rotation.z=0});
- head.rotation.x=.14*sm(cl((u-.24)/.2,0,1))-.1*(1-sm(cl((u-.24)/.2,0,1)))+(isMX()?.3*bell:0)}
+ {const w=sm((u-.26)/.08)*(1-sm((u-.84)/.1)),x=sm((u-.57)/.07),ct=k.contact;if(w>0)Lg.forEach(l=>{const tr=l.s>0;   /* legs tucked up by the butt on the way up, then thrown out as the ball slams in */
+  const thT=tr?(ct?.85:.55):(ct?.3:.05),knT=tr?(ct?-1.05:-.95):(ct?-.8:-.65),thE=tr?(ct?.7:.35):(ct?.35:.1),knE=tr?(ct?-.7:-.3):(ct?-.6:-.3),rz=ct?0:.08;
+  l.th.rotation.x=lerp(l.th.rotation.x,lerp(thT,thE,x),w);l.kn.rotation.x=lerp(l.kn.rotation.x,lerp(knT,knE,x),w);l.th.rotation.z=lerp(l.th.rotation.z,l.s*rz*x,w)})}
+ if((D2.hang||D2.hold)&&u>.6)Lg.forEach(l=>{l.th.rotation.x=.12+.12*Math.sin(k.t*5+l.s);l.kn.rotation.x=-.25;l.th.rotation.z=0});
+ head.rotation.x=-.12*sm(cl((u-.3)/.2,0,1))+(isMX()?.18*bell:0)}
 /* defender reaction to a contact dunk. One routine for the main defender and the extras:
    he is walked back body-to-body, the shove lands the moment the two bodies touch in the air, and the fall starts on that same frame */
-function dunkAny(X,q,dt,main){const k=X.k,F=k.F,pp=P.position,RB=.66;k.t+=dt;const t=k.t,u=dk?dk.u:1;let x=X.x,z=X.z;
+function dunkAny(X,q,dt,main){const k=X.k,F=k.F,pp=P.position,RB=.5;k.t+=dt;const t=k.t,u=dk?dk.u:1;let x=X.x,z=X.z;
  const pvx=k.ppx===undefined?0:(pp.x-k.ppx)/Math.max(dt,1e-3),pvz=k.ppz===undefined?0:(pp.z-k.ppz)/Math.max(dt,1e-3);k.ppx=pp.x;k.ppz=pp.z;
- if(k.fl===undefined){const tg=(dk?dk.ju||0:0)*1.15;k.ay=(k.ay||0)+(tg-(k.ay||0))*(1-Math.exp(-16*dt));k.ayf=k.ay}   /* he rises with you, then comes down smoothly into the fall (no pop) */
- const hgE=k.fl===undefined?(k.ay||0):(k.ayf||0)*(1-sm(cl((t-k.fl)/(F.FD*.8),0,1))),gE=k.fl===undefined?0:cl((t-k.fl)/F.FD,0,1),top=hgE+1.85-1.4*Math.min(1,gE*1.6),RBe=RB*cl((top-(pp.y-GY))/.35,0,1);   /* once he is going down and you are above him, you carry over his body instead of through it */
- const slide=(sx,sz,sp,r)=>{const nx=sx/sp,nz=sz/sp,dx=nx-nz*k.sd*(k.mid?.05:.25),dz=nz+nx*k.sd*(k.mid?.05:.25),dl=Math.hypot(dx,dz)||1;return[pp.x+dx/dl*r,pp.z+dz/dl*r]};   /* pushed out of your body along the line between you */
- if(k.hx===undefined){const a=sm(t/k.mt);x=lerp(k.sx,k.ix,a);z=lerp(k.sz,k.iz,a);
+ if(k.fl===undefined){const tg=(dk?dk.ju||0:0)*(k.jf||.7)*(k.mid?.9:1);k.ay=(k.ay||0)+(tg-(k.ay||0))*(1-Math.exp(-16*dt));k.ayf=k.ay}   /* he rises with you, then comes down smoothly into the fall (no pop) */
+ const hgE=k.fl===undefined?(k.ay||0):(k.ayf||0)*(1-sm(cl((t-k.fl)/(F.FD*.8),0,1))),gE=k.fl===undefined?0:cl((t-k.fl)/F.FD,0,1),top=hgE+1.85-1.4*Math.min(1,gE*1.6),RBe=(k.fl!==undefined&&t-k.fl>.3)?0:RB*cl((top-(pp.y-GY))/.35,0,1);   /* once he is going down and you are above him, you carry over his body instead of through it */
+ const slide=(sx,sz,sp,r)=>{const nx=sx/sp,nz=sz/sp,dx=nx,dz=nz,dl=Math.hypot(dx,dz)||1;return[pp.x+dx/dl*r,pp.z+dz/dl*r]};   /* pushed out of your body along the line between you */
+ if(k.hx===undefined){const a=sm(t/(k.mt*.5)),rx=-pp.x,rz=hz-pp.z,rl=Math.hypot(rx,rz)||1,fx=rx/rl,fz=rz/rl,gp=lerp(k.gap||.85,RB-.02,sm(((dk?dk.u:1)-.26)/.18)),e=Math.max(.15,rl-gp),tx=-fx*e-fz*(k.lat||0),tz=hz-fz*e+fx*(k.lat||0);   /* he stays between you and the rim, backpedalling as you move: body to body, never behind you */
+  x=lerp(k.sx,tx,a);z=lerp(k.sz,tz,a);
+  if(k.bh===undefined)k.bh=((k.sx-pp.x)*fx+(k.sz-pp.z)*fz)<0;if(k.bh){x+=-fz*k.sd*.9*Math.sin(PI*a);z+=fx*k.sd*.9*Math.sin(PI*a)}   /* started behind you: he runs around you to get in front, never through you */
   const sx=x-pp.x,sz=z-pp.z,sp=Math.hypot(sx,sz)||1e-3;
-  if(t>k.mt*.4&&(sp<=RB+.08||u>=.5||!dk)){k.hx=t;const nx=sx/sp,nz=sz/sp,vn=Math.max(0,pvx*nx+pvz*nz),sn=cl(2.4+vn*.6,2.4,4.4);   /* chest to chest: he is driven straight back along your line of travel */
-   {const ps=Math.hypot(pvx,pvz),mx=ps>.5?pvx/ps:nx,mz=ps>.5?pvz/ps:nz;k.vx=(nx*.4+mx*.6)*sn-nz*k.sd*(k.mid?0:.5);k.vz=(nz*.4+mz*.6)*sn+nx*k.sd*(k.mid?0:.5);if(k.cs){k.vx=k.cs[0]*sn*1.1+mx*.6;k.vz=k.cs[1]*sn*1.1+mz*.6}}   /* chest-side dunk: he falls out from your chest */k.ya=k.mid?0:-k.sd*(.1+.1*Math.random());
+  if(t>k.mt*.4&&(sp<=RB+.06||u>=.46||!dk)){k.hx=t;k.hx0=x;k.hz0=z;k.cap=k.mid?.5:.8;const nx=sx/sp,nz=sz/sp,vn=Math.max(0,pvx*nx+pvz*nz),sn=k.mid?cl(1.2+vn*.3,1.2,2):cl(1.9+vn*.45,1.9,3.2);   /* chest to chest: he is driven straight back along your line of travel */
+   {const ps=Math.hypot(pvx,pvz),mx=ps>.5?pvx/ps:nx,mz=ps>.5?pvz/ps:nz,ox=(x-X.x)/Math.max(dt,1e-3),oz=(z-X.z)/Math.max(dt,1e-3),oo=Math.hypot(ox,oz),oc=oo>2.6?2.6/oo:1;{const sf=F.stm?.75:1;k.vx=(ox*oc*.35+(nx*.8+mx*.2)*sn)*sf;k.vz=(oz*oc*.35+(nz*.8+mz*.2)*sn)*sf}}   /* chest-side dunk: he falls out from your chest */k.ya=0;
    if(main){if(dk){dk.bx=-nz*k.sd*.1;dk.bz=nx*k.sd*.1;dk.bt=dk.t}shk=0;hs=.12}}
   else if(sp<RBe){[x,z]=slide(sx,sz,sp,RBe)}
   k.yaw=Math.atan2(-(pp.x-x),-(pp.z-z))}   /* he squares up to your body until the hit, then keeps that facing */
- else{x+=k.vx*dt;z+=k.vz*dt;const fe0=k.fl===undefined?0:cl((t-k.fl)/F.FD,0,1),f=Math.exp(-(fe0>=1?9:2.2)*dt);k.vx*=f;k.vz*=f;   /* dragged back across the floor as he goes down, then stays put */
-  const sx=x-pp.x,sz=z-pp.z,sp=Math.hypot(sx,sz)||1e-3;if(sp<RBe)[x,z]=slide(sx,sz,sp,RBe)}
+ else{x+=k.vx*dt;z+=k.vz*dt;const fe0=k.fl===undefined?0:cl((t-k.fl)/F.FD,0,1),cd=Math.hypot(x-k.hx0,z-k.hz0),cr0=cl(cd/(k.cap*1.4),0,1),f=Math.exp(-((fe0>=1?9:(F.stm?2.1:(k.mid?4.2:3.6)))+7*cr0*cr0)*dt);
+  k.vx*=f;k.vz*=f;   /* dragged back across the floor as he goes down, then stays put */
+  const sx=x-pp.x,sz=z-pp.z,sp=Math.hypot(sx,sz)||1e-3;if(sp<RBe)[x,z]=slide(sx,sz,sp,RBe);
+  if(dk){const rx2=-pp.x,rz2=hz-pp.z,rl2=Math.hypot(rx2,rz2)||1,f2x=rx2/rl2,f2z=rz2/rl2,pj=(x-pp.x)*f2x+(z-pp.z)*f2z;if(pj<.15){x+=f2x*(.15-pj);z+=f2z*(.15-pj)}}}   /* always on the rim side of you */
  x=cl(x,-7.4,7.4);z=cl(z,-10.2,8.6);
- if(k.hx!==undefined&&k.fl===undefined&&(!dk||dk.rel))k.fl=t;
- const fl=k.fl,fe=fl===undefined?0:cl((t-fl)/F.FD,0,1),lt=fl===undefined?1e9:fl+F.FD+2.65,lie=t<lt?1:1-sm((t-lt)/.7),g=fe*lie,hc=k.hx===undefined?0:sm((t-k.hx)/.14),lean=.7*hc*(1-fe),
+ if(k.hx!==undefined&&k.fl===undefined)k.fl=t;
+ const fl=k.fl,fe=fl===undefined?0:cl((t-fl)/F.FD,0,1),lt=fl===undefined?1e9:fl+F.FD+2.65,lie=t<lt?1:1-sm((t-lt)/.7),g=fe*lie,hc=k.hx===undefined?0:sm((t-k.hx)/.14),lean=(k.sj?.3:.7)*hc*(1-fe),
   hg=fl===undefined?(k.ay||0):(k.ayf||0)*(1-sm(cl((t-fl)/(F.FD*.8),0,1)));
  X.x=x;X.z=z;X.jh=hg;if(main){D.up=1;con=0}
- q.P.rotation.order='YXZ';q.P.position.set(x,GY+hg+.15*Math.min(1,F.rot(g)/1.2),z);q.P.rotation.set(Math.max(lean,F.rot(g)),k.yaw+k.ya*Math.max(g,hc*.5)+(F.yw?F.yw(g):0)*k.sd,(F.rz?F.rz(g):0)*k.sd);
- legs(q,k.hx===undefined?t*16:0,k.hx===undefined?1:0,.15+.3*hc*(1-g),hg>.03&&fe<.3);if(g>.01)F.legs(q,g);
- q.tor.rotation.x=-.1-.5*Math.sin(PI*cl((t-(k.hx||1e9))/.3,0,1))*(1-g);q.head.rotation.x=-.1+.4*g;
- q.A.forEach(a=>{const up=V(a.s*.15,2.25,-.14).lerp(V(a.s*.85,1.5+.4*sm(cl((t-(k.hx||0))/.3,0,1)),.1+.55*sm(cl((t-(k.hx||0))/.35,0,1))),hc);ik(q,a,g>0?up.lerp(F.arm(a,g),sm(g)):up)});
+ q.P.rotation.order='YXZ';q.P.position.set(x,GY+hg+.15*Math.min(1,F.rot(g)/1.2),z);q.P.rotation.set(Math.max(lean,F.rot(g)),k.yaw+k.ya*.4*Math.max(g,hc*.5)+(k.sj?k.sd*1.2*sm(cl((t-.1)/.35,0,1))*lie:0),(F.rz?F.rz(g):0)*k.sd);
+ const bw=k.hx===undefined?sm(cl((t-.05-(k.jd||0))/Math.max(.2,k.mt*.7),0,1)):1,sw=Math.sin(t*9)*.05*(1-bw*.6);
+ legs(q,k.hx===undefined?t*16:0,k.hx===undefined?1:0,.15+.3*hc*(1-g),hg>.03&&fe<.3);if(hg>.05&&fe<.5&&(k.ls||0)>0){const w=sm(cl(hg/.4,0,1))*(1-fe*2);q.Lg.forEach(l=>{const r=l.s>0;let th,kn;if(k.ls==1){th=.8;kn=-1.2}else if(k.ls==2){th=r?1.0:.1;kn=r?-1.3:-.3}else{th=r?.5:-.25;kn=r?-.5:-.2}l.th.rotation.x=lerp(l.th.rotation.x,th,w);l.kn.rotation.x=lerp(l.kn.rotation.x,kn,w)})}
+ if(g>.01)F.legs(q,g);
+ q.tor.rotation.x=-.1+(k.ln||0)+.08*(k.hx===undefined?bw:0)-.45*Math.sin(PI*cl((t-(k.hx||1e9))/.4,0,1))*(1-g);q.head.rotation.x=-.1+.4*g;
+  const pm=sm(cl((t-(k.hx||0)-.25)/.5,0,1));   /* hands stay pressed on the dunker's body for a beat, then fall away */
+ q.A.forEach(a=>{const AS=[[.2,2.38,-.3],[.55,2.2,-.15],[.1,2.3,-.55],[a.s>0?.15:.7,a.s>0?2.4:1.7,a.s>0?-.2:-.5]][k.as||0],up=V(a.s*.34,1.55,-.5).lerp(V(a.s*AS[0]+sw,AS[1]+.04*bw,AS[2]-.2*Math.sin(PI*Math.min(1,bw))),bw).lerp(V(a.s*.3+a.s*.55*pm,2.0-.5*pm,-.65+.85*pm),sm(hc));ik(q,a,g>0?up.lerp(F.arm(a,g),sm(g)):up)});
  if(t>(fl===undefined?1e9:fl+F.FD+3.4)){X.k=null;q.P.rotation.set(0,k.yaw,0);X.ax=x;X.az=z}}
 function dunkD(dt){dunkAny(D,dfr,dt,true)}
 function dunkE(X,dt){dunkAny(X,X.q,dt,false)}
@@ -1656,6 +1688,10 @@ function defRetarget(){
   const Sp=_wp(l.th),Ep=_wp(l.kn),Ap=l.kn.localToWorld(V(0,-.46,0)),S0=_wp(u),len=S0.distanceTo(_wp(f))+_wp(f).distanceTo(_wp(ft)),lp=Sp.distanceTo(Ep)+Ep.distanceTo(Ap);
   mxLimbIK(u,f,ft,S0.clone().add(Ap.clone().sub(Sp).multiplyScalar(len/lp)),Ep.clone().sub(Sp),hipBack.clone().negate());
   if(rs[nm+'Foot'].fq){const fw=_wq(PP).multiply(rs[nm+'Foot'].fq),pt=new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(1,0,0).applyQuaternion(_wq(PP)),-.75*air);mxSetWorldQ(ft,pt.multiply(fw))}});
+ /* lying on the floor: measure the real bones and rest the body on the court (no sinking, no hovering) */
+ {const upY=new THREE.Vector3(0,1,0).applyQuaternion(_wq(PP)).y,lw=cl((.7-upY)/.45,0,1);
+  if(lw>0&&PP.position.y-GY<.6){M.obj.updateMatrixWorld(true);const cl2={Hips:.17,Spine:.17,Spine2:.18,Head:.13,LeftUpLeg:.1,RightUpLeg:.1,LeftLeg:.08,RightLeg:.08,LeftFoot:.07,RightFoot:.07,LeftArm:.07,RightArm:.07};let need=0,have=0;for(const n in cl2){const b=B(n);if(!b)continue;const e=GY+cl2[n]-_wp(b).y;if(!have||e>need)need=e;have=1}
+   const sh=cl(need,-.3,.45)*lw;M.dfy=(M.dfy||0)+(sh-(M.dfy||0))*.6;M.obj.position.y+=M.dfy;M.obj.updateMatrixWorld(true)}else M.dfy=0}
 }
 function defAnim(){
  if(!DEFM.obj)return;

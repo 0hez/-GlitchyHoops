@@ -658,7 +658,7 @@ function blendGHDribble(){
  const fast=!!mvA;
  const alpha=fast ? 0.18 : 0.25,idq=new THREE.Quaternion();
  /* Torso + arms: leave legs/hips to the existing basketball movement system. */
- const names=['Spine','Spine1','Spine2','Neck']; /* arms/hands are NOT touched: the game's IK keeps the hands on the ball */
+ const names=['Neck']; /* torso, arms and hands are NOT touched: the game's own pose + IK keeps the hands on the ball */
  names.forEach(name=>{
   const target=MX.rest[name];if(!target)return;
   let srcName=name;
@@ -1051,8 +1051,8 @@ function upd(dt){tm+=dt;
  if(S=='dr'){dph+=dt*(2.3+n*.7);
   if(mvA){const m=mvA;m.u+=dt/m.d;const u=Math.min(m.u,1),e=u*u*(3-2*u),k=Math.abs(2*u-1),mu=Math.sin(PI*u),sd2=(m.t=='x'&&m.from==m.to)?m.to*(1-.8*mu):lerp(m.from,m.to,e);side=sd2;
    if(m.mx!==undefined){const de=e-m.ep;m.ep=e;pp.x=cl(pp.x+m.mx*de,-7.1,7.1);pp.z=cl(pp.z+m.mz*de,-9.9,8.4)}
-   const X=m.t=='x'?.44:.27,H=m.t=='x'?.95:1.0,bz=m.t=='x'?-.42-.1*(1-k):m.t=='b'?-.36-.1*(1-k):-.45-.7*mu; /* cross: wide low sweep across the body; step back: ball stays in front; push: ball is pushed out ahead */
-   bp.set(sd2*X,BR+(H-BR)*Math.pow(k,m.t=='x'?1.5:1.25),bz);cr+=(m.t=='p'?.1:.25)*mu;tz=m.t=='x'?-m.to*.3*mu:0;if(m.bp0&&m.u<.18)bp.lerp(m.bp0,1-sm(m.u/.18)); /* ease out of the dribble instead of snapping the ball to the top */
+   const X=m.t=='x'?.4:.27,H=m.t=='x'?.95:1.0,bz=m.t=='x'?-.42-.08*(1-k):m.t=='b'?-.38-.06*(1-k):-.45-.4*mu; /* cross: wide low sweep across the body; step back: ball stays in front; push: ball is pushed out ahead */
+   bp.set(sd2*X,.3+(H-.3)*Math.pow(k,m.t=='x'?1.5:1.25),bz);cr+=(m.t=='p'?.1:.32)*mu;tz=m.t=='x'?-m.to*.3*mu:0;if(m.bp0&&m.u<.18)bp.lerp(m.bp0,1-sm(m.u/.18)); /* ease out of the dribble instead of snapping the ball to the top */
    if(m.u>=1){side=m.to;mvA=null;dph=0;const q=mq.shift();if(q)startMove(q[0],q[1])}}
   else{const db=Math.floor(dph+.5);if(db!==SFX.lastDb){SFX.lastDb=db;SFX.bounce(.45+n*.3)}const u=dph%1,v=(u<.5?u:1-u)*2;bp.set(side*.27,BR+(1.1-BR)*(1-v*v),-.4-n*.14)}}
  tzv+=(tz-tzv)*(1-Math.exp(-14*dt));tor.rotation.z=tzv;
@@ -1065,7 +1065,7 @@ function upd(dt){tm+=dt;
  P.updateMatrixWorld(true);
  if(S!='dr'&&dhS)dhS.on=0;
  if(S=='dr'){/* dribble arms: the hand rides on top of the ball, pushes it down with a soft follow-through and is lifted back by the rising ball. Targets are eased (no hard clamps / snaps) so the rig stays stable */
-  const dsm=dhS||(dhS={v:[null,null],w:[0,0],on:0}),kf=1-Math.exp(-30*dt),kw=1-Math.exp(-18*dt),hb=sm((bp.y-.5)/.6),hy=.9+.25*hb;
+  const dsm=dhS||(dhS={v:[null,null],w:[0,0],on:0}),kf=1-Math.exp(-30*dt),kw=1-Math.exp(-18*dt),hb=sm((bp.y-.5)/.6),hy=mvA?cl(bp.y+.24,.72,1.15):.9+.25*hb;
   A.forEach((a,i)=>{const wT=a.s>0?(side+1)/2:(1-side)/2,rest=isMX()?V(a.s*.4,1.2,-.34):V(a.s*.36,1.08,-.3);rest.y+=.02*Math.sin(tm*3+a.s*1.7); /* off hand: relaxed guard with a tiny sway */
    const tg=V(bp.x,hy,Math.min(bp.z,-.3)-.05*(1-hb)); /* arm reaches a touch forward on the push */
    if(!dsm.on||!dsm.v[i]){dsm.v[i]=tg.clone();dsm.w[i]=wT}else{dsm.v[i].lerp(tg,kf);dsm.w[i]+=(wT-dsm.w[i])*kw}

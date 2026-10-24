@@ -594,6 +594,88 @@ let _dbgN=0;function mxDbg(){if(selectedCharacter!=='ch01'||!MX.rest||++_dbgN%20
 function animateMixamoPlayer(){try{animateMixamoPlayer0();
  if(MX.rest){let bad=false;for(const n in MX.rest){const q=MX.rest[n].b.quaternion;if(!isFinite(q.x+q.y+q.z+q.w)){bad=true;break}}if(bad){for(const n in MX.rest)MX.rest[n].b.quaternion.copy(MX.rest[n].q);mixamoObject&&mixamoObject.updateMatrixWorld(true)}}   /* never leave a NaN bone (invisible / stretched limbs) */
 if(MX.rest&&!MX.ok&&mixamoReady&&selectedCharacter!=='original'){MX.ok=1;mxMsg(CHARS[selectedCharacter].name+' arm retarget v5 active','#7CFC00',6000)}}catch(e){console.error(e);mxMsg('Ch11 pose error: '+e.message,'#ff6b6b',0)}}
+
+/* ---- Imported basketball dribble animation ----------------------------------
+   The uploaded Dribble.fbx is the base motion. Its upper-body motion is blended
+   onto whichever Mixamo-style player is equipped. The game's ball/feet/gameplay
+   rig stays authoritative, so shooting and dunking are not replaced. */
+let GH_DRIBBLE={mixer:null,root:null,bones:{},rest:{},ready:false,clip:null,action:null,urls:[]};
+async function loadGHDribble(){
+ try{
+  const res=await fetch('./dribble.zip',{cache:'force-cache'});
+  if(!res.ok)throw new Error('dribble.zip missing (HTTP '+res.status+')');
+  const packed=fflate.unzipSync(new Uint8Array(await res.arrayBuffer()));
+  const fbx=packed['source/Dribble.fbx'];
+  if(!fbx)throw new Error('source/Dribble.fbx not found inside dribble.zip');
+  const manager=new THREE.LoadingManager();
+  const tex={};
+  Object.keys(packed).filter(k=>/^textures\/.*\.png$/i.test(k)).forEach(k=>{
+   const url=URL.createObjectURL(new Blob([packed[k]],{type:'image/png'}));
+   GH_DRIBBLE.urls.push(url);tex[k.split('/').pop()]=url;
+  });
+  manager.setURLModifier(url=>{
+   let base=url.split(/[\\/]/).pop().split('?')[0];
+   try{base=decodeURIComponent(base)}catch(e){}
+   return tex[base]||url;
+  });
+  const bytes=fbx.buffer.slice(fbx.byteOffset,fbx.byteOffset+fbx.byteLength);
+  const root=new THREE.FBXLoader(manager).parse(bytes,'');
+  if(!root.animations||!root.animations.length)throw new Error('The FBX has no animation clip.');
+  const bones={};
+  root.traverse(n=>{
+   if(n.isBone){
+    const key=n.name.toLowerCase().replace(/^mixamorig\d*/,'mixamorig').replace(/[^a-z0-9]/g,'');
+    if(!bones[key])bones[key]=n;
+   }
+  });
+  const clip=root.animations.find(c=>c.tracks&&c.tracks.length)||root.animations[0];
+  const mixer=new THREE.AnimationMixer(root),action=mixer.clipAction(clip);
+  action.setLoop(THREE.LoopRepeat,Infinity);action.play();action.paused=true;
+  /* This source is animation-only at runtime: remove its meshes to save phone GPU memory. */
+  const meshes=[];root.traverse(n=>{if(n.isMesh)meshes.push(n)});
+  meshes.forEach(n=>{
+   if(n.parent)n.parent.remove(n);
+   if(n.geometry)n.geometry.dispose();
+   (Array.isArray(n.material)?n.material:[n.material]).forEach(m=>{
+    if(!m)return;
+    for(const k in m)if(m[k]&&m[k].isTexture)m[k].dispose();
+    m.dispose();
+   });
+  });
+  GH_DRIBBLE.root=root;GH_DRIBBLE.bones=bones;GH_DRIBBLE.mixer=mixer;
+  GH_DRIBBLE.clip=clip;GH_DRIBBLE.action=action;
+  Object.keys(bones).forEach(k=>GH_DRIBBLE.rest[k]=bones[k].quaternion.clone());
+  GH_DRIBBLE.ready=true;
+  console.info('[GlitchyHoops] Dribble animation ready:',clip.name||'Dribble',clip.duration.toFixed(2)+'s');
+ }catch(e){console.warn('[GlitchyHoops] Dribble animation did not load:',e);GH_DRIBBLE.ready=false}
+}
+function blendGHDribble(){
+ if(!GH_DRIBBLE.ready||!mixamoReady||selectedCharacter==='original'||!MX.rest)return;
+ const handling=(S==='dr'||!!mvA);
+ if(!handling){if(GH_DRIBBLE.action)GH_DRIBBLE.action.paused=true;return;}
+ if(GH_DRIBBLE.action){GH_DRIBBLE.action.paused=false;GH_DRIBBLE.action.timeScale=mvA?1.28:1.0;}
+ const sideFlip=ball.position.x<P.position.x;
+ const fast=!!mvA;
+ const alpha=fast ? 0.42 : 0.58;
+ /* Torso + arms: leave legs/hips to the existing basketball movement system. */
+ const names=['Spine','Spine1','Spine2','Neck','LeftShoulder','RightShoulder','LeftArm','RightArm','LeftForeArm','RightForeArm','LeftHand','RightHand'];
+ names.forEach(name=>{
+  const target=MX.rest[name];if(!target)return;
+  let srcName=name;
+  if(sideFlip){
+   if(name.startsWith('Left'))srcName='Right'+name.slice(4);
+   else if(name.startsWith('Right'))srcName='Left'+name.slice(5);
+  }
+  const key=('mixamorig'+srcName).toLowerCase().replace(/[^a-z0-9]/g,'');
+  const source=GH_DRIBBLE.bones[key],base=GH_DRIBBLE.rest[key];
+  if(!source||!base)return;
+  const delta=base.clone().invert().multiply(source.quaternion);
+  const desired=target.b.quaternion.clone().multiply(delta);
+  target.b.quaternion.slerp(desired,alpha);
+ });
+ mixamoObject&&mixamoObject.updateMatrixWorld(true);
+}
+loadGHDribble();
 document.querySelectorAll('#charpick .cpcard').forEach(c=>c.addEventListener('click',()=>{const id=c.dataset.c;if(id===loadingId)return;setChar(id===selectedCharacter&&id!=='original'?'original':id);setTimeout(refreshOriginalFace,50)}));   /* tap the equipped model again = unequip (back to Original) */
 paintCards();
 if(window.THREE&&THREE.FBXLoader){
@@ -1314,7 +1396,7 @@ function openMaps(){if(mapBusy)return;const mp=$('mp'),box=$('mpc');box.innerHTM
 $('mapb').onclick=openMaps;$('mpx').onclick=()=>$('mp').style.display='none';
 mapId='venice';setMap('venice');
 setName((()=>{try{return localStorage.pname}catch(e){return''}})()||'');$('pname').oninput=e=>setName(e.target.value);{const ids=MAPS.map(m=>m.id);let lm='';try{lm=localStorage.lastMap||''}catch(e){}const pool=ids.filter(i=>i!=lm),pk=(pool.length?pool:ids)[Math.random()*(pool.length?pool.length:ids.length)|0];try{localStorage.lastMap=pk}catch(e){}setMap(pk);$('mp').style.display='none'}
-let last=performance.now();(function loop(n){requestAnimationFrame(loop);const dt=Math.min((n-last)/1e3,.05);last=n;if(mixamoMixer)mixamoMixer.update(dt);upd(hs>0?dt*.15:dt);animateMixamoPlayer();window.DEF&&DEF.anim();hs=Math.max(0,hs-dt);rd.render(sn,cam)})(last);
+let last=performance.now();(function loop(n){requestAnimationFrame(loop);const dt=Math.min((n-last)/1e3,.05);last=n;if(mixamoMixer)mixamoMixer.update(dt);if(GH_DRIBBLE.mixer)GH_DRIBBLE.mixer.update(dt);upd(hs>0?dt*.15:dt);animateMixamoPlayer();blendGHDribble();window.DEF&&DEF.anim();hs=Math.max(0,hs-dt);rd.render(sn,cam)})(last);
 
 ;(function(){const b=$('nb'),show=()=>{$('nbn').firstChild.nodeValue=($('ntag').textContent||'PLAYER');b.classList.add('on');setTimeout(()=>b.classList.remove('on'),4500)};setTimeout(show,1500);const m=$('mapb');if(m)m.addEventListener('click',()=>setTimeout(show,2500))})();
 

@@ -394,7 +394,8 @@ function faceOriginal(){const par=P.parent,hv=hip.visible,mv=Object.values(MODEL
 let loadChain=Promise.resolve();const queueLoad=fn=>{const p=loadChain.then(fn);loadChain=p.catch(()=>{});return p};   /* one model download/parse at a time (phones run out of memory otherwise) */
 async function fetchBuild(id,prog){
  const names=CHARS[id].parts,nm=CHARS[id].name,parts=[];
- for(let i=0;i<names.length;i++){const n=names[i];prog&&prog('Downloading '+nm+' ('+(i+1)+'/'+names.length+')…');
+ prog&&prog('Loading '+nm+'…');
+ for(let i=0;i<names.length;i++){const n=names[i];
   const r=await fetch('./'+n,{cache:'force-cache'});
   if(!r.ok)throw new Error('Could not load '+n+' (HTTP '+r.status+'). Upload all three '+n.split('_')[0]+'_part*.bin files next to index.html.');
   const buf=await r.arrayBuffer();
@@ -402,18 +403,19 @@ async function fetchBuild(id,prog){
   parts.push(buf)}
  const tot=parts.reduce((a,b)=>a+b.byteLength,0),j=new Uint8Array(tot);let o=0;for(const p of parts){j.set(new Uint8Array(p),o);o+=p.byteLength}
  if(String.fromCharCode.apply(null,j.subarray(0,18))!=='Kaydara FBX Binary')throw new Error(nm+' files are not a valid FBX. Re-upload '+names.join(', ')+' (all three, unchanged).');
- prog&&prog('Building '+nm+'… (a few seconds)');await new Promise(r=>setTimeout(r,80));
+ parts.length=0;await new Promise(r=>setTimeout(r,80));
  const obj=new THREE.FBXLoader().parse(j.buffer,''),bones=buildModel(obj);await waitTex(obj);
  if(!FACES[id]){try{FACES[id]=faceOfModel(obj,bones);try{localStorage.setItem('gh-face2-'+id,FACES[id])}catch(e){}paintCards()}catch(e){console.warn('face preview failed',e)}}
  return{obj,bones}}
 function attachChar(id,raw){const obj=raw.obj;obj.name='GH_'+id;obj.visible=false;P.add(obj);P.updateMatrixWorld(true);const cap=mixCapture(obj,raw.bones);MODELS[id]={obj,bones:raw.bones,rest:cap.rest,baseY:cap.baseY}}
 async function setChar(id){
  const tok=++setTok;delete BAD[id];
- if(id!=='original'&&!MODELS[id]){loadingId=id;paintCards();chStatus('Loading '+CHARS[id].name+'…');
+ if(id!=='original'&&!MODELS[id]){for(const k in MODELS)disposeModel(k);   /* free the old model BEFORE loading the new one (halves peak memory) */
+  loadingId=id;paintCards();chStatus('Loading '+CHARS[id].name+'…');
   try{const raw=await queueLoad(()=>fetchBuild(id,chStatus));if(tok!==setTok){disposeObj(raw.obj);loadingId='';paintCards();return}attachChar(id,raw)}
   catch(err){console.error('[GlitchyHoops] '+id+' load failed',err);loadingId='';paintCards();chStatus(CHARS[id].name+' failed to load: '+(err&&err.message?err.message:String(err)));return}}
  loadingId='';selectedCharacter=id;applyChar();
- for(const k in MODELS)if(k!==id)disposeModel(k)}   /* only the equipped model stays in memory */
+ if(id!=='original')for(const k in MODELS)if(k!==id)disposeModel(k)}   /* Original keeps the loaded model hidden in memory, so equip/unequip is instant */   /* only the equipped model stays in memory */
 const BAD={};let faceBusy=false;async function makeMissingFaces(){if(faceBusy||!window.THREE||!THREE.FBXLoader)return;faceBusy=true;for(const id in CHARS){if(FACES[id]||MODELS[id]||BAD[id])continue;try{const raw=await queueLoad(()=>fetchBuild(id,t=>chStatus('Making '+CHARS[id].name+' portrait… '+t)));disposeObj(raw.obj)}catch(e){BAD[id]=1;console.warn('preview load failed',id,e);chStatus(CHARS[id].name+': '+(e&&e.message?e.message:e))}}faceBusy=false;if(Object.keys(BAD).length)return;if(selectedCharacter!=='original'&&MODELS[selectedCharacter])chStatus('✅ '+CHARS[selectedCharacter].name+' is equipped.');else if(selectedCharacter==='original')chStatus('Original player equipped.')}
 function refreshOriginalFace(){try{FACES.original=faceOriginal();paintCards()}catch(e){console.warn('original face failed',e)}}
 /* ---- Ch11 retargeting ----------------------------------------------------------
@@ -491,15 +493,15 @@ function mxMsg(t,c,ms){let d=document.getElementById('gh-mx');if(!d){d=document.
 function animateMixamoPlayer(){try{animateMixamoPlayer0();
  if(MX.rest){let bad=false;for(const n in MX.rest){const q=MX.rest[n].b.quaternion;if(!isFinite(q.x+q.y+q.z+q.w)){bad=true;break}}if(bad){for(const n in MX.rest)MX.rest[n].b.quaternion.copy(MX.rest[n].q);mixamoObject&&mixamoObject.updateMatrixWorld(true)}}   /* never leave a NaN bone (invisible / stretched limbs) */
 if(MX.rest&&!MX.ok&&mixamoReady&&selectedCharacter!=='original'){MX.ok=1;mxMsg(CHARS[selectedCharacter].name+' arm retarget v5 active','#7CFC00',6000)}}catch(e){console.error(e);mxMsg('Ch11 pose error: '+e.message,'#ff6b6b',0)}}
-document.querySelectorAll('#charpick .cpcard').forEach(c=>c.addEventListener('click',()=>{setChar(c.dataset.c);setTimeout(refreshOriginalFace,50)}));
+document.querySelectorAll('#charpick .cpcard').forEach(c=>c.addEventListener('click',()=>{const id=c.dataset.c;if(id===loadingId)return;setChar(id===selectedCharacter&&id!=='original'?'original':id);setTimeout(refreshOriginalFace,50)}));   /* tap the equipped model again = unequip (back to Original) */
 paintCards();
 if(window.THREE&&THREE.FBXLoader){
  setTimeout(refreshOriginalFace,1200);
  /* start loading right away: equipped model first, then portraits for the other models, so every card is ready to tap when the game opens */
- setChar(selectedCharacter).finally(()=>setTimeout(makeMissingFaces,300));
+ setChar(selectedCharacter);
 }else{selectedCharacter='original';applyChar()}
-document.getElementById('mmplayer')?.addEventListener('click',()=>setTimeout(makeMissingFaces,400));
-setInterval(()=>{const c=document.getElementById('charpick');if(c&&c.offsetParent!==null){refreshOriginalFace();if(!faceBusy&&!loadingId)makeMissingFaces()}},3000);
+/* no background model loading: loading a second 55MB FBX just for a portrait crashes phones. A portrait is made (and saved) the first time a model is equipped. */
+setInterval(()=>{const c=document.getElementById('charpick');if(c&&c.offsetParent!==null){refreshOriginalFace()}},3000);
 {const _a=dfr.apply;dfr.apply=L=>{dfr.last=L;_a(L)}}dfr.apply({skin:'#5c3a21',hair:'dreadsTop',hc:'#120d0a',top:'tank',jc:'#2563eb',bot:'shorts',sh:'#0b1020',shs:'chunky',sc:'#ffffff',so:'#d4202c',sk:'#ffffff',num:23,hb:false,sl:true,cn:true});
 function applyLook(){rig.apply(look);try{localStorage.look2=JSON.stringify(look)}catch(e){}}
 const skins=['#f6d5b4','#e0ac69','#c68642','#8d5524','#5c3a21','#3b2417'],mark=()=>[...$('skins').children].forEach((b,i)=>b.classList.toggle('on',skins[i]==look.skin));

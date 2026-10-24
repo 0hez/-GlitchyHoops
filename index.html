@@ -367,7 +367,7 @@ function disposeObj(obj){obj.traverse(n=>{if(n.geometry)n.geometry.dispose();if(
 function disposeModel(k){const m=MODELS[k];if(!m)return;P.remove(m.obj);disposeObj(m.obj);delete MODELS[k]}
 function buildModel(obj){
  const bones={};
- obj.traverse(n=>{if(n.isBone){const bk=n.name.toLowerCase().replace(/[^a-z]/g,'');if(!bones[bk])bones[bk]=n}   /* FIRST bone with a name wins: FBXLoader makes hidden duplicate bones (one per skinned mesh) nested inside the real one, and posing a duplicate leaves the real arm chain stuck in T-pose (Ch01 has 5 meshes) */
+ obj.traverse(n=>{if(n.isBone){const bk=n.name.toLowerCase().replace(/^mixamorig\d*/,'mixamorig').replace(/[^a-z0-9]/g,'');if(!bones[bk])bones[bk]=n}   /* FIRST bone with a name wins: FBXLoader makes hidden duplicate bones (one per skinned mesh) nested inside the real one, and posing a duplicate leaves the real arm chain stuck in T-pose (Ch01 has 5 meshes) */
   if(n.isMesh){n.castShadow=true;n.receiveShadow=true;n.frustumCulled=false;(Array.isArray(n.material)?n.material:[n.material]).forEach(m=>{if(m){m.side=THREE.DoubleSide;m.needsUpdate=true}})}});
  let box=new THREE.Box3().setFromObject(obj),size=box.getSize(new THREE.Vector3());
  if(!isFinite(size.y)||size.y<0.001)throw new Error('The FBX has no visible character mesh.');
@@ -435,10 +435,12 @@ function refreshOriginalFace(){try{FACES.original=faceOriginal();paintCards()}ca
    The game's procedural rig (hip/tor/head/arms/legs) already holds the correct pose for every move
    (dribble, shot, dunks, crossovers, falls...). Each frame we copy that pose onto the Ch11 skeleton:
    spine/head lean + twist, and two-bone IK for both arms and legs so hands/feet go where the rig's do. */
-const MX={rest:null,baseY:0,hipRestY:.985},MXD={err:{},cnt:0,ext:0,skin:0};
+const MX={rest:null,baseY:0,hipRestY:.985,t:0},MXD={err:{},cnt:0,ext:0,skin:0},MXH={};
+function isMX(){return selectedCharacter!=='original'&&mixamoReady}   /* true while Ch11 / Ch01 is equipped: posture + hand tweaks only apply to those */
 function mixCapture(obj,bones){
  const g=n=>bones['mixamorig'+n.toLowerCase()];
  const names=['Hips','Spine','Spine1','Spine2','Neck','Head','LeftUpLeg','LeftLeg','LeftFoot','RightUpLeg','RightLeg','RightFoot','LeftShoulder','RightShoulder','LeftArm','LeftForeArm','LeftHand','RightArm','RightForeArm','RightHand'];
+ ['Left','Right'].forEach(sd=>['Index','Middle','Ring','Pinky','Thumb'].forEach(fn=>[1,2,3].forEach(j=>names.push(sd+'Hand'+fn+j))));
  const rest={};names.forEach(n=>{const b=g(n);if(b)rest[n]={b,q:b.quaternion.clone()}});
  P.updateMatrixWorld(true);
  const pq=P.getWorldQuaternion(new THREE.Quaternion()).invert();
@@ -493,9 +495,29 @@ function animateMixamoPlayer0(){
  lean(head,tor,B('Neck'),.35);lean(head,tor,B('Head'),.65);
  const bkOf=n=>rs[n]&&rs[n].bk?rs[n].bk.clone().applyQuaternion(_wq(rs[n].b)):new THREE.Vector3(0,0,1).applyQuaternion(_wq(P)),chestBack=bkOf('Spine2'),hipBack=bkOf('Hips'),air=Math.max(0,Math.min(1,(P.position.y-GY)/.25));
  /* arms: hands go where the game rig's hands are (dunk reach, dribble, shot, crossover...) */
+ /* ---- arms + hands: wrist turn toward the ball, cock / flick on the shot, fingers curled round the ball, palm placed on the ball surface ---- */
+ const GS=S,GC=ball.position.clone(),PQ=_wq(P),pw=(x,y,z)=>V(x,y,z).applyQuaternion(PQ).normalize(),FWD=pw(0,0,-1),BCK=pw(0,0,1),
+  sst=x=>{x=x<0?0:x>1?1:x;return x*x*(3-2*x)},gu=GS=='sh'?shT/SHD:0,
+  held=!fl&&(GS=='dr'||GS=='ch'||(GS=='sh'&&gu<.5)||(GS=='dk'&&dk&&dk.u<.62)),
+  shootA=JFx().lh?A[0]:A[1],rlwAll=GS=='sh'?sst((gu-.5)/.12):(GS=='fr'&&ft>0&&cel<=0?sst(ft/.12):0),
+  tNow=performance.now(),dtm=Math.min(.05,(tNow-(MX.t||tNow))/1000),kk=1-Math.exp(-dtm*14);MX.t=tNow;
  MXD.cnt=0;A.forEach(a=>{const nm=a.s>0?'Right':'Left',u=B(nm+'Arm'),f=B(nm+'ForeArm'),h=B(nm+'Hand');if(!u||!f||!h){MXD.err[nm]='missing '+(!u?'Arm ':'')+(!f?'ForeArm ':'')+(!h?'Hand':'');return}
-  const Sp=_wp(a.sh),Ep=_wp(a.el),Wp=a.el.localToWorld(V(0,-.34,0)),S=_wp(u),len=S.distanceTo(_wp(f))+_wp(f).distanceTo(_wp(h)),lp=Sp.distanceTo(Ep)+Ep.distanceTo(Wp);
-  const T=S.clone().add(Wp.clone().sub(Sp).multiplyScalar(len/lp));(CHARS[selectedCharacter]&&CHARS[selectedCharacter].aim?mxLimbAim:mxLimbIK)(u,f,h,T,Ep.clone().sub(Sp),chestBack);MXD.err[nm]=_wp(h).distanceTo(T);MXD.cnt++});
+  const Sp=_wp(a.sh),Ep=_wp(a.el),Wp=a.el.localToWorld(V(0,-.34,0)),Sb=_wp(u),len=Sb.distanceTo(_wp(f))+_wp(f).distanceTo(_wp(h)),lp=Sp.distanceTo(Ep)+Ep.distanceTo(Wp);
+  const T=Sb.clone().add(Wp.clone().sub(Sp).multiplyScalar(len/lp));
+  const hs=MXH[nm]||(MXH[nm]={w:0,c:0,pn:null,fd:null}),mid=B(nm+'HandMiddle1'),pd=mid?_wp(h).distanceTo(_wp(mid))*.55:.06,isSh=a===shootA,rlw=isSh?rlwAll:0,
+   dT=T.distanceTo(GC),near=held?1-sst((dT-.24)/.26):0,pn0=dT>.045?GC.clone().sub(T).multiplyScalar(1/dT):pw(0,-1,-.25),
+   cock=isSh&&GS=='sh'?sst((gu-.2)/.2)*(1-sst((gu-.5)/.1)):0;   /* palm normal points at the ball; shooting wrist cocks back before the release */
+  const fd0=T.clone().sub(Sb).normalize();fd0.addScaledVector(FWD,GS=='dr'?.45:.2).addScaledVector(BCK,.55*cock).normalize();
+  fd0.addScaledVector(FWD,Math.max(0,Math.abs(fd0.dot(pn0))-.45)*1.6).normalize();
+  const fdo=fd0.clone().sub(pn0.clone().multiplyScalar(fd0.dot(pn0)));if(fdo.lengthSq()<.04)fdo.copy(FWD).sub(pn0.clone().multiplyScalar(FWD.dot(pn0)));fdo.normalize();
+  const pushW=near*(1-rlw);if(pushW>.001)T.lerp(GC.clone().addScaledVector(pn0,-BR*.9).addScaledVector(fdo,-pd),pushW);   /* wrist sits back so the palm touches the ball instead of the fingers sinking into it */
+  (CHARS[selectedCharacter]&&CHARS[selectedCharacter].aim?mxLimbAim:mxLimbIK)(u,f,h,T,Ep.clone().sub(Sp),chestBack);MXD.err[nm]=_wp(h).distanceTo(T);MXD.cnt++;
+  const fdT=fdo.clone().lerp(pw(0,-.35,-.95),rlw).normalize(),pnT=pn0.clone().lerp(pw(0,-1,-.15),rlw).normalize(),ow=Math.max(held?(GS=='dr'?1:near):0,rlw);
+  hs.w+=(ow-hs.w)*kk;hs.c+=((held?near:0)*(1-.6*rlw)*(cock>0?.7:1)+.25*rlw-hs.c)*kk;
+  if(!hs.pn){hs.pn=pnT.clone();hs.fd=fdT.clone()}else{hs.pn.lerp(pnT,kk).normalize();hs.fd.lerp(fdT,kk).normalize()}
+  if(hs.w>.004){const Y=hs.fd.clone(),Z=hs.pn.clone().sub(Y.clone().multiplyScalar(hs.pn.dot(Y)));if(Z.lengthSq()<1e-6)Z.copy(FWD);Z.normalize();   /* Mixamo hand: local Y = fingers, local Z = palm normal (both hands) */
+   const X=new THREE.Vector3().crossVectors(Y,Z),tq=new Q().setFromRotationMatrix(new THREE.Matrix4().makeBasis(X,Y,Z));mxSetWorldQ(h,_wq(h).slerp(tq,hs.w))}
+  if(hs.c>.004)['Index','Middle','Ring','Pinky'].forEach(fn=>[.42,.55,.38].forEach((ag,j)=>{const b=B(nm+'Hand'+fn+(j+1));if(b)b.quaternion.multiply(new Q().setFromAxisAngle(new THREE.Vector3(1,0,0),ag*hs.c))}))});
  /* legs + flat feet */
  Lg.forEach(l=>{const nm=l.s>0?'Right':'Left',u=B(nm+'UpLeg'),f=B(nm+'Leg'),ft=B(nm+'Foot');if(!u||!f||!ft)return;
   const Sp=_wp(l.th),Ep=_wp(l.kn),Ap=l.kn.localToWorld(V(0,-.46,0)),S=_wp(u),len=S.distanceTo(_wp(f))+_wp(f).distanceTo(_wp(ft)),lp=Sp.distanceTo(Ep)+Ep.distanceTo(Ap);
@@ -666,7 +688,7 @@ function dkArms(){const k=dk,D2=k.D,u=k.u,s=cl((u-.24)/.38,0,1),r=P.worldToLocal
   A.forEach(a=>ik(rig,a,a.s>0?dm:D2.two?rc(a,V(dm.x-.2,dm.y,dm.z)):rc(a,dm.clone().add(V(-.3,0,0)).lerp(V(-.6,1.22+.04*Math.sin(k.t*7),.05),sm(s/.3)))))}
  else{const rr=sm((u-.72)/.2);A.forEach(a=>ik(rig,a,a.s>0?rc(a,r.clone().lerp(V(.35,1.5,-.3),rr)):D2.two?rc(a,r.clone().add(V(-.2,0,0)).lerp(V(-.4,1.4,-.2),rr)):rc(a,V(-.5,1.12,0))))}
  if(D2.hang&&u>.6)Lg.forEach(l=>{l.th.rotation.x=.12+.12*Math.sin(k.t*5+l.s);l.kn.rotation.x=-.25;l.th.rotation.z=0});
- if(D2.bd){const b=D2.bd(cl((u-.24)/.7,0,1)),w2=sm((u-.24)/.1);tor.rotation.set(b[0]*w2,b[1]*w2,b[2]*w2)}else{tor.rotation.x=((D2.tx||0)+.02)*bell+(u>.62?.06*sm((u-.62)/.2):0);tor.rotation.z=(D2.tz||0)*bell;tor.rotation.y=(D2.ty||0)*bell}head.rotation.x=.14*sm(cl((u-.24)/.2,0,1))-.1*(1-sm(cl((u-.24)/.2,0,1)))}
+ if(D2.bd){const b=D2.bd(cl((u-.24)/.7,0,1)),w2=sm((u-.24)/.1);tor.rotation.set(b[0]*w2,b[1]*w2,b[2]*w2)}else{tor.rotation.x=((D2.tx||0)+.02+(isMX()?.05:0))*bell+(u>.62?.06*sm((u-.62)/.2):0);tor.rotation.z=(D2.tz||0)*bell;tor.rotation.y=(D2.ty||0)*bell}head.rotation.x=.14*sm(cl((u-.24)/.2,0,1))-.1*(1-sm(cl((u-.24)/.2,0,1)))+(isMX()?.3*bell:0)}
 function dunkD(dt){const k=D.k,q=dfr,F=k.F,pp=P.position;k.t+=dt;const t=k.t,u=dk?dk.u:1;let x=D.x,z=D.z,jh=0;
  if(k.hx===undefined){const a=sm(t/k.mt);x=lerp(k.sx,k.ix,a);z=lerp(k.sz,k.iz,a);jh=.34*Math.sin(PI*cl((u-.26)/.3,0,1));
   const sx=pp.x-x,sz=pp.z-z,sp=Math.hypot(sx,sz)||1e-3;
@@ -704,7 +726,7 @@ function upd(dt){tm+=dt;
  const spd=vel.length(),n=Math.max(spd/5.4,mvA?.45:0,S=='dk'&&dk&&dk.u<.24?1:0);
  let tf=face;if(S=='ch'||S=='sh'||S=='dk')tf=Math.atan2(pp.x,pp.z-hz);else if(spd>.4)tf=Math.atan2(-vel.x,-vel.z);
  let df=tf-face;df=Math.atan2(Math.sin(df),Math.cos(df));face+=df*(1-Math.exp(-12*dt));P.rotation.y=face;ph+=Math.max(spd,mvA?2:0,S=='dk'&&dk&&dk.u<.24?5.5:0)*dt*2.2;
- let cr=S=='dr'?.2+n*.12:0,ju=0,tz=0;tor.rotation.y=0;head.rotation.z=0;head.rotation.y=0;
+ let cr=S=='dr'?.2+n*.12+(isMX()?.07:0):0,ju=0,tz=0;tor.rotation.y=0;head.rotation.z=0;head.rotation.y=0;
  if(S=='ch'){ch+=dt;cr=cl(ch*.85,0,.7);if(ch>RM)doShot()}
  if(S=='sh'){shT+=dt;const u=Math.min(shT/SHD,1);cr=u<.2?lerp(crS,.78,u/.2):cl(.78*(1-(u-.2)/.2),0,.78);ju=u<.16?0:JFx().j*(shot.fade?.75:.62)*Math.sin(PI*cl((u-.16)/.84,0,1));
   if(u>=.16&&shot.fade){const Lr=Math.hypot(pp.x,pp.z-hz)||1,ax=pp.x/Lr,az=(pp.z-hz)/Lr,sd=shot.fade=='fadeS'?shot.fs*1.2:0,k=(shot.fade=='step'?38:28)*Math.exp(-5*(u-.16))*dt;dash.x+=(ax-az*sd+shot.fv.x*.5)*k;dash.z+=(az+ax*sd+shot.fv.z*.5)*k} /* decaying drift force */
@@ -716,10 +738,10 @@ function upd(dt){tm+=dt;
    if(m.u>=1){side=m.to;mvA=null;dph=0;const q=mq.shift();if(q)startMove(q[0],q[1])}}
   else{const db=Math.floor(dph+.5);if(db!==SFX.lastDb){SFX.lastDb=db;SFX.bounce(.45+n*.3)}const u=dph%1,v=(u<.5?u:1-u)*2;bp.set(side*.27,BR+(1.1-BR)*(1-v*v),-.4-n*.14)}}
  tzv+=(tz-tzv)*(1-Math.exp(-14*dt));tor.rotation.z=tzv;
- legs(rig,ph,n,cr,ju>.03);tor.rotation.x=S=='dr'?-.3*(.4+n):S=='sh'?-.06-.14*Math.sin(PI*Math.min(shT/SHD,1)):-n*.1;head.rotation.x=S=='sh'||S=='ch'?.26:S=='dr'?.16:0;if(S=='sh'||S=='ch'){const q=JFx();tor.rotation.z+=q.l;tor.rotation.y=q.t;head.rotation.z=q.h;tor.rotation.x+=q.f}if(S=='sh'){const kk=JFx().kk,kb=Math.sin(PI*Math.min(shT/SHD,1));if(kk)Lg.forEach(l=>{l.th.rotation.x+=(l.s>0?kk:-kk*.5)*kb;l.kn.rotation.x-=(l.s>0?kk*.4:0)*kb})}if(S=='sh'&&shot.fade)fadePose(Math.min(shT/SHD,1));
+ legs(rig,ph,n,cr,ju>.03);tor.rotation.x=S=='dr'?(isMX()?-.2-.15*n:-.3*(.4+n)):S=='sh'?-.06-.14*Math.sin(PI*Math.min(shT/SHD,1)):-n*.1;head.rotation.x=S=='sh'||S=='ch'?.26:S=='dr'?(isMX()?.14-tor.rotation.x*.75:.16):0;if(S=='sh'||S=='ch'){const q=JFx();tor.rotation.z+=q.l;tor.rotation.y=q.t;head.rotation.z=q.h;tor.rotation.x+=q.f}if(S=='sh'){const kk=JFx().kk,kb=Math.sin(PI*Math.min(shT/SHD,1));if(kk)Lg.forEach(l=>{l.th.rotation.x+=(l.s>0?kk:-kk*.5)*kb;l.kn.rotation.x-=(l.s>0?kk*.4:0)*kb})}if(S=='sh'&&shot.fade)fadePose(Math.min(shT/SHD,1));
  if(cel>0){cel=Math.max(0,cel-dt);if(S!='fr')cel=0}else if(S=='fr'&&!fl&&ft<=0)S='dr';
  P.updateMatrixWorld(true);
- if(S=='dr')A.forEach(a=>{const w=a.s>0?(side+1)/2:(1-side)/2;ik(rig,a,V(a.s*.36,1.08,-.3).lerp(V(bp.x,cl(bp.y+.08,.92,1.12),Math.min(bp.z,-.3)),w))});
+ if(S=='dr')A.forEach(a=>{const w=a.s>0?(side+1)/2:(1-side)/2;ik(rig,a,(isMX()?V(a.s*.4,1.2,-.34):V(a.s*.36,1.08,-.3)).lerp(V(bp.x,cl(bp.y+.08,.92,1.12),Math.min(bp.z,-.3)),w))});
  else if(S=='ch'){bp.lerp(V(.04,1.3-cr*.25,-.38),1-Math.exp(-22*dt));{const tt=tor.rotation.y,ct=Math.cos(tt),sn2=Math.sin(tt);A.forEach(a=>{const x=bp.x+a.s*.12;ik(rig,a,V(x*ct-bp.z*sn2,bp.y,x*sn2+bp.z*ct))})}}
  else if(S=='dk')dkArms();
  else if(S=='sh'||ft>0){const u=S=='sh'?shT/SHD:1,F=JFx(),xs=F.lh?-1:1,k1=cl(u/.2,0,1),k2=cl((u-.2)/.32,0,1),e2=k2*k2*(3-2*k2),rl=u>.52?cl((u-.52)/.2,0,1):0,

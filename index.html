@@ -678,9 +678,9 @@ FALLS=[
 {n:'back-slam',FD:.5,rot:f=>1.6*sm(f),legs:(q,f)=>q.Lg.forEach(l=>{l.th.rotation.x=lerp(.15,.85,f);l.kn.rotation.x=-.2*f})},
 {n:'sit-back',FD:.8,rot:f=>f<.5?sm(f/.5):1+.58*sm((f-.5)/.5),legs:(q,f)=>{const k=Math.sin(PI*cl((f-.5)/.5,0,1));q.Lg.forEach(l=>{l.th.rotation.x=.2+.9*k;l.kn.rotation.x=-.6*k})}},
 {n:'stumble-back',FD:.95,rot:f=>f<.3?.35*sm(f/.3):.35+1.23*sm((f-.3)/.7),legs:(q,f)=>q.Lg.forEach(l=>{const w=Math.sin(f*PI*5+(l.s>0?0:PI))*(1-f);l.th.rotation.x=.2+.55*w;l.kn.rotation.x=-.5-.45*w})},
-{n:'side-fall',FD:.7,rot:f=>.5*sm(f),rz:f=>1.55*sm(f),legs:(q,f)=>q.Lg.forEach(l=>{l.th.rotation.x=lerp(.15,l.s>0?.9:.3,f);l.kn.rotation.x=lerp(-.2,l.s>0?-1.1:-.5,f)})},
-{n:'spin-out',FD:.85,rot:f=>1.55*sm(f),yw:f=>2.3*sm(f),legs:(q,f)=>q.Lg.forEach(l=>{const w=Math.sin(f*PI*3+(l.s>0?0:PI))*(1-f);l.th.rotation.x=.25+.5*w;l.kn.rotation.x=-.45-.3*w})},
-{n:'knees-slump',FD:.65,rot:f=>1.6*sm(f),yw:f=>-.9*sm(f),legs:(q,f)=>q.Lg.forEach(l=>{l.th.rotation.x=lerp(.15,l.s>0?1.2:.7,sm(f));l.kn.rotation.x=lerp(-.2,-1.7,sm(f))})}],
+{n:'side-fall',FD:.7,lat:1,rot:f=>.12*sm(f),rz:f=>1.58*sm(f),legs:(q,f)=>q.Lg.forEach(l=>{l.th.rotation.x=lerp(.15,l.s>0?.9:.3,f);l.kn.rotation.x=lerp(-.2,l.s>0?-1.1:-.5,f)})},
+{n:'spin-out',FD:.85,rot:f=>1.55*sm(f),yw:f=>6.283*sm(f),legs:(q,f)=>q.Lg.forEach(l=>{const w=Math.sin(f*PI*3+(l.s>0?0:PI))*(1-f);l.th.rotation.x=.25+.5*w;l.kn.rotation.x=-.45-.3*w})},
+{n:'knees-slump',FD:.65,rot:f=>1.6*sm(f),legs:(q,f)=>q.Lg.forEach(l=>{l.th.rotation.x=lerp(.15,l.s>0?1.2:.7,sm(f));l.kn.rotation.x=lerp(-.2,-1.7,sm(f))})}],
 RD=.7,FTD=4.2;
 {const BAD=['TWO-HAND EASY','EASY ONE-HAND','TWO-HAND FLOAT','ONE-HAND FLOAT','TWO-HAND CRADLE','ONE-HAND CRADLE'];for(let i=DKS.length-1;i>=0;i--)if(BAD.includes(DKS[i].n))DKS.splice(i,1);DKS.forEach(d=>{d.H*=1.06;d.tx=Math.max(d.tx||.1,.2)})} /* no soft floaters: every dunk is a statement */
 const CDK=['TWO-HAND POWER','TWO-HAND TOMAHAWK','TWO-HAND SLAM','COCK BACK','WESTBROOK SLAM','WESTBROOK TOMAHAWK','TOMAHAWK','ONE-HAND SLAM']; /* poster finishes */
@@ -702,6 +702,7 @@ function dkStep(dt){const k=dk,pp=P.position;k.t+=dt;const ta=k.ta,Ta=k.Ta,tau=k
  if(k.t<ta){const a=k.t/ta;pp.x=lerp(k.x0,k.tx,a);pp.z=lerp(k.z0,k.tz,a)}
  else{const R_=u<.66?lerp(k.Rt,RD,sm(cl(tau/(.5*sc),0,1))):lerp(RD,RD+.7,sm((u-.66)/.34));pp.x=k.dx*R_;pp.z=hz+k.dz*R_}
  if(k.bt!==undefined){const e=Math.exp(-5*(k.t-k.bt));pp.x+=k.bx*e;pp.z+=k.bz*e}
+ {const Hs=(BODY[look.body]||[1,1])[1];ju=Math.min(ju,Math.max(.45,RY-.16-GY-1.92*Hs))} /* head always a little under the rim; the arms do the reaching */
  k.cr=cr;k.ju=ju;k.spin=k.D.sp&&u>=.24?k.D.sp((u-.24)/.38,u):0;if(!k.hit&&u>=.4){k.hit=1;if(k.contact)shk=1.8}
  if(u>=.62&&!k.rel){k.rel=1;hs=0;shk=0;dfx();{const q=ball.position,dd=Math.hypot(q.x,q.z-hz);if(dd>.11){q.x*=.11/dd;q.z=hz+(q.z-hz)*.11/dd}q.y=Math.max(q.y,RY+.14);bv.set(-q.x*6,-5,(hz-q.z)*6)}SFX.dunk();fl=true;ft2=0;prevY=RY+.3;made=true;shot={d:1,g:false,make:true,con:0};sco.a++;sco.p+=2;swishNet();rattleNet(0,0,0,hz,9);rimT=true;sco.m++;streak++;netB=1;cheer=2.6;hud()}
  if(u>=1||k.t>=ta+Ta){dk=null;S='fr';ft=.12;cel=0}
@@ -719,11 +720,26 @@ function dkArms(){const k=dk,D2=k.D,u=k.u,s=cl((u-.24)/.38,0,1),r=P.worldToLocal
  if(D2.bd){const b=D2.bd(cl((u-.24)/.7,0,1)),w2=sm((u-.24)/.1);tor.rotation.set(b[0]*w2,b[1]*w2,b[2]*w2)}else{tor.rotation.x=((D2.tx||0)+.02+(isMX()?.05:0))*bell+(u>.62?.06*sm((u-.62)/.2):0);tor.rotation.z=(D2.tz||0)*bell;tor.rotation.y=(D2.ty||0)*bell}head.rotation.x=.14*sm(cl((u-.24)/.2,0,1))-.1*(1-sm(cl((u-.24)/.2,0,1)))+(isMX()?.3*bell:0)}
 function dunkD(dt){const k=D.k,q=dfr,F=k.F,pp=P.position;k.t+=dt;const t=k.t,u=dk?dk.u:1;let x=D.x,z=D.z,jh=0;
  if(k.hx===undefined){const a=sm(t/k.mt);x=lerp(k.sx,k.ix,a);z=lerp(k.sz,k.iz,a);jh=.34*Math.sin(PI*cl((u-.26)/.3,0,1));
-  const sx=pp.x-x,sz=pp.z-z,sp=Math.hypot(sx,sz)||1e-3;
-  if(t>k.mt*.45&&(sp<=.66||u>=.46||!dk)){k.hx=t;const nx=-sx/sp,nz=-sz/sp;k.vx=nx*6.2-nz*k.sd*1.4;k.vz=nz*6.2+nx*k.sd*1.4;if(dk){dk.bx=nz*k.sd*.12;dk.bz=-nx*k.sd*.12;dk.bt=dk.t}shk=2.4;hs=.12;dfx();try{SFX.bounce(1.4);SFX.squeak();ban('POSTERIZED!','#ffd84a',true)}catch(e){}}} /* body-to-body hit: screen shake, flash, thud */
+  let sx=pp.x-x,sz=pp.z-z,sp=Math.hypot(sx,sz)||1e-3;
+  if(t>k.mt&&dk&&sp>.62){const m=Math.min(sp-.6,5.5*dt);x+=sx/sp*m;z+=sz/sp*m;sx=pp.x-x;sz=pp.z-z;sp=Math.hypot(sx,sz)||1e-3} /* he steps into the dunker so the bodies really meet */
+  const touch=sp<=.66&&Math.abs((pp.y-GY)-jh)<1.25; /* he only starts to go down when his body physically touches the dunker's body */
+  if(t>k.mt*.45&&(touch||(!dk&&t>k.mt*.6)||(dk&&u>=.82))){
+   if(sp<.6&&sp>.01){x=pp.x-sx/sp*.55;z=pp.z-sz/sp*.55}
+   k.hx=t;const nx=-(pp.x-x)/(Math.hypot(pp.x-x,pp.z-z)||1),nz=-(pp.z-z)/(Math.hypot(pp.x-x,pp.z-z)||1);
+   /* pick the direction he flies/falls so his whole body lands on open floor: never into the hoop, backboard or out of bounds */
+   const Fl=k.F,slide=1.3,len=1.95,offs=[0,.45,-.45,.9,-.9,1.4,-1.4,1.9,-1.9,2.5,-2.5];let best=null,bs=-1e9;
+   for(const o0 of offs){const o=o0*k.sd,c=Math.cos(o),sn_=Math.sin(o),dx_=nx*c-nz*sn_,dz_=nx*sn_+nz*c,fx=x+dx_*slide,fz=z+dz_*slide,hx_=fx+dx_*len,hz_=fz+dz_*len,
+     rr=Math.min(Math.hypot(fx,fz-hz),Math.hypot(hx_,hz_-hz)),zz=Math.min(fz,hz_)-hz,ob=Math.max(0,Math.abs(hx_)-7.1)+Math.max(0,Math.abs(fx)-7.1)+Math.max(0,hz_-8.2),
+     sc_=Math.min(0,Math.min(rr-1.25,(zz-.75)*1.3))*4-ob*3-Math.abs(o0)*.08; /* any clear direction scores ~0, so the most natural (straight back) wins */
+     if(sc_>bs){bs=sc_;best=[dx_,dz_]}}
+   const fd=best,fy=Fl.lat?Math.atan2(k.sd*fd[1],-k.sd*fd[0]):Math.atan2(fd[0],fd[1]);let dy=fy-k.yaw;dy=Math.atan2(Math.sin(dy),Math.cos(dy));
+   k.fd=fd;k.ya=dy;k.vx=fd[0]*4.4;k.vz=fd[1]*4.4;
+   if(dk){dk.bx=nz*k.sd*.12;dk.bz=-nx*k.sd*.12;dk.bt=dk.t}shk=2.4;hs=.12;dfx();try{SFX.bounce(1.4);SFX.squeak();ban('POSTERIZED!','#ffd84a',true)}catch(e){}}} /* body-to-body hit: screen shake, flash, thud */
  else{x+=k.vx*dt;z+=k.vz*dt;const f=Math.exp(-2.8*dt);k.vx*=f;k.vz*=f;jh=.22*Math.sin(PI*cl((t-k.hx)/.5,0,1));
   const sx=x-pp.x,sz=z-pp.z,sp=Math.hypot(sx,sz)||1e-3;if(sp<.5){x=pp.x+sx/sp*.5;z=pp.z+sz/sp*.5}}
- x=cl(x,-7.4,7.4);z=cl(z,-10.2,8.6);{z=Math.max(z,hz+.5);const rr=Math.hypot(x,z-hz);if(rr<.85){if(rr<.001){x=.85;z=hz+.5}else{x=x/rr*.85;z=hz+(z-hz)/rr*.85}}}
+ x=cl(x,-7.4,7.4);z=cl(z,-10.2,8.6);{z=Math.max(z,hz+.55);const fe0=k.fl===undefined?0:cl((t-k.fl)/F.FD,0,1),ex=k.hx===undefined?0:1.95*Math.max(fe0,.35),fd=k.fd||[0,1];
+  for(let i=0;i<2;i++){const ex2=x+fd[0]*ex,ez2=z+fd[1]*ex;let r2=Math.hypot(ex2,ez2-hz);if(r2<1.2){const ux=ex2/(r2||1),uz=(ez2-hz)/(r2||1)||1,m=1.2-r2;x+=(r2?ux:0)*m;z+=uz*m}if(z+fd[1]*ex<hz+.6)z+=hz+.6-(z+fd[1]*ex);}
+  const rr=Math.hypot(x,z-hz);if(rr<.9){if(rr<.001){x=.9;z=hz+.55}else{x=x/rr*.9;z=hz+(z-hz)/rr*.9}}}
  if(k.hx!==undefined&&k.fl===undefined&&(!dk||dk.rel||t>k.hx+.2))k.fl=t;
  const fl=k.fl,fe=fl===undefined?0:cl((t-fl)/F.FD,0,1),lt=fl===undefined?1e9:fl+F.FD+2.65,lie=t<lt?1:1-sm((t-lt)/.7),g=fe*lie,hc=k.hx===undefined?0:sm((t-k.hx)/.14),lean=.7*hc*(1-fe);
  D.x=x;D.z=z;D.jh=jh;D.up=1;con=0;
@@ -1090,7 +1106,7 @@ g.strokeStyle=g.fillStyle=`hsla(${p.h},80%,${75+Math.min(20,k)}%,${Math.min(1,.2
 ;(function(){let mc=0,mt=0,pd=updD,sm0=startMove;const gp=()=>Math.hypot(D.x-P.position.x,D.z-P.position.z);
 startMove=function(t,dir){if(t=='k'){SFX.squeak();const f=side>=0?1:-1;mvA={t:'x',u:0,d:.45,from:f,to:f};dash.x+=Math.sin(face)*14.5;dash.z+=Math.cos(face)*14.5;window.stepK=.55;if(Math.hypot(D.x-P.position.x,D.z-P.position.z)<4.2)D.stun=Math.max(D.stun,.6);return}const _f=side>=0?1:-1,_to=t=='x'?dir*(Math.cos(face)>=0?1:-1):-_f;sm0(t,dir);if(look.def=='off'||D.k)return;if(tm-mt>1.8)mc=0;mt=tm;mc++;const d=gp();if(d>2.8)return;const perfect=(D.vx||0)*(-_to)>.9&&d<2.1,p=tm-(D.akT||-9)<5?0:perfect?.75:Math.min(.25,.04+.05*(mc-1));
 if(Math.random()<p){D.akT=tm;window.repAdd&&repAdd(25);D.ank=.95;D.stun=1;D.fx=-_to;D.hx=D.x;D.hz=D.z;ban('ANKLE BREAKER!','#ff5a36');dfx()}else if(mc>1)D.stun=Math.max(D.stun,.55)};
-updD=function(dt){if(window.stepK>0)window.stepK-=dt;if(dk&&look.def!='off'&&!D.k&&!dk.dj&&dk.u>.1&&D.j<0&&Math.hypot(D.x-P.position.x,D.z-P.position.z)<4.5){dk.dj=1;D.j=0}if(look.def=='off')return pd(dt);if(D.k){pd(dt);if(dk&&D.k&&D.k.fl===undefined){dfr.P.position.y=GY+(dk.ju||0)*1.4;dfr.Lg.forEach(l=>{l.th.rotation.x=.3;l.kn.rotation.x=-.5});dfr.A.forEach(a=>ik(dfr,a,V(a.s*.22,2.1,-.2)))}return}if(dk){pd(dt);if(dk.dj){D.dkj=1;D.jh=(dk.ju||0)*1.4;D.up=1;dfr.P.position.y=GY+D.jh;dfr.A.forEach(a=>ik(dfr,a,V(a.s*.22,2.1,-.2)))}return}if(D.dkj){D.dkj=0;D.j=-1;D.jh=0;D.done=true}const pp=P.position,ox=D.x;if(D.rush>0)D.rush-=dt;
+updD=function(dt){if(window.stepK>0)window.stepK-=dt;if(dk&&look.def!='off'&&!D.k&&!dk.dj&&dk.u>.1&&D.j<0&&Math.hypot(D.x-P.position.x,D.z-P.position.z)<4.5){dk.dj=1;D.j=0}if(look.def=='off')return pd(dt);if(D.k){pd(dt);if(dk&&D.k&&D.k.hx===undefined){dfr.P.position.y=GY+Math.min(.4,(dk.ju||0)*.7);dfr.Lg.forEach(l=>{l.th.rotation.x=.3;l.kn.rotation.x=-.5});dfr.A.forEach(a=>ik(dfr,a,V(a.s*.22,2.1,-.2)))}return}if(dk){pd(dt);if(dk.dj){D.dkj=1;D.jh=(dk.ju||0)*1.4;D.up=1;dfr.P.position.y=GY+D.jh;dfr.A.forEach(a=>ik(dfr,a,V(a.s*.22,2.1,-.2)))}return}if(D.dkj){D.dkj=0;D.j=-1;D.jh=0;D.done=true}const pp=P.position,ox=D.x;if(D.rush>0)D.rush-=dt;
 if(!(D.ank>0)&&!(D.stun>0)&&S!='sh'){const fx=pp.x+vel.x*.3,fz=pp.z+vel.z*.3,dr=Math.hypot(pp.x,pp.z-hz),gap=cl(.9+dr*.14,1,1.9),dx=-fx,dz=hz-fz,L=Math.hypot(dx,dz)||1,sw=Math.sin(tm*2.3)*.1,tx=fx+dx/L*gap-dz/L*sw,tz=fz+dz/L*gap+dx/L*sw,ex=tx-D.x,ez=tz-D.z,el=Math.hypot(ex,ez),sp=Math.min((2+STAT.interiorD/100*2.4)*(.55+Math.min(el,1.5)*.45)*(D.rush>0?2:1),9)*dt,m=Math.min(el,sp);if(el>.02){D.x+=ex/el*m;D.z+=ez/el*m}}
 pd(dt);D.vx=lerp(D.vx||0,(D.x-ox)/Math.max(dt,.001),.3);if(D.ank>0){D.x=D.hx;D.z=D.hz;D.ank-=dt;const f=1-D.ank/.95,k=f<.22?sm(f/.22):f>.7?sm((1-f)/.3):1,q=dfr,fx=D.fx||1;q.P.position.set(D.x+Math.sin(f*32)*.04*k,GY-.38*k,D.z);q.P.rotation.z=Math.sin(f*20)*.12*k;q.tor.rotation.x=-1.1*k;q.Lg.forEach(l=>{l.th.rotation.x=1.25*k;l.kn.rotation.x=-1.75*k});q.A.forEach(a=>ik(q,a,V(a.s*.38,1.3-.88*k,-.34-.5*k)));if(D.ank<=0){q.P.rotation.x=0;q.P.rotation.z=0;D.rush=1.6}}}})();
 

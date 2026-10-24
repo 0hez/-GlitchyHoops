@@ -656,9 +656,9 @@ function blendGHDribble(){
  if(GH_DRIBBLE.action){GH_DRIBBLE.action.paused=false;GH_DRIBBLE.action.timeScale=mvA?1.28:1.0;}
  const sideFlip=ball.position.x<P.position.x;
  const fast=!!mvA;
- const alpha=fast ? 0.42 : 0.58;
+ const alpha=fast ? 0.18 : 0.25,idq=new THREE.Quaternion();
  /* Torso + arms: leave legs/hips to the existing basketball movement system. */
- const names=['Spine','Spine1','Spine2','Neck','LeftShoulder','RightShoulder','LeftArm','RightArm','LeftForeArm','RightForeArm','LeftHand','RightHand'];
+ const names=['Spine','Spine1','Spine2','Neck']; /* arms/hands are NOT touched: the game's IK keeps the hands on the ball */
  names.forEach(name=>{
   const target=MX.rest[name];if(!target)return;
   let srcName=name;
@@ -669,7 +669,8 @@ function blendGHDribble(){
   const key=('mixamorig'+srcName).toLowerCase().replace(/[^a-z0-9]/g,'');
   const source=GH_DRIBBLE.bones[key],base=GH_DRIBBLE.rest[key];
   if(!source||!base)return;
-  const delta=base.clone().invert().multiply(source.quaternion);
+  let delta=base.clone().invert().multiply(source.quaternion);
+  {const ang=delta.angleTo(idq);if(ang>.12)delta=idq.clone().slerp(delta,.12/ang)} /* small torso sway only, so hand positions never drift off the ball */
   const desired=target.b.quaternion.clone().multiply(delta);
   target.b.quaternion.slerp(desired,alpha);
  });

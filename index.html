@@ -19,7 +19,7 @@
 #mt.fire #gz,#mt.fire #mk,#mt.fire #fl{display:none}
 #mt.fire{animation:bump .5s ease-out}@keyframes bump{0%{scale:.6}35%{scale:1.35}100%{scale:1}}
 #gf{inset:0;opacity:0;background:radial-gradient(ellipse at center,#0000 45%,#39ff1480 100%)}#gf.on{animation:gfa .9s ease-out}@keyframes gfa{0%{opacity:1}100%{opacity:0}}
-#charpick{margin:10px 0 14px;padding:10px;border:1px solid #ffffff30;border-radius:12px;background:#ffffff08}#charpick h4{margin:0 0 8px;color:#ffd166;font-size:12px;letter-spacing:1px}#charpick .cpbtn{display:block;width:100%;text-align:left;padding:10px;margin:6px 0;border:1px solid #ffffff2a;border-radius:9px;background:#ffffff0c;color:#fff;font-weight:800}#charpick .cpbtn.on{border-color:#ffd23f;background:#ffd23f20}#cpcards{display:flex;gap:8px}.cpcard{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;padding:8px 4px;border:2px solid #ffffff2a;border-radius:12px;background:#ffffff0c;color:#fff;font-weight:800}.cpcard.on{border-color:#ffd23f;background:#ffd23f20}.cpcard img{width:76px;height:76px;border-radius:50%;object-fit:cover;background:#1d2540;border:2px solid #ffffff30}.cpcard b{font-size:12px;letter-spacing:1px}.cpcard small{font-size:10px;color:#9ee7ff}#charstatus{display:block;color:#9ee7ff;font-size:11px;margin-top:6px}
+#charpick{margin:10px 0 14px;padding:10px;border:1px solid #ffffff30;border-radius:12px;background:#ffffff08}#charpick h4{margin:0 0 8px;color:#ffd166;font-size:12px;letter-spacing:1px}#charpick .cpbtn{display:block;width:100%;text-align:left;padding:10px;margin:6px 0;border:1px solid #ffffff2a;border-radius:9px;background:#ffffff0c;color:#fff;font-weight:800}#charpick .cpbtn.on{border-color:#ffd23f;background:#ffd23f20}#cpcards{display:flex;gap:8px}.cpcard{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;padding:8px 4px;border:2px solid #ffffff2a;border-radius:12px;background:#ffffff0c;color:#fff;font-weight:800}.cpcard.on{border-color:#ffd23f;background:#ffd23f20}.cpcard img{width:76px;height:76px;border-radius:50%;object-fit:cover;background:#1d2540;border:2px solid #ffffff30}.cpcard b{font-size:12px;letter-spacing:1px}.cpcard small{font-size:10px;color:#9ee7ff}.cpcard.loading img{animation:cpl 1s ease-in-out infinite}@keyframes cpl{50%{opacity:.45}}.cpcard{cursor:pointer;-webkit-tap-highlight-color:transparent;touch-action:manipulation}#charstatus{display:block;color:#9ee7ff;font-size:11px;margin-top:6px}
 #tabs{display:flex;gap:6px;margin-bottom:6px}#tabs button{flex:1;padding:7px;border:0;border-radius:8px;background:#fff2;color:#fff}#tabs button.on{background:#ff7a1a}#pv{width:100%;padding:9px;border:0;border-radius:10px;background:#ff7a1a;color:#fff;font-weight:700;margin-top:4px}
 #tdk{right:20px;bottom:118px;width:68px;height:68px;font-size:13px;background:#ff7a1a99}
 #hint{bottom:8px;width:100%;text-align:center;opacity:.85;font-size:12px;text-shadow:0 1px 3px #000}
@@ -355,10 +355,10 @@ const rig=makeRig(),{P,hip,tor,head,A,Lg}=rig,dfr=makeRig();sn.add(P);sn.add(dfr
 // while the skinned FBX character supplies the visible player and its animation clip.
 let mixamoMixer=null,mixamoReady=false,mixamoObject=null,selectedCharacter=(()=>{try{const v=localStorage.getItem('gh-selected-character')||'ch11';return v==='mixamo'?'ch11':v}catch(e){return 'ch11'}})();
 /* ---- Player models: Original + Ch11 + Ch01 (Mixamo FBX stored as 3 .bin chunks each) ---- */
-const CHARS={ch11:{name:'CH11',parts:['Ch11_part1.bin','Ch11_part2.bin','Ch11_part3.bin']},ch01:{name:'CH01',parts:['Ch01_part1.bin','Ch01_part2.bin','Ch01_part3.bin']}},MODELS={},FACES={},BLANK='data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==';let setTok=0,loadingId='';
+const CHARS={ch11:{name:'CH11',parts:['Ch11_part1.bin','Ch11_part2.bin','Ch11_part3.bin']},ch01:{name:'CH01',aim:true,parts:['Ch01_part1.bin','Ch01_part2.bin','Ch01_part3.bin']}},MODELS={},FACES={},BLANK='data:image/svg+xml;utf8,'+encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96"><rect width="96" height="96" fill="#1d2540"/><circle cx="48" cy="36" r="15" fill="#3a4673"/><path d="M18 96c2-26 16-36 30-36s28 10 30 36z" fill="#3a4673"/></svg>');let setTok=0,loadingId='';
 try{for(const k in CHARS){const f=localStorage.getItem('gh-face2-'+k);if(f)FACES[k]=f}}catch(e){}
 const chStatus=t=>{const st=document.getElementById('charstatus');if(st)st.textContent=t};
-function paintCards(){document.querySelectorAll('#charpick .cpcard').forEach(c=>{const id=c.dataset.c,img=c.querySelector('img'),src=FACES[id]||BLANK;if(img.dataset.s!==src){img.dataset.s=src;img.src=src}c.classList.toggle('on',selectedCharacter===id);c.querySelector('small').textContent=loadingId===id?'Loading…':selectedCharacter===id?'✅ EQUIPPED':'Tap to equip'})}
+function paintCards(){document.querySelectorAll('#charpick .cpcard').forEach(c=>{const id=c.dataset.c,img=c.querySelector('img'),src=FACES[id]||BLANK;if(img.dataset.s!==src){img.dataset.s=src;img.src=src}c.classList.toggle('on',selectedCharacter===id);c.classList.toggle('loading',loadingId===id||(!FACES[id]&&id!=='original'&&faceBusy));c.querySelector('small').textContent=loadingId===id?'Loading…':selectedCharacter===id?'✅ EQUIPPED':'Tap to equip'})}
 function applyChar(){const m=MODELS[selectedCharacter];hip.visible=!m;for(const k in MODELS)MODELS[k].obj.visible=(k===selectedCharacter);mixamoObject=m?m.obj:null;mixamoReady=!!m;MX.rest=m?m.rest:null;MX.baseY=m?m.baseY:0;MX.ok=0;try{localStorage.setItem('gh-selected-character',selectedCharacter)}catch(e){}paintCards();chStatus(selectedCharacter==='original'?'Original player equipped.':m?'✅ '+CHARS[selectedCharacter].name+' is equipped.':'')}
 function disposeObj(obj){obj.traverse(n=>{if(n.geometry)n.geometry.dispose();if(n.skeleton&&n.skeleton.boneTexture)n.skeleton.boneTexture.dispose();if(n.material)(Array.isArray(n.material)?n.material:[n.material]).forEach(m=>{for(const k in m){const v=m[k];if(v&&v.isTexture)v.dispose()}m.dispose()})})}
 function disposeModel(k){const m=MODELS[k];if(!m)return;P.remove(m.obj);disposeObj(m.obj);delete MODELS[k]}
@@ -448,6 +448,20 @@ function mxLimbIK(b1,b2,b3,T,pole,ref0){
  mxSetWorldQ(b1,mxFrameRot(d1,ref0,a1,pv).multiply(Q1));
  mxSetWorldQ(b2,mxFrameRot(d2,ref0,a2,pv).multiply(Q2));
 }
+/* Aim-based two-bone limb (used for models flagged aim:true, e.g. Ch01). Same targets as mxLimbIK, but each bone is turned by the shortest arc
+   from wherever it currently points, so it does not depend on that model's bone roll / pre-rotation conventions (no twisted "ribbon" arms). */
+function mxLimbAim(b1,b2,b3,T,pole,ref0){
+ const S=_wp(b1),E=_wp(b2),W=_wp(b3),l1=S.distanceTo(E),l2=E.distanceTo(W);
+ const toT=T.clone().sub(S),d=Math.max(Math.abs(l1-l2)*1.001+1e-4,Math.min((l1+l2)*.999,toT.length())),ax=toT.normalize();
+ let pv=pole.clone().sub(ax.clone().multiplyScalar(pole.dot(ax)));
+ if(pv.lengthSq()<1e-6)pv.copy(ref0).sub(ax.clone().multiplyScalar(ref0.dot(ax)));
+ if(pv.lengthSq()<1e-8)pv.set(0,0,1);
+ pv.normalize();
+ const cA=Math.max(-1,Math.min(1,(l1*l1+d*d-l2*l2)/(2*l1*d))),sA=Math.sqrt(Math.max(0,1-cA*cA));
+ const E2=S.clone().add(ax.clone().multiplyScalar(l1*cA)).add(pv.clone().multiplyScalar(l1*sA)),W2=S.clone().add(ax.clone().multiplyScalar(d));
+ mxAim(b1,b2,E2.clone().sub(S).normalize());
+ mxAim(b2,b3,W2.clone().sub(E2).normalize());
+}
 function animateMixamoPlayer0(){
  if(!mixamoReady||!mixamoObject||selectedCharacter==='original'||!MX.rest)return;
  const rs=MX.rest,B=n=>rs[n]&&rs[n].b,Q=THREE.Quaternion;
@@ -466,7 +480,7 @@ function animateMixamoPlayer0(){
  /* arms: hands go where the game rig's hands are (dunk reach, dribble, shot, crossover...) */
  A.forEach(a=>{const nm=a.s>0?'Right':'Left',u=B(nm+'Arm'),f=B(nm+'ForeArm'),h=B(nm+'Hand');if(!u||!f||!h)return;
   const Sp=_wp(a.sh),Ep=_wp(a.el),Wp=a.el.localToWorld(V(0,-.34,0)),S=_wp(u),len=S.distanceTo(_wp(f))+_wp(f).distanceTo(_wp(h)),lp=Sp.distanceTo(Ep)+Ep.distanceTo(Wp);
-  mxLimbIK(u,f,h,S.clone().add(Wp.clone().sub(Sp).multiplyScalar(len/lp)),Ep.clone().sub(Sp),chestBack)});
+  (CHARS[selectedCharacter]&&CHARS[selectedCharacter].aim?mxLimbAim:mxLimbIK)(u,f,h,S.clone().add(Wp.clone().sub(Sp).multiplyScalar(len/lp)),Ep.clone().sub(Sp),chestBack)});
  /* legs + flat feet */
  Lg.forEach(l=>{const nm=l.s>0?'Right':'Left',u=B(nm+'UpLeg'),f=B(nm+'Leg'),ft=B(nm+'Foot');if(!u||!f||!ft)return;
   const Sp=_wp(l.th),Ep=_wp(l.kn),Ap=l.kn.localToWorld(V(0,-.46,0)),S=_wp(u),len=S.distanceTo(_wp(f))+_wp(f).distanceTo(_wp(ft)),lp=Sp.distanceTo(Ep)+Ep.distanceTo(Ap);
@@ -474,12 +488,15 @@ function animateMixamoPlayer0(){
   if(rs[nm+'Foot'].fq){const fw=_wq(P).multiply(rs[nm+'Foot'].fq),pt=new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(1,0,0).applyQuaternion(_wq(P)),-.75*air);mxSetWorldQ(ft,pt.multiply(fw))}})
 }
 function mxMsg(t,c,ms){let d=document.getElementById('gh-mx');if(!d){d=document.createElement('div');d.id='gh-mx';d.style.cssText='position:fixed;left:8px;bottom:70px;z-index:99;font:700 11px system-ui;padding:4px 8px;border-radius:8px;background:#000a;pointer-events:none;max-width:80vw';document.body.append(d)}d.style.color=c;d.textContent=t;d.style.display='block';if(ms)setTimeout(()=>{d.style.display='none'},ms)}
-function animateMixamoPlayer(){try{animateMixamoPlayer0();if(MX.rest&&!MX.ok&&mixamoReady&&selectedCharacter!=='original'){MX.ok=1;mxMsg(CHARS[selectedCharacter].name+' arm retarget v5 active','#7CFC00',6000)}}catch(e){console.error(e);mxMsg('Ch11 pose error: '+e.message,'#ff6b6b',0)}}
+function animateMixamoPlayer(){try{animateMixamoPlayer0();
+ if(MX.rest){let bad=false;for(const n in MX.rest){const q=MX.rest[n].b.quaternion;if(!isFinite(q.x+q.y+q.z+q.w)){bad=true;break}}if(bad){for(const n in MX.rest)MX.rest[n].b.quaternion.copy(MX.rest[n].q);mixamoObject&&mixamoObject.updateMatrixWorld(true)}}   /* never leave a NaN bone (invisible / stretched limbs) */
+if(MX.rest&&!MX.ok&&mixamoReady&&selectedCharacter!=='original'){MX.ok=1;mxMsg(CHARS[selectedCharacter].name+' arm retarget v5 active','#7CFC00',6000)}}catch(e){console.error(e);mxMsg('Ch11 pose error: '+e.message,'#ff6b6b',0)}}
 document.querySelectorAll('#charpick .cpcard').forEach(c=>c.addEventListener('click',()=>{setChar(c.dataset.c);setTimeout(refreshOriginalFace,50)}));
 paintCards();
 if(window.THREE&&THREE.FBXLoader){
  setTimeout(refreshOriginalFace,1200);
- setChar(selectedCharacter);
+ /* start loading right away: equipped model first, then portraits for the other models, so every card is ready to tap when the game opens */
+ setChar(selectedCharacter).finally(()=>setTimeout(makeMissingFaces,300));
 }else{selectedCharacter='original';applyChar()}
 document.getElementById('mmplayer')?.addEventListener('click',()=>setTimeout(makeMissingFaces,400));
 setInterval(()=>{const c=document.getElementById('charpick');if(c&&c.offsetParent!==null){refreshOriginalFace();if(!faceBusy&&!loadingId)makeMissingFaces()}},3000);

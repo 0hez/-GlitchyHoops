@@ -418,7 +418,7 @@ async function fetchBuild(id,prog){
  const obj=new THREE.FBXLoader().parse(j.buffer,''),bones=buildModel(obj);await waitTex(obj);shrinkTex(obj);
  if(!FACES[id]){try{FACES[id]=faceOfModel(obj,bones);try{localStorage.setItem('gh-face2-'+id,FACES[id])}catch(e){}paintCards()}catch(e){console.warn('face preview failed',e)}}
  return{obj,bones}}
-function attachChar(id,raw){const obj=raw.obj;obj.name='GH_'+id;obj.visible=false;P.add(obj);P.updateMatrixWorld(true);const cap=mixCapture(obj,raw.bones);MODELS[id]={obj,bones:raw.bones,rest:cap.rest,baseY:cap.baseY}}
+function attachChar(id,raw){const obj=raw.obj;obj.name='GH_'+id;obj.visible=false;obj.traverse(n=>{n.matrixAutoUpdate=true});{const inTree=new Set();obj.traverse(n=>{if(n.isBone)inTree.add(n)});MXD.ext=0;MXD.skin=0;obj.traverse(m=>{if(m.isSkinnedMesh&&m.skeleton){MXD.skin++;m.skeleton.bones.forEach(b=>{if(!inTree.has(b))MXD.ext++})}})}P.add(obj);P.updateMatrixWorld(true);const cap=mixCapture(obj,raw.bones);MODELS[id]={obj,bones:raw.bones,rest:cap.rest,baseY:cap.baseY}}
 async function setChar(id){
  const tok=++setTok;delete BAD[id];
  if(id!=='original'&&!MODELS[id]){for(const k in MODELS)disposeModel(k);   /* free the old model BEFORE loading the new one (halves peak memory) */
@@ -434,7 +434,7 @@ function refreshOriginalFace(){try{FACES.original=faceOriginal();paintCards()}ca
    The game's procedural rig (hip/tor/head/arms/legs) already holds the correct pose for every move
    (dribble, shot, dunks, crossovers, falls...). Each frame we copy that pose onto the Ch11 skeleton:
    spine/head lean + twist, and two-bone IK for both arms and legs so hands/feet go where the rig's do. */
-const MX={rest:null,baseY:0,hipRestY:.985};
+const MX={rest:null,baseY:0,hipRestY:.985},MXD={err:{},cnt:0,ext:0,skin:0};
 function mixCapture(obj,bones){
  const g=n=>bones['mixamorig'+n.toLowerCase()];
  const names=['Hips','Spine','Spine1','Spine2','Neck','Head','LeftUpLeg','LeftLeg','LeftFoot','RightUpLeg','RightLeg','RightFoot','LeftShoulder','RightShoulder','LeftArm','LeftForeArm','LeftHand','RightArm','RightForeArm','RightHand'];
@@ -492,17 +492,20 @@ function animateMixamoPlayer0(){
  lean(head,tor,B('Neck'),.35);lean(head,tor,B('Head'),.65);
  const bkOf=n=>rs[n]&&rs[n].bk?rs[n].bk.clone().applyQuaternion(_wq(rs[n].b)):new THREE.Vector3(0,0,1).applyQuaternion(_wq(P)),chestBack=bkOf('Spine2'),hipBack=bkOf('Hips'),air=Math.max(0,Math.min(1,(P.position.y-GY)/.25));
  /* arms: hands go where the game rig's hands are (dunk reach, dribble, shot, crossover...) */
- A.forEach(a=>{const nm=a.s>0?'Right':'Left',u=B(nm+'Arm'),f=B(nm+'ForeArm'),h=B(nm+'Hand');if(!u||!f||!h)return;
+ MXD.cnt=0;A.forEach(a=>{const nm=a.s>0?'Right':'Left',u=B(nm+'Arm'),f=B(nm+'ForeArm'),h=B(nm+'Hand');if(!u||!f||!h){MXD.err[nm]='missing '+(!u?'Arm ':'')+(!f?'ForeArm ':'')+(!h?'Hand':'');return}
   const Sp=_wp(a.sh),Ep=_wp(a.el),Wp=a.el.localToWorld(V(0,-.34,0)),S=_wp(u),len=S.distanceTo(_wp(f))+_wp(f).distanceTo(_wp(h)),lp=Sp.distanceTo(Ep)+Ep.distanceTo(Wp);
-  (CHARS[selectedCharacter]&&CHARS[selectedCharacter].aim?mxLimbAim:mxLimbIK)(u,f,h,S.clone().add(Wp.clone().sub(Sp).multiplyScalar(len/lp)),Ep.clone().sub(Sp),chestBack)});
+  const T=S.clone().add(Wp.clone().sub(Sp).multiplyScalar(len/lp));(CHARS[selectedCharacter]&&CHARS[selectedCharacter].aim?mxLimbAim:mxLimbIK)(u,f,h,T,Ep.clone().sub(Sp),chestBack);MXD.err[nm]=_wp(h).distanceTo(T);MXD.cnt++});
  /* legs + flat feet */
  Lg.forEach(l=>{const nm=l.s>0?'Right':'Left',u=B(nm+'UpLeg'),f=B(nm+'Leg'),ft=B(nm+'Foot');if(!u||!f||!ft)return;
   const Sp=_wp(l.th),Ep=_wp(l.kn),Ap=l.kn.localToWorld(V(0,-.46,0)),S=_wp(u),len=S.distanceTo(_wp(f))+_wp(f).distanceTo(_wp(ft)),lp=Sp.distanceTo(Ep)+Ep.distanceTo(Ap);
   mxLimbIK(u,f,ft,S.clone().add(Ap.clone().sub(Sp).multiplyScalar(len/lp)),Ep.clone().sub(Sp),hipBack.clone().negate());
   if(rs[nm+'Foot'].fq){const fw=_wq(P).multiply(rs[nm+'Foot'].fq),pt=new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(1,0,0).applyQuaternion(_wq(P)),-.75*air);mxSetWorldQ(ft,pt.multiply(fw))}})
 }
-function mxMsg(t,c,ms){let d=document.getElementById('gh-mx');if(!d){d=document.createElement('div');d.id='gh-mx';d.style.cssText='position:fixed;left:8px;bottom:70px;z-index:99;font:700 11px system-ui;padding:4px 8px;border-radius:8px;background:#000a;pointer-events:none;max-width:80vw';document.body.append(d)}d.style.color=c;d.textContent=t;d.style.display='block';if(ms)setTimeout(()=>{d.style.display='none'},ms)}
-function animateMixamoPlayer(){try{animateMixamoPlayer0();
+function mxMsg(t,c,ms){let d=document.getElementById('gh-mx');if(!d){d=document.createElement('div');d.id='gh-mx';d.style.cssText='position:fixed;left:50%;transform:translateX(-50%);top:84px;z-index:100000;font:700 12px system-ui;text-align:center;padding:4px 8px;border-radius:8px;background:#000a;pointer-events:none;max-width:80vw';document.body.append(d)}d.style.color=c;d.textContent=t;d.style.display='block';if(ms)setTimeout(()=>{d.style.display='none'},ms)}
+let _dbgN=0;function mxDbg(){if(selectedCharacter!=='ch01'||!MX.rest||++_dbgN%20)return;let d=document.getElementById('gh-dbg');if(!d){d=document.createElement('div');d.id='gh-dbg';d.style.cssText='position:fixed;left:50%;transform:translateX(-50%);top:110px;z-index:100000;font:700 11px system-ui;padding:3px 8px;border-radius:8px;background:#000b;color:#7CFC00;pointer-events:none;text-align:center;white-space:pre';document.body.append(d)}
+ const ang=n=>{const r=MX.rest[n];if(!r)return'n/a';const q=r.b.quaternion,o=r.q,dot=Math.abs(q.x*o.x+q.y*o.y+q.z*o.z+q.w*o.w);return(2*Math.acos(Math.min(1,dot))*57.3).toFixed(0)+'°'};
+ d.textContent='CH01 arms v6 | arms solved: '+MXD.cnt+'/2 | wrist err L '+(typeof MXD.err.Left==='number'?MXD.err.Left.toFixed(3):MXD.err.Left)+' R '+(typeof MXD.err.Right==='number'?MXD.err.Right.toFixed(3):MXD.err.Right)+'\nbone turn: LArm '+ang('LeftArm')+' LFore '+ang('LeftForeArm')+' RArm '+ang('RightArm')+' | skinned '+MXD.skin+' extBones '+MXD.ext}
+function animateMixamoPlayer(){try{animateMixamoPlayer0();mxDbg();
  if(MX.rest){let bad=false;for(const n in MX.rest){const q=MX.rest[n].b.quaternion;if(!isFinite(q.x+q.y+q.z+q.w)){bad=true;break}}if(bad){for(const n in MX.rest)MX.rest[n].b.quaternion.copy(MX.rest[n].q);mixamoObject&&mixamoObject.updateMatrixWorld(true)}}   /* never leave a NaN bone (invisible / stretched limbs) */
 if(MX.rest&&!MX.ok&&mixamoReady&&selectedCharacter!=='original'){MX.ok=1;mxMsg(CHARS[selectedCharacter].name+' arm retarget v5 active','#7CFC00',6000)}}catch(e){console.error(e);mxMsg('Ch11 pose error: '+e.message,'#ff6b6b',0)}}
 document.querySelectorAll('#charpick .cpcard').forEach(c=>c.addEventListener('click',()=>{const id=c.dataset.c;if(id===loadingId)return;setChar(id===selectedCharacter&&id!=='original'?'original':id);setTimeout(refreshOriginalFace,50)}));   /* tap the equipped model again = unequip (back to Original) */

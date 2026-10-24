@@ -77,7 +77,7 @@ button,select,input{font:inherit}#gear{position:fixed;top:max(12px,env(safe-area
 @keyframes gl{0%,91%,100%{transform:none}93%{transform:translate(5px,-2px) skewX(7deg)}96%{transform:translate(-6px,2px)}98%{transform:translate(3px,0) skewX(-5deg)}}
 #mcards{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;max-width:640px;width:100%;margin:0 auto}
 .gc{padding:16px 6px 14px;border-radius:14px;background:linear-gradient(#ffffff1c,#ffffff06);border:1px solid #ffffff44;backdrop-filter:blur(4px);cursor:pointer;transition:.2s}.gc em{display:block;font-style:normal;font-size:34px}.gc b{display:block;font:900 15px Impact,system-ui;letter-spacing:2px;margin:6px 0 4px}.gc small{font:500 10px/1.35 system-ui;color:#bbc}.gc:hover,.gc:active{transform:translateY(-6px);border-color:#0ff;box-shadow:0 0 22px #0ff6}
-#mmh{position:fixed!important;left:50%;top:50%;transform:translate(-50%,-50%);z-index:32!important;width:min(90vw,420px);max-width:none}#nb{display:none!important}#gb{position:fixed;left:0;top:0;width:460px;height:124px;transform-origin:0 0;pointer-events:none;z-index:6;font-family:Impact,system-ui;color:#fff}#gb>*{position:absolute}#gb .nm,#gb .ps,#gb .ov,#gb .ar,#gb .pl{display:none}#gb .bn{left:104px;right:24px;top:34px;height:58px;border-width:4px}#gb .bn b{font-size:34px;letter-spacing:4px}#gb .bd{left:0;top:14px}
+#mmh{position:fixed!important;left:50%;top:50%;transform:translate(-50%,-50%);z-index:32!important;width:min(90vw,420px);max-width:none}#nb{display:none!important}#gb{position:fixed;left:0;top:0;width:520px;height:190px;transform-origin:0 0;pointer-events:none;z-index:6;color:#fff}#gb2{position:fixed;left:0;top:0;width:520px;height:190px;transform-origin:0 0;pointer-events:none;z-index:5;color:#fff}#gb svg,#gb2 svg{position:absolute;left:0;top:0}#gb .nm,#gb .ps,#gb .ov,#gb .ar,#gb .pl{display:none}#gb .bn{left:104px;right:24px;top:34px;height:58px;border-width:4px}#gb .bn b{font-size:34px;letter-spacing:4px}#gb .bd{left:0;top:14px}
 #gb .pl{left:34px;right:14px;top:16px;bottom:10px;background:linear-gradient(#f2f9ff,#8da3bd 38%,#2e3b52 60%,#d8ecff);clip-path:polygon(6% 0,94% 0,100% 50%,94% 100%,6% 100%,0 50%)}
 #gb .pl:after{content:'';position:absolute;inset:5px;background:linear-gradient(#0b0f1a,#04060c);clip-path:polygon(6% 0,94% 0,100% 50%,94% 100%,6% 100%,0 50%)}
 #gb .bn{left:78px;right:62px;top:52px;height:34px;border-top:2px solid #6ff;border-bottom:2px solid #6ff;background:#1b0f45;overflow:hidden}#gb .bn i{position:absolute;left:0;top:0;bottom:0;transition:width .6s;background:linear-gradient(90deg,#2a1470,var(--tc,#3de0ff))}#gb .bn b{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font:italic 900 15px Impact;letter-spacing:3px;color:#fff;text-shadow:0 2px 0 #000;opacity:.95}
@@ -108,7 +108,7 @@ button,select,input{font:inherit}#gear{position:fixed;top:max(12px,env(safe-area
 .mx.cur .mf i{color:#ffd23f}
 #player-select-modal{position:fixed;inset:0;z-index:60;display:none;align-items:center;justify-content:center;padding:18px;background:#050711ed;backdrop-filter:blur(8px)}#player-select-card{width:min(520px,100%);max-height:88vh;overflow:auto;background:#171321;border:2px solid #ffd166;border-radius:18px;padding:16px;color:#fff;box-shadow:0 16px 50px #000b}#player-select-card h2{margin:0 0 8px;color:#ffd166;font-size:22px}#player-select-close{width:100%;padding:12px;margin-top:10px;border:0;border-radius:10px;background:#ff7a1a;color:white;font-weight:900}#player-select-modal #charpick{display:block!important;margin:0}#player-select-modal #charpick h4{font-size:14px}
 </style></head><body>
-<div id="player-select-modal"><div id="player-select-card"><h2>🏀 SELECT YOUR PLAYER</h2><p>Choose your player here before starting a game.</p><div id="main-player-choice-slot"></div><button id="player-select-close">DONE</button></div></div><button id="tbtn" style="position:fixed;top:max(12px,env(safe-area-inset-top));right:12px;z-index:7;padding:8px 12px;border:0;border-radius:10px;background:#c9962b;color:#000;font:800 13px system-ui">🏆 TOURNAMENT</button><div id="mm"><canvas id="mst" style="position:fixed;inset:0;width:100%;height:100%;z-index:-1"></canvas><div id="mtop"><b>GH</b><span id="mpn">PLAYER<i>PG · OVR 99</i></span></div><div id="mhero"><div id="lg"><span>GLITCHY</span><span>HOOPS</span></div></div><div id="mcards"><div class="gc" id="mmt"><em>🏆</em><b>TOURNAMENT</b><small>5 games · first to 11 · shot clock · tougher every level</small></div><div class="gc" id="mmplayer"><em>🧍</em><b>SELECT PLAYER</b><small>Choose your player before you play</small></div><div class="gc" id="mmp"><em>🏀</em><b>PRACTICE</b><small>Free run. No scoreboard.</small></div><div class="gc" id="mmw"><em>📖</em><b>HOW TO PLAY</b><small>Controls &amp; moves</small></div><div class="gc" id="gh-menu-leader"><em>🏆</em><b>LEADERBOARD</b><small>REP rankings · championships · player cards</small></div></div><div id="mmh"><b>Move</b> WASD · <b>Sprint</b> Shift · <b>Crossover</b> Q / E · <b>Step back</b> R · <b>Behind back</b> F<br><b>Shoot</b> hold SPACE, release in the green · <b>Dunk</b> hold X near the rim<br><b>Lose your man:</b> chain crossovers close to the defender, a well-timed one breaks his ankles.<br>Phone: joystick + on-screen buttons. Gauntlet: first to 11, 15, then 21.<br><button id="mmc">CLOSE</button></div></div><button id="mmq">☰ MENU</button><div id="gb"><div class="pl"></div><div class="bn"><i id="gbi"></i><b id="gbt">ROOKIE</b></div><div class="nm" id="gbn">PLAYER</div><div class="ps">PG</div><div class="ov"><small>OVR</small>99</div><div class="ar"><u></u>PLAYMAKING SHOT CREATOR</div><div class="bd"><b id="gbb">I</b></div></div><div id="nb"><div><span id="nbn">PLAYER<small>PLAYMAKING SHOT CREATOR</small></span><em>PG<i>OVR 99</i></em></div></div><div id="hud" class="h gh-shot-box"><div class="gh-shot-label">SHOT TRACKER</div><div class="gh-shot-main"><b id="pts">0</b><span>/</span><b id="shot-attempts">0</b></div><div class="gh-shot-caption"><span>MADE</span><span>ATTEMPTED</span></div></div><div id="ban" class="h"></div>
+<div id="player-select-modal"><div id="player-select-card"><h2>🏀 SELECT YOUR PLAYER</h2><p>Choose your player here before starting a game.</p><div id="main-player-choice-slot"></div><button id="player-select-close">DONE</button></div></div><button id="tbtn" style="position:fixed;top:max(12px,env(safe-area-inset-top));right:12px;z-index:7;padding:8px 12px;border:0;border-radius:10px;background:#c9962b;color:#000;font:800 13px system-ui">🏆 TOURNAMENT</button><div id="mm"><canvas id="mst" style="position:fixed;inset:0;width:100%;height:100%;z-index:-1"></canvas><div id="mtop"><b>GH</b><span id="mpn">PLAYER<i>PG · OVR 99</i></span></div><div id="mhero"><div id="lg"><span>GLITCHY</span><span>HOOPS</span></div></div><div id="mcards"><div class="gc" id="mmt"><em>🏆</em><b>TOURNAMENT</b><small>5 games · first to 11 · shot clock · tougher every level</small></div><div class="gc" id="mmplayer"><em>🧍</em><b>SELECT PLAYER</b><small>Choose your player before you play</small></div><div class="gc" id="mmp"><em>🏀</em><b>PRACTICE</b><small>Free run. No scoreboard.</small></div><div class="gc" id="mmw"><em>📖</em><b>HOW TO PLAY</b><small>Controls &amp; moves</small></div><div class="gc" id="gh-menu-leader"><em>🏆</em><b>LEADERBOARD</b><small>REP rankings · championships · player cards</small></div></div><div id="mmh"><b>Move</b> WASD · <b>Sprint</b> Shift · <b>Crossover</b> Q / E · <b>Step back</b> R · <b>Behind back</b> F<br><b>Shoot</b> hold SPACE, release in the green · <b>Dunk</b> hold X near the rim<br><b>Lose your man:</b> chain crossovers close to the defender, a well-timed one breaks his ankles.<br>Phone: joystick + on-screen buttons. Gauntlet: first to 11, 15, then 21.<br><button id="mmc">CLOSE</button></div></div><button id="mmq">☰ MENU</button><div id="gb"></div><div id="gb2"></div><div id="nb"><div><span id="nbn">PLAYER<small>PLAYMAKING SHOT CREATOR</small></span><em>PG<i>OVR 99</i></em></div></div><div id="hud" class="h gh-shot-box"><div class="gh-shot-label">SHOT TRACKER</div><div class="gh-shot-main"><b id="pts">0</b><span>/</span><b id="shot-attempts">0</b></div><div class="gh-shot-caption"><span>MADE</span><span>ATTEMPTED</span></div></div><div id="ban" class="h"></div>
 <div id="gf" class="h"></div><div id="ntag"></div><div id="dfx" class="h"></div><div id="hf" class="h"></div><div id="mgr" class="h"></div><div id="mt" class="h"><div id="fire"></div><div id="ring"></div><div id="bar"><div id="fl"></div><div id="gz"></div><div id="mk"></div></div></div>
 <div id="hint" class="h">WASD move · Shift sprint · Q/E crossover L/R · R step back · F behind back · hold SPACE, release in green · hold X dunk (near rim) or shoot · B ball</div>
 <button id="mapb">🗺 Map</button><div id="ld"><i></i><div>Joining new map…</div><small id="ldn"></small></div><div id="mp"><div id="mph"><div><small>SELECT YOUR COURT</small><h3>Choose Your Map</h3></div><button id="mpx">✕</button></div><div id="mpnm"><label for="pname">PLAYER NAME</label><input id="pname" maxlength="14" placeholder="Enter your name" autocomplete="off"></div><div id="mpf"><button class="on" data-g="all">All</button><button data-g="city">🌆 City</button><button data-g="beach">🏖 Beach</button><button data-g="luxury">💎 Luxury</button><button data-g="wild">🚀 Wild</button><button id="mpr">🎲 Random</button></div><div id="mpc"></div></div><button id="gear">⚙ Customize</button>
@@ -680,36 +680,73 @@ function fadePose(u){const b=Math.sin(PI*cl((u-.14)/.8,0,1)),f=shot.fade,fs=shot
  Lg.forEach(l=>{const a=l.s>0;if(f=='step'){l.th.rotation.x=.25+.4*b;l.kn.rotation.x=-.3-.8*b}else{l.th.rotation.x=a?.25+.55*b:-.3*b;l.kn.rotation.x=a?-.25:-.7*b}if(f=='fadeS')l.th.rotation.z=l.s*.28*b})}
 function prevCel(){if(S!='dr'||fl||look.cel=='-1')return;S='fr';ft=0;cel=CD;const p=$('pn');if(innerWidth<700){p.style.visibility='hidden';setTimeout(()=>p.style.visibility='',CD*1000+300)}}
 /* ---- dunks ---- */
-let hs=0,shk=0,bag=[],lastD=-1,mv0=0;
+let hs=0,shk=0,bag=[],lastD=-1,mv0=0,ppf=null;
+function ppStart(){const pp=P.position,dx=pp.x-D.x,dz=pp.z-D.z,dl=Math.hypot(dx,dz)||1;face=Math.atan2(-(D.x-pp.x),-(D.z-pp.z));
+ ppf={F:FALLS[Math.random()*FALLS.length|0],t:0,vx:dx/dl*2.6,vz:dz/dl*2.6};S='pf';vel.set(0,0,0);dash.set(0,0,0);shk=Math.max(shk,2.2)}
+function ppStep(dt){const k=ppf,F=k.F;k.t+=dt;const t=k.t;
+ P.position.x=cl(P.position.x+k.vx*dt,-7.1,7.1);P.position.z=cl(P.position.z+k.vz*dt,-9.9,8.4);const f=Math.exp(-2.8*dt);k.vx*=f;k.vz*=f;
+ const hc=sm(t/.12),fe=cl((t-.12)/F.FD,0,1),lt=.12+F.FD+.4,lie=t<lt?1:1-sm((t-lt)/.34),g=fe*lie;   /* down hard, up again almost at once */
+ P.rotation.order='YXZ';P.position.y=GY+.15*Math.min(1,F.rot(g)/1.2);P.rotation.x=Math.max(.7*hc*(1-fe),F.rot(g));
+ if(g>.01)F.legs(rig,g);
+ A.forEach(a=>{const up=V(a.s*.15,2.25,-.14).lerp(V(a.s*.85,1.5+.4*sm(cl(t/.3,0,1)),.1+.55*sm(cl(t/.35,0,1))),hc);ik(rig,a,g>0?up.lerp(F.arm(a,g),sm(g)):up)});
+ tor.rotation.x=-.1-.5*Math.sin(PI*cl(t/.3,0,1))*(1-g);head.rotation.x=-.1+.4*g;
+ if(t>lt+.36){ppf=null;P.rotation.x=0;P.position.y=GY;S='fr';ft=.1}}
 const wmDom=(a,b,sp)=>(s,r)=>{const th=lerp(a,b,sm(Math.min(s/sp,1))),p=V(.36,1.7-.6*Math.cos(th),.6*Math.sin(th));return s>sp?p.lerp(r,sm((s-sp)/(1-sp))):p};
 const arc=(a,b,t,h)=>a.clone().lerp(b,sm(t)).add(V(0,h*Math.sin(PI*cl(t,0,1)),0)),C0=()=>V(.15,1.3,-.35),
-DKS=((J)=>[
-/* 360 ATHLETICISM: arms stretched wide out to both sides through a full 360 spin, then the slam. Meant for contact dunks. */
-{n:'360 ATHLETICISM',H:1.64,tx:.04,out:1,pw:1,spread:1,sp:(s,u)=>2*PI*sm(cl(s/.72,0,1)),
- dom:(s,r)=>s<.2?arc(C0(),V(.66,1.74,.06),s/.2,0):s<.72?V(.66,1.74+.06*Math.sin(PI*(s-.2)/.52),.06):V(.66,1.74,.06).lerp(r,Math.pow(sm((s-.72)/.28),.7)),off:()=>V(-.66,1.74,.06)},
-/* ONE-HAND TOMAHAWK: ball cocked high behind the head, body arches back, then it is hammered down one handed */
-J('ONE-HAND TOMAHAWK',1.64,V(.24,3,.5),{pw:1,tx:.1,bd:s=>[s<.5?.34*sm(s/.5):.34-.78*sm((s-.5)/.38),0,0],dom:(s,r)=>s<.5?arc(C0(),V(.24,3,.5),s/.5,0):V(.24,3,.5).lerp(r,Math.pow(sm((s-.5)/.5),.5)),off:()=>V(-.55,1.5,-.1)}),
-J('TWO-HAND TOMAHAWK',1.6,V(.12,2.95,.35),{two:1,pw:1,tx:.16}),
-J('TWO-HAND POWER SLAM',1.56,V(.1,2.6,.05),{two:1,pw:1,tx:.12}),
-J('COCK-BACK JAM',1.52,V(.24,2.55,.8),{pw:1,bd:s=>[s<.5?.35*sm(s/.5):.35-.7*sm((s-.5)/.38),0,0],dom:(s,r)=>s<.52?arc(C0(),V(.24,2.55,.8),s/.52,0):V(.24,2.55,.8).lerp(r,Math.pow(sm((s-.52)/.48),.7)),off:()=>V(-.55,2,-.2)}),
-J('WINDMILL',1.55,V(.2,2.5,0),{bd:s=>[.1*Math.sin(PI*s),0,0],off:()=>V(-.6,1.9,-.1),dom:(s,r)=>{const th=lerp(-.7,3.9,sm(Math.min(s/.7,1))),p=V(.36,1.7-.6*Math.cos(th),.6*Math.sin(th));return s>.7?p.lerp(r,sm((s-.7)/.3)):p}}),
-J('REVERSE WINDMILL',1.55,V(.2,2.5,0),{bd:s=>[.1*Math.sin(PI*s),0,0],dom:wmDom(-.7,-3.9,.7)}),
-J('ONE-HAND RIM HANG',1.54,V(.2,2.45,.05),{hang:1,tx:.1}),
-J('TWO-HAND RIM HANG',1.52,V(.1,2.5,0),{two:1,hang:1,tx:.14}),
-J('ONE-HAND JAM',1.5,V(.22,2.4,.1),{})])
-((n,H,p1,o)=>Object.assign({n,H,tx:.1,dom:(s,r)=>s<.5?arc(C0(),p1,s/.5,0):p1.clone().lerp(r,sm((s-.5)/.5)),off:()=>V(-.5,1.95,-.1)},o)),
+bz=(a,b,c,t)=>{t=cl(t,0,1);const w=1-t;return V(w*w*a.x+2*w*t*b.x+t*t*c.x,w*w*a.y+2*w*t*b.y+t*t*c.y,w*w*a.z+2*w*t*b.z+t*t*c.z)},
+/* Dunks. dom(s,r) = ball hand while s runs 0..1 through the wind-up (r = rim centre in body space), bd(s2) = torso lean (s2 runs the whole jump), off(s,r) = free arm, c = good over a defender,
+   pf = the dunker is knocked down by the contact and pops right back up while the defender stays down (stay = seconds he lies there), rd = distance from the rim, hp = extra jump height */
+DKS=[
+/* ONE-HAND TOMAHAWK: ball cocked high behind the head, body arches back, free arm stretched out front, then the arm is swung down like an axe */
+{n:'ONE-HAND TOMAHAWK',H:1.68,pw:1,c:1,out:1,
+ dom:(s,r)=>{const K=V(.3,2.2,.36);return s<.34?arc(C0(),K,s/.34,.12):K.clone().lerp(r,Math.pow(sm((s-.34)/.66),.45))},
+ bd:s=>[.46*sm(s/.19)-.98*sm((s-.19)/.27),0,.06*Math.sin(PI*cl(s/.4,0,1))],
+ off:s=>V(-.5,2.25,-.5).lerp(V(-.75,1.3,-.2),sm((s-.55)/.4))},
+/* BACK SCRATCHER: ball dragged down behind the neck like scratching your back, then both arms stretch wide and the ball is thrown down hard over the defender */
+{n:'BACK SCRATCHER',H:1.72,pw:1,c:1,out:1,
+ dom:(s,r)=>{const B=V(.1,1.98,.55),E=V(.3,2.3,-.15);if(s<.36)return arc(C0(),B,s/.36,0);if(s<.6)return B.clone().lerp(E,sm((s-.36)/.24)).add(V(0,.1*Math.sin(PI*(s-.36)/.24),0));return E.clone().lerp(r,Math.pow(sm((s-.6)/.4),.7))},
+ bd:s=>[.54*sm(s/.2)-1.14*sm((s-.2)/.3),0,0],
+ off:s=>V(-.9,1.95,-.05).lerp(V(-.75,1.25,-.25),sm((s-.62)/.3))},
+/* TWO-HAND POSTERIZER: both hands cock the ball behind the head and hammer it down on the defender. The impact knocks the dunker down too, he bounces up at once and the defender stays on the floor */
+{n:'TWO-HAND POSTERIZER',H:1.72,two:1,pw:1,c:1,pf:1,stay:4.2,
+ dom:(s,r)=>{const K=V(.16,2.22,.4);return s<.38?arc(C0(),K,s/.38,.1):K.clone().lerp(r,Math.pow(sm((s-.38)/.62),.5))},
+ bd:s=>[.42*sm(s/.2)-.97*sm((s-.2)/.3),0,0]},
+/* BETWEEN THE LEGS: legs split wide, the ball is passed through them, then whipped up to the rim */
+{n:'BETWEEN THE LEGS',H:1.62,out:1,spread:1,sa:.22,sb:.52,
+ dom:(s,r)=>{const A1=V(.14,1.06,-.22),A2=V(.1,1.06,.24);if(s<.2)return arc(C0(),A1,s/.2,0);if(s<.4)return A1.clone().lerp(A2,sm((s-.2)/.2));return bz(A2,V(.34,1.45,-.5),r,sm((s-.4)/.6))},
+ bd:s=>[-.32*Math.sin(PI*cl(s/.3,0,1))+.12*sm((s-.28)/.2),0,0],
+ off:s=>V(-.8,1.65,-.2)},
+/* DOUBLE CLUTCH: the ball is pumped up, down to the chest and up again before the slam */
+{n:'DOUBLE CLUTCH',H:1.7,pw:1,c:1,out:1,c0:.52,
+ dom:(s,r)=>{const hi=V(.22,2.22,-.1),lo=V(.2,1.5,-.3);if(s<.2)return arc(C0(),hi,s/.2,0);if(s<.34)return hi.clone().lerp(lo,sm((s-.2)/.14));if(s<.5)return lo.clone().lerp(hi,sm((s-.34)/.16));if(s<.62)return hi.clone();return hi.clone().lerp(r,sm((s-.62)/.38))},
+ bd:s=>[.18*sm(s/.11)-.4*sm((s-.11)/.075)+.5*sm((s-.185)/.085)-.9*sm((s-.34)/.17),0,0],
+ off:s=>V(-.45,1.95,-.3)},
+/* ELBOW HANG: hangs so high the forearm goes through the ring and the elbow hooks the rim */
+{n:'ELBOW HANG',H:1.7,hang:1,elb:1,hp:.36,
+ dom:(s,r)=>{const K=V(.22,2.3,-.05);return s<.4?arc(C0(),K,s/.4,.08):K.clone().lerp(r,sm((s-.4)/.6))},
+ bd:s=>[.2*sm(s/.2)-.32*sm((s-.25)/.3),0,0]},
+/* REVERSE BACK SLAM: half turn in the air, back to the rim, two hands over the head, then he spins all the way round to land facing the court */
+{n:'REVERSE BACK SLAM',H:1.68,two:1,pw:1,rd:.5,
+ sp:(s,u)=>PI*sm(cl(s/.5,0,1))+PI*sm(cl((u-.68)/.24,0,1)),
+ dom:(s,r)=>{const K=V(.15,2.25,-.1);return s<.42?K.clone().lerp(C0(),1-sm(s/.3)):K.clone().lerp(r,sm((s-.42)/.58))},
+ bd:s=>[.5*sm(s/.3)-.5*sm((s-.45)/.35),0,0]},
+/* STATUE OF LIBERTY: ball pulled low and back, then one fully stretched arm sweeps it up in a huge circle */
+{n:'STATUE OF LIBERTY',H:1.7,out:1,
+ dom:(s,r)=>{const S0=V(.34,1.12,.4),S2=V(.28,2.34,-.15);if(s<.14)return arc(C0(),S0,s/.14,0);if(s<.6)return bz(S0,V(.6,1.0,-.9),S2,sm((s-.14)/.46));return S2.clone().lerp(r,sm((s-.6)/.4))},
+ bd:s=>[.3*sm(s/.2)-.72*sm((s-.2)/.3),0,0],
+ off:s=>V(-.85,2.05,-.25)}],
 FALLS=[
 {n:'flat',FD:.55,sl:.55,rot:f=>1.58*sm(f),legs:(q,f)=>q.Lg.forEach(l=>{l.th.rotation.x=lerp(.15,.5,f);l.kn.rotation.x=-.3*f}),arm:(a,f)=>V(a.s*.75,1.5,-.45)},
 {n:'sit',FD:.8,sl:.4,rot:f=>f<.5?sm(f/.5):1+.58*sm((f-.5)/.5),legs:(q,f)=>{const k=Math.sin(PI*cl((f-.5)/.5,0,1));q.Lg.forEach(l=>{l.th.rotation.x=.2+.9*k;l.kn.rotation.x=-.6*k})},arm:(a,f)=>V(a.s*.8,1,.15)},
 {n:'stumble',FD:.75,sl:.9,rot:f=>f<.3?.35*sm(f/.3):.35+1.23*sm((f-.3)/.7),legs:(q,f)=>q.Lg.forEach(l=>{const w=Math.sin(f*PI*4+(l.s>0?0:PI))*(1-f);l.th.rotation.x=.2+.5*w;l.kn.rotation.x=-.5-.4*w}),arm:(a,f)=>V(a.s*.9,1.7,-.2+.5*Math.sin(f*PI*3))},
 {n:'knees',FD:.62,sl:.5,rot:f=>1.6*sm(f),legs:(q,f)=>q.Lg.forEach(l=>{l.th.rotation.x=lerp(.15,l.s>0?1.2:.7,sm(f));l.kn.rotation.x=lerp(-.2,-1.7,sm(f))}),arm:(a,f)=>V(a.s*.55,1.2,-.6)}],
 RD=.7,FTD=4.2; /* dunker stays this far from the rim centre: body + head never over the ring */
-function nextDunk(contact){if(contact&&Math.random()<.45){lastD=0;return DKS[0]}if(!bag.length){bag=DKS.map((_,i)=>i).sort(()=>Math.random()-.5);if(bag[bag.length-1]==lastD)bag.unshift(bag.pop())}lastD=bag.pop();return DKS[lastD]}
+function nextDunk(contact){if(contact&&Math.random()<.7){const pl=DKS.map((_,i)=>i).filter(i=>DKS[i].c&&i!=lastD);if(pl.length){lastD=pl[Math.random()*pl.length|0];return DKS[lastD]}}if(!bag.length){bag=DKS.map((_,i)=>i).sort(()=>Math.random()-.5);if(bag[bag.length-1]==lastD)bag.unshift(bag.pop())}lastD=bag.pop();return DKS[lastD]}
 function doDunk(){if((S!='dr'&&S!='ch')||dist()>7.2)return;if(mvA){side=mvA.to;mvA=null}mq.length=0;const Lh=dist()||1,ddx=D.x-P.position.x,ddz=D.z-P.position.z,dl=Math.hypot(ddx,ddz)||1,inG=look.def!='off'; /* defender in front = contact dunk */
  const px=P.position.x,pz=P.position.z,L=Math.hypot(px,pz-hz)||1;let dx=px/L,dz=(pz-hz)/L;if(dz<.15){dz=.15;const n=Math.hypot(dx,dz);dx/=n;dz/=n} /* dunk from wherever you are around the front of the rim: left wing, middle, right wing, down toward the baseline */
  const ty=vel.length()>1.8||L>3.2?'drive':'stand',D2=nextDunk(inG),Rt=Math.max(RD+.35,Math.min(L,FTD)),ta=cl(Math.abs(L-Rt)/6.5,.12,1.1),sc=1+cl((Rt-2)/2.2,0,1)*.45,Ta=.95*sc,T=ta+Ta; /* run-up, plant, jump */
- dk={t:0,T,ty,contact:inG,hang:D2.hang?1:0,u:0,x0:px,z0:pz,tx:dx*Rt,tz:hz+dz*Rt,Rt,ta,Ta,sc,dx,dz,H:D2.H*.86*(1+(1-(BODY[look.body]||[1,1])[1])*1.1)*(ty=='drive'?1:.95),rel:0,D:D2,spin:0};{const rch=dkReach(),need=RY+.34-GY-rch.sh-.93*rch.L;dk.Hp=cl(need+.1+(D2.H-1.5)*.25,.45,1.35);dk.lift=0}vel.set(0,0,0);dash.set(0,0,0);S='dk';SFX.squeak();
- if(inG){const F=FALLS[Math.random()*FALLS.length|0],Rq=Math.max(1.05,Rt*.5);D.k={F,t:0,sx:D.x,sz:D.z,ix:dx*Rq,iz:hz+dz*Rq,dx,dz,yaw:Math.atan2(-dx,-dz),ya:(Math.random()-.5)*.6,mt:ta+.25,sd:Math.random()<.5?-1:1}}}
+ dk={t:0,T,ty,contact:inG,hang:D2.hang?1:0,u:0,x0:px,z0:pz,tx:dx*Rt,tz:hz+dz*Rt,Rt,ta,Ta,sc,dx,dz,H:D2.H*.86*(1+(1-(BODY[look.body]||[1,1])[1])*1.1)*(ty=='drive'?1:.95),rel:0,D:D2,spin:0};{const rch=dkReach(),need=RY+.34-GY-rch.sh-.93*rch.L;dk.Hp=cl(need+.1+(D2.H-1.5)*.25+(D2.hp||0),.45,1.35+(D2.hp||0));dk.lift=0}vel.set(0,0,0);dash.set(0,0,0);S='dk';SFX.squeak();
+ if(inG){const F=FALLS[Math.random()*FALLS.length|0],Rq=Math.max(1.05,Rt*.5);D.k={F,t:0,sx:D.x,sz:D.z,ix:dx*Rq,iz:hz+dz*Rq,dx,dz,yaw:Math.atan2(-dx,-dz),ya:(Math.random()-.5)*.6,mt:ta+.25,sd:Math.random()<.5?-1:1,stay:D2.stay||2.65}}}
 const RIMR=.25;
 function dkReach(){ /* shoulder height above the root + total arm length of whichever body is on court */
  if(isMX()&&MX.rest){const rs=MX.rest,a=rs.RightArm&&rs.RightArm.b,f=rs.RightForeArm&&rs.RightForeArm.b,h=rs.RightHand&&rs.RightHand.b;
@@ -721,31 +758,31 @@ function dkStep(dt){const k=dk,pp=P.position;k.t+=dt;const ta=k.ta,Ta=k.Ta,tau=k
  if(tau>0){if(tau<.44*sc){const w=tau/(.44*sc);ju=Hp*(1-(1-w)*(1-w))}else if(tau<.56*sc)ju=Hp*(1-.03*sm((tau-.44*sc)/(.12*sc)));else{const w=cl((tau-.56*sc)/(.39*sc),0,1);ju=Hp*.97*(1-w*w)}}
  if(k.t<ta)cr=.05+.4*sm((k.t-(ta-.13))/.13);else if(tau<.12)cr=.45*(1-sm(tau/.12));else if(u>.88)cr=.6*sm((u-.88)/.12);
  if(k.t<ta){const a=k.t/ta;pp.x=lerp(k.x0,k.tx,a);pp.z=lerp(k.z0,k.tz,a)}
- else{const R_=u<.66?lerp(k.Rt,RD,sm(cl(tau/(.5*sc),0,1))):lerp(RD,RD+.7,sm((u-.66)/.34));pp.x=k.dx*R_;pp.z=hz+k.dz*R_}
+ else{const rdv=k.D.rd||RD,R_=u<.66?lerp(k.Rt,rdv,sm(cl(tau/(.5*sc),0,1))):lerp(rdv,rdv+.7,sm((u-.66)/.34));pp.x=k.dx*R_;pp.z=hz+k.dz*R_}
  if(k.bt!==undefined){const e=Math.exp(-5*(k.t-k.bt));pp.x+=k.bx*e;pp.z+=k.bz*e}
  k.cr=cr;k.ju=ju;k.spin=k.D.sp&&u>=.24?k.D.sp((u-.24)/.38,u):0;if(!k.hit&&u>=.4){k.hit=1;if(k.contact||k.D.pw)shk=k.D.pw?2.6:1.8}
  if(u>=.62&&!k.rel){k.rel=1;hs=0;shk=0;dfx();{const q=ball.position,dd=Math.hypot(q.x,q.z-hz);if(dd>.11){q.x*=.11/dd;q.z=hz+(q.z-hz)*.11/dd}q.y=Math.max(q.y,RY+.14);bv.set(-q.x*6,-5,(hz-q.z)*6)}SFX.dunk();fl=true;ft2=0;prevY=RY+.3;made=true;shot={d:1,g:false,make:true,con:0};sco.a++;sco.p+=2;swishNet();rattleNet(0,0,0,hz,9);rimT=true;sco.m++;streak++;netB=1;cheer=2.6;hud()}
  if(u>.4){const sht=MXO.short||0;if(sht>.004)k.lift=Math.min(.6,k.lift+sht*.85);else k.lift=Math.max(0,k.lift-dt*.35)} /* if the hands fall short of the rim, rise until they reach it */
  const lw=1-sm(cl((u-(k.D.hang?.93:.78))/.1,0,1));
- if(u>=1||k.t>=ta+Ta){dk=null;S='fr';ft=.12;cel=0}
+ if(u>=1||k.t>=ta+Ta){dk=null;S='fr';ft=.12;cel=0;if(k.D.pf&&D.k)ppStart()}
  return{ju:ju+k.lift*lw,cr}}
 function dkArms(){const k=dk,D2=k.D,u=k.u,s=cl((u-.24)/.38,0,1),r=P.worldToLocal(V(k.dx*.1,RY+.02,hz+k.dz*.1)),bell=Math.sin(PI*cl((u-.24)/.7,0,1)),
  rc=(a,t)=>{const S0=V(a.s*.26,1.69,0);return S0.add(t.clone().sub(S0).clampLength(0,.64))};
  if(u>.24&&u<.9){const w=sm((u-.24)/.07)*(1-sm((u-.72)/.16)),e=sm((u-.58)/.16); /* knee drive, then legs reach down for the landing */
   Lg.forEach(l=>{const tr=l.s>0,th=tr?lerp(-.15,.12,e):lerp(1,.3,e),kn=tr?lerp(-1,-.6,e):lerp(-1.3,-.5,e);l.th.rotation.x=lerp(l.th.rotation.x,th,w);l.kn.rotation.x=lerp(l.kn.rotation.x,kn,w)})}
- if(D2.spread){const b=Math.sin(PI*cl((u-.3)/.35,0,1));Lg.forEach(l=>{l.th.rotation.z=l.s*.6*b;l.th.rotation.x=lerp(l.th.rotation.x,.9,b);l.kn.rotation.x=lerp(l.kn.rotation.x,-.9,b)})}
+ if(D2.spread){const sa=D2.sa!==undefined?D2.sa:.3,sb=D2.sb!==undefined?D2.sb:.65,b=Math.sin(PI*cl((u-sa)/(sb-sa),0,1));Lg.forEach(l=>{l.th.rotation.z=l.s*.6*b;l.th.rotation.x=lerp(l.th.rotation.x,.9,b);l.kn.rotation.x=lerp(l.kn.rotation.x,-.9,b)})}
  MXO.Right=MXO.Left=null;let shT2=0;const mxo=isMX();
  if(u<.62){ /* style path in the air, then the ball + hand are brought to the exact middle of the hoop (world space), so the hand is really at the rim */
-  const dm0=rc(A[1],D2.dom(s,r)),wd0=P.localToWorld(dm0.clone()),c0=D2.out?.47:.38,cb=sm((u-c0)/Math.min(.22,.615-c0)),wd=wd0.lerp(V(0,RY+.17,hz),cb),dm=P.worldToLocal(wd.clone()),outW=D2.out?sm(s/.18)*(1-sm((s-.72)/.2)):0;
+  const dm0=rc(A[1],D2.dom(s,r)),wd0=P.localToWorld(dm0.clone()),c0=D2.c0!==undefined?D2.c0:D2.out?.47:.38,cb=sm((u-c0)/Math.min(.22,.615-c0)),wd=wd0.lerp(V(0,RY+.17,hz),cb),dm=P.worldToLocal(wd.clone()),outW=D2.out?sm(s/.18)*(1-sm((s-.72)/.2)):0;
   if(k.t<.2)ball.position.lerp(wd,.4);else ball.position.copy(wd);
-  A.forEach(a=>{let t;if(a.s>0)t=dm;else if(D2.two)t=rc(a,V(dm.x-.2,dm.y,dm.z));else{t=rc(a,dm.clone().add(V(-.3,0,0)).lerp(V(-.6,1.22+.04*Math.sin(k.t*7),.05),sm(s/.3)));if(D2.out)t=t.lerp(rc(a,D2.off()),outW)}
+  A.forEach(a=>{let t;if(a.s>0)t=dm;else if(D2.two)t=rc(a,V(dm.x-.2,dm.y,dm.z));else{t=rc(a,dm.clone().add(V(-.3,0,0)).lerp(V(-.6,1.22+.04*Math.sin(k.t*7),.05),sm(s/.3)));if(D2.out)t=t.lerp(rc(a,D2.off(s,r)),outW)}
    ik(rig,a,t);if(a.s>0||D2.two)shT2=Math.max(shT2,dkShort(a,t))})}
  else{ /* hand(s) hook the rim: wrist above the ring, fingers curled over the front of it. Hang dunks keep hold until the end */
   const gend=D2.hang?.93:.78,gw=sm((u-.6)/.05)*(1-sm((u-gend)/.1)),rr=sm((u-(gend-.04))/.2),dX=k.dx,dZ=k.dz,rvx=dZ,rvz=-dX,
    fdv=V(-dX*.85,-.5,-dZ*.85).normalize(),pnv=V(0,-1,0).addScaledVector(fdv,fdv.y).normalize(),
    ringPt=th=>{const c=Math.cos(th),sn=Math.sin(th);return V((dX*c+rvx*sn)*RIMR,RY,hz+(dZ*c+rvz*sn)*RIMR)};
   A.forEach(a=>{const dom=a.s>0;
-   if(dom||D2.two){const g=ringPt(dom?(D2.two?.5:.25):-.5);
+   if(dom||D2.two){const g0=ringPt(dom?(D2.two?.5:.25):-.5),g=D2.elb&&dom?V(g0.x*.45,RY-.3,hz+(g0.z-hz)*.45):g0;   /* elbow hang: the hand goes down inside the ring */
     if(mxo)MXO[dom?'Right':'Left']={pt:g,fd:fdv,pn:pnv,w:gw,c:.9};
     const hw=V(0,RY+.17,hz).lerp(g.clone().add(V(0,.05,0)).addScaledVector(fdv,-.03),sm((u-.6)/.05)),t=P.worldToLocal(hw).lerp(dom?V(.35,1.5,-.3):V(-.4,1.4,-.2),rr);
     ik(rig,a,t);shT2=Math.max(shT2,dkShort(a,t))}
@@ -761,13 +798,13 @@ function dunkD(dt){const k=D.k,q=dfr,F=k.F,pp=P.position;k.t+=dt;const t=k.t,u=d
   const sx=x-pp.x,sz=z-pp.z,sp=Math.hypot(sx,sz)||1e-3;if(sp<.58){x=pp.x+sx/sp*.58;z=pp.z+sz/sp*.58}}
  x=cl(x,-7.4,7.4);z=cl(z,-10.2,8.6);
  if(k.hx!==undefined&&k.fl===undefined&&(!dk||dk.rel))k.fl=t;
- const fl=k.fl,fe=fl===undefined?0:cl((t-fl)/F.FD,0,1),lt=fl===undefined?1e9:fl+F.FD+2.65,lie=t<lt?1:1-sm((t-lt)/.7),g=fe*lie,hc=k.hx===undefined?0:sm((t-k.hx)/.14),lean=.7*hc*(1-fe);
+ const fl=k.fl,fe=fl===undefined?0:cl((t-fl)/F.FD,0,1),lt=fl===undefined?1e9:fl+F.FD+k.stay,lie=t<lt?1:1-sm((t-lt)/.7),g=fe*lie,hc=k.hx===undefined?0:sm((t-k.hx)/.14),lean=.7*hc*(1-fe);
  D.x=x;D.z=z;D.jh=jh;D.up=1;con=0;
  q.P.rotation.order='YXZ';q.P.position.set(x,GY+jh*(1-fe)+.15*Math.min(1,F.rot(g)/1.2),z);q.P.rotation.set(Math.max(lean,F.rot(g)),k.yaw+k.ya*Math.max(g,hc*.5),0);
  legs(q,k.hx===undefined?t*16:0,k.hx===undefined?1:0,.15+.3*hc*(1-g),jh>.03&&fe<.3);if(g>.01)F.legs(q,g);
  q.tor.rotation.x=-.1-.5*Math.sin(PI*cl((t-(k.hx||1e9))/.3,0,1))*(1-g);q.head.rotation.x=-.1+.4*g;
  q.A.forEach(a=>{const up=V(a.s*.15,2.25,-.14).lerp(V(a.s*.85,1.5+.4*sm(cl((t-(k.hx||0))/.3,0,1)),.1+.55*sm(cl((t-(k.hx||0))/.35,0,1))),hc);ik(q,a,g>0?up.lerp(F.arm(a,g),sm(g)):up)});
- if(t>(fl===undefined?1e9:fl+F.FD+3.4)){D.k=null;q.P.rotation.set(0,k.yaw,0);D.ax=x;D.az=z}}
+ if(t>(fl===undefined?1e9:fl+F.FD+k.stay+.75)){D.k=null;q.P.rotation.set(0,k.yaw,0);D.ax=x;D.az=z}}
 /* defender: guards you, throws hands up + jumps at your shot */
 let dph2=0,dhS=null;
 function updD(dt){const pp=P.position,shooting=S=='ch'||S=='sh';
@@ -823,6 +860,7 @@ function upd(dt){tm+=dt;
    ik(rig,gd,TT(x+(F.go[0]+F.gf[0]*rl)*xs,y+F.go[1]+F.gf[1]*rl,z+F.go[2]+F.gf[2]*rl))}}
  else if(S=='fr'&&cel>0)celeb(1-cel/CD);
  else A.forEach(a=>{a.sh.rotation.x=-Math.sin(ph+(a.s>0?0:PI))*.7*n;a.sh.rotation.z=a.s*.08;a.el.rotation.x=.25+.35*n});
+ if(ppf)ppStep(dt);
  if(!fl&&(S=='dr'||S=='ch'||S=='sh'||S=='fr'))ball.position.copy(P.localToWorld(bp.clone()));
  if(fl){ft2+=dt;flyBall(dt);if(ft2>(made?1.6:2.7)){if(window.CPUP){CPUG.shotDone(made)}else{if(!made){streak=0;if(!shot.blk)ban('MISS','#ff6b6b');hud()}spawnDead();fl=false;if(S=='fr')S='dr'}}}
  deadStep(dt);beachStep(dt);updD(dt);if(cheer>0)cheer-=dt;updN(dt);scrT-=dt;if(scrT<=0){scrT=.14;scr.forEach(q=>drawScr(q,tm))}
@@ -1135,20 +1173,114 @@ pd(dt);D.vx=lerp(D.vx||0,(D.x-ox)/Math.max(dt,.001),.3);if(D.ank>0){D.x=D.hx;D.z
 
 ;setInterval(()=>{const e=$('mpn');if(e&&e.firstChild)e.firstChild.nodeValue=($('ntag').textContent||'PLAYER')},1000);
 
+/* ---------- 2K-style rep nameplate (one design per rep tier, ROOKIE -> LEGEND) ---------- */
+window.GHB=(function(){
+const TI=[
+ {n:'ROOKIE',min:0,r:'I',l:'#f4f7fb',m:'#a3b4ca',d:'#34445e',p1:'#c4d0e0',p2:'#4c5d7b',gl:'#9db2cc',ac:'#e3ebf5'},
+ {n:'PRO',min:100,r:'II',l:'#ecfdff',m:'#3de0ff',d:'#08475f',p1:'#62eaff',p2:'#0a5a78',gl:'#3de0ff',ac:'#c4f7ff'},
+ {n:'STAR',min:300,r:'III',l:'#f3edff',m:'#8c6fff',d:'#27186f',p1:'#a68dff',p2:'#38228f',gl:'#7a5cff',ac:'#ddd4ff'},
+ {n:'ALL-STAR',min:700,r:'IV',l:'#ffe9fb',m:'#ff55dc',d:'#650e55',p1:'#ff7fe8',p2:'#861572',gl:'#ff4fd8',ac:'#ffc9f4'},
+ {n:'SUPERSTAR',min:1500,r:'V',l:'#fff2e0',m:'#ff8f3d',d:'#752805',p1:'#ffab52',p2:'#a53708',gl:'#ff8a3d',ac:'#ffdab2'},
+ {n:'LEGEND',min:3000,r:'VI',l:'#fff8d2',m:'#f6c030',d:'#684602',p1:'#ffd860',p2:'#a46d0b',gl:'#ff3d5a',ac:'#ff7a8d'}];
+const tierOf=rep=>{let i=0;while(i<5&&rep>=TI[i+1].min)i++;return i};
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const f1=x=>Math.round(x*10)/10,pts=a=>a.map(p=>f1(p[0])+','+f1(p[1])).join(' ');
+function star(cx,cy,n,R,r,rot){const a=[];for(let i=0;i<n*2;i++){const t=rot+i*Math.PI/n,q=i%2?r:R;a.push([cx+Math.cos(t)*q,cy+Math.sin(t)*q])}return a}
+function wreath(cx,cy,R,left,fill,stroke){let s='';const n=7;for(let i=0;i<n;i++){const k=i/(n-1),th=(left?(128+k*104):(52-k*104))*Math.PI/180,x=cx+R*Math.cos(th),y=cy-R*Math.sin(th),rot=(90-th*180/Math.PI)+(left?-28:28);
+ s+=`<ellipse cx="0" cy="0" rx="${f1(7-k*1.6)}" ry="2.7" transform="translate(${f1(x)} ${f1(y)}) rotate(${f1(rot)})" fill="${fill}" stroke="${stroke}" stroke-width=".6"/>`}return s}
+function svg(o){
+ const rep=Math.max(0,Math.floor(+o.rep||0)),t=o.tier!=null?o.tier:tierOf(rep),T=TI[t],u=(o.uid||'b')+'_',nx=TI[Math.min(5,t+1)],
+  pc=t>=5?100:Math.max(0,Math.min(100,(rep-T.min)/(nx.min-T.min)*100)),pk=[0,8,14,18,22,26][t],pw=[0,26,30,34,38,44][t],sl=[0,0,8,12,16,20][t],
+  top=[[62,30]],bot=[[62,150]];
+ if(pk){top.push([260-pw,30],[260-pw*.5,30-pk*.5],[260,30-pk],[260+pw*.5,30-pk*.5],[260+pw,30]);bot.push([260-pw,150],[260-pw*.5,150+pk*.5],[260,150+pk],[260+pw*.5,150+pk*.5],[260+pw,150])}
+ top.push([452,30],[490,30-sl],[507,46]);bot.push([452,150],[490,150+sl],[507,134]);
+ const frame=[[22,50],[34,40],...top,[512,92],...bot.slice().reverse(),[34,140],[22,134]];
+ /* the plate shape that the name / strip / tabs sit on */
+ const plate='46,43 68,39 448,39 490,43 497,52 497,132 490,141 448,145 68,145 46,141 40,132 40,52';
+ const nm=String(o.name||'PLAYER'),nmS=nm.length>13?15:nm.length>9?19:23,
+  tag=o.tag||'PLAYMAKING SHOT CREATOR',rt=o.flash?o.flash:rep.toLocaleString()+' REP';
+ let s=`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 190" width="100%" style="display:block;overflow:visible${t>=3?';filter:drop-shadow(0 0 5px '+T.gl+'aa)':''}"><defs>
+<linearGradient id="${u}f" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${T.l}"/><stop offset=".38" stop-color="${T.m}"/><stop offset=".62" stop-color="${T.d}"/><stop offset="1" stop-color="${T.l}"/></linearGradient>
+<linearGradient id="${u}p" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${T.p1}"/><stop offset="1" stop-color="${T.p2}"/></linearGradient>
+<linearGradient id="${u}k" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#262626"/><stop offset="1" stop-color="#000"/></linearGradient>
+<radialGradient id="${u}b" cx=".4" cy=".35" r=".8"><stop offset="0" stop-color="#ffb25c"/><stop offset="1" stop-color="#b24f0a"/></radialGradient>
+<radialGradient id="${u}g" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="${T.gl}" stop-opacity=".9"/><stop offset="1" stop-color="${T.gl}" stop-opacity="0"/></radialGradient>
+<linearGradient id="${u}s" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#fff" stop-opacity="0"/><stop offset=".5" stop-color="#fff" stop-opacity=".55"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient>
+<clipPath id="${u}c"><polygon points="${plate}"/></clipPath></defs>`;
+ /* tier glow rays behind the top peak (SUPERSTAR, LEGEND) */
+ if(t>=4){let r='';for(let i=-3;i<=3;i++){const a=(-90+i*17)*Math.PI/180,x1=260+Math.cos(a)*44,y1=30-pk+10+Math.sin(a)*14,x2=260+Math.cos(a)*(t==5?86:70),y2=30-pk+10+Math.sin(a)*(t==5?72:56);r+=`<polygon points="${f1(x1-3)},${f1(y1)} ${f1(x2)},${f1(y2)} ${f1(x1+3)},${f1(y1)}" fill="${T.gl}" opacity=".55"/>`}s+=r}
+ /* outer metallic frame */
+ s+=`<polygon points="${pts(frame)}" fill="url(#${u}f)" stroke="#05070c" stroke-width="1.6" stroke-linejoin="round"/>`;
+ s+=`<polygon points="${pts(frame)}" fill="none" stroke="${T.l}" stroke-opacity=".75" stroke-width=".8" transform="translate(0 -1)"/>`;
+ /* dark gap + tier coloured plate */
+ s+=`<polygon points="${plate}" fill="#06080e" stroke="${T.ac}" stroke-width="1.4"/><polygon points="48,45 69,41.5 447,41.5 488,45 494.5,53 494.5,131 488,139 447,142.5 69,142.5 48,139 42.5,131 42.5,53" fill="url(#${u}p)"/>`;
+ /* plate decoration: stars (PRO+) and energy bars (ALL-STAR+) */
+ s+=`<g clip-path="url(#${u}c)">`;
+ if(t>=1)[[126,92,5],[146,100,3.5],[404,96,3.5],[424,88,5],[168,80,2.5],[382,102,2.5]].forEach(q=>{s+=`<polygon points="${pts(star(q[0],q[1],4,q[2],q[2]*.35,-Math.PI/2))}" fill="${T.ac}" opacity=".55"/>`});
+ if(t>=3)for(let i=0;i<5;i++){s+=`<polygon points="${120+i*66},145 ${138+i*66},145 ${168+i*66},39 ${150+i*66},39" fill="${T.l}" opacity=".13"/>`}
+ if(t>=2)s+=`<g><rect x="0" y="30" width="46" height="130" fill="url(#${u}s)" transform="skewX(-24)"><animateTransform attributeName="transform" type="translate" additive="sum" from="-120 0" to="640 0" dur="${(5.2-t*.5).toFixed(1)}s" repeatCount="indefinite"/></rect></g>`;
+ s+=`</g>`;
+ /* wreath + ball in the middle band */
+ s+=wreath(272,90,24,1,T.ac,T.d)+wreath(272,90,24,0,T.ac,T.d);
+ s+=`<circle cx="272" cy="90" r="14" fill="url(#${u}b)" stroke="#2a1204" stroke-width="1.2"/><path d="M258,90H286M272,76V104M262.5,80Q268,90 262.5,100M281.5,80Q276,90 281.5,100" fill="none" stroke="#2a1204" stroke-width="1.1"/>`;
+ s+=`<text x="236" y="96" text-anchor="end" font-family="Impact,'Arial Narrow',sans-serif" font-size="${T.n.length>8?14:17}" letter-spacing="1" fill="#fff" stroke="#000" stroke-width="2.6" paint-order="stroke">${T.n}</text>`;
+ s+=`<text x="308" y="96" font-family="Impact,'Arial Narrow',sans-serif" font-size="${o.flash?17:14}" letter-spacing="1" fill="${o.flash?'#fff':T.l}" stroke="#000" stroke-width="2.6" paint-order="stroke">${esc(rt)}</text>`;
+ /* name plate (top), strip (bottom), PG / OVR tabs */
+ s+=`<polygon points="112,40 432,40 420,72 126,72" fill="url(#${u}k)" stroke="${T.m}" stroke-width="1"/>`;
+ s+=`<text x="272" y="62" text-anchor="middle" font-family="'Trebuchet MS',Arial,sans-serif" font-style="italic" font-weight="800" font-size="${nmS}" fill="#fff"${nm.length>13?' textLength="290" lengthAdjust="spacingAndGlyphs"':''}>${esc(nm)}</text>`;
+ s+=`<polygon points="440,58 450,40 496,40 496,74 450,74" fill="url(#${u}k)" stroke="${T.m}" stroke-width="1"/><text x="474" y="64" text-anchor="middle" font-family="'Trebuchet MS',Arial,sans-serif" font-style="italic" font-weight="800" font-size="19" fill="#fff">${esc(o.pos||'PG')}</text>`;
+ s+=`<g opacity=".5"><circle cx="474" cy="91" r="11" fill="none" stroke="${T.ac}" stroke-width="1.4"/><polygon points="${pts(star(474,91,5,7,3,-Math.PI/2))}" fill="${T.ac}"/></g>`;
+ s+=`<polygon points="440,125 450,106 496,106 496,144 450,144" fill="url(#${u}k)" stroke="${T.m}" stroke-width="1"/><text x="474" y="118" text-anchor="middle" font-family="Arial,sans-serif" font-weight="800" font-size="9" letter-spacing="1" fill="${T.ac}">OVR</text><text x="475" y="140" text-anchor="middle" font-family="'Trebuchet MS',Arial,sans-serif" font-style="italic" font-weight="800" font-size="24" fill="#fff">${esc(o.ovr||99)}</text>`;
+ s+=`<polygon points="126,108 420,108 432,144 112,144" fill="url(#${u}k)" stroke="${T.m}" stroke-width="1"/><circle cx="146" cy="126" r="8.5" fill="none" stroke="${T.ac}" stroke-width="2"/><circle cx="146" cy="126" r="3" fill="${T.ac}"/><path d="M146,114V119M146,133V138M134,126H139M153,126H158" stroke="${T.ac}" stroke-width="1.4"/>`;
+ s+=`<text x="164" y="131" font-family="Impact,'Arial Narrow',sans-serif" font-style="italic" font-size="15" letter-spacing=".5" fill="#fff" textLength="238" lengthAdjust="spacingAndGlyphs">${esc(tag)}</text>`;
+ /* progress to the next rep tier */
+ s+=`<rect x="116" y="146" width="312" height="3.4" rx="1.7" fill="#000" opacity=".7"/><rect x="116" y="146" width="${f1(312*pc/100)}" height="3.4" rx="1.7" fill="${T.m}"/>`;
+ /* left rep badge (overlaps the plate) */
+ const bx=62,by=92,dr=[35,33,29,26,24,22][t],R=[50,54,58,60,62,64][t],sp=[];
+ for(let i=0;i<4;i++){const a=i*Math.PI/2;sp.push([bx+Math.cos(a)*R,by+Math.sin(a)*R],[bx+Math.cos(a+Math.PI/4)*dr,by+Math.sin(a+Math.PI/4)*dr])}
+ if(t>=2)s+=t>=4?`<circle cx="${bx}" cy="${by}" r="78" fill="url(#${u}g)" opacity=".8"><animate attributeName="opacity" values=".5;.9;.5" dur="2.4s" repeatCount="indefinite"/></circle>`:`<circle cx="${bx}" cy="${by}" r="68" fill="url(#${u}g)" opacity=".5"/>`;
+ if(t>=3){const bk=star(bx,by,4,R-4,26,Math.PI/4);s+=`<polygon points="${pts(bk)}" fill="url(#${u}f)" stroke="#05070c" stroke-width="1.4" stroke-linejoin="round" opacity=".95"/>`}
+ s+=`<polygon points="${pts(sp)}" fill="url(#${u}f)" stroke="#05070c" stroke-width="1.8" stroke-linejoin="round"/><polygon points="${pts(sp)}" fill="none" stroke="${T.l}" stroke-opacity=".7" stroke-width=".8" transform="translate(0 -1)"/>`;
+ if(t>=1)for(const a of [-1,1])s+=`<polygon points="${bx+a*(R-6)},${by-5} ${bx+a*(R+(t>=2?10:6))},${by} ${bx+a*(R-6)},${by+5}" fill="${T.ac}" opacity=".9"/>`;
+ s+=`<polygon points="${bx},${by-35} ${bx+35},${by} ${bx},${by+35} ${bx-35},${by}" fill="url(#${u}p)" stroke="${T.ac}" stroke-width="2.2"/><polygon points="${bx},${by-27} ${bx+27},${by} ${bx},${by+27} ${bx-27},${by}" fill="#080a12" opacity=".78"/>`;
+ s+=`<circle cx="${bx}" cy="${by-1}" r="13" fill="url(#${u}b)" opacity=".55" stroke="${T.ac}" stroke-width="1"/>`;
+ s+=`<text x="${bx}" y="${by+10}" text-anchor="middle" font-family="Impact,'Arial Narrow',sans-serif" font-size="${T.r.length>2?24:29}" fill="#fff" stroke="${T.d}" stroke-width="3" paint-order="stroke">${T.r}</text>`;
+ /* crown / gems on top of the badge and the frame peak */
+ if(t>=4){const cy=by-R+2,cr=[[bx-13,cy+4],[bx,cy-10],[bx+13,cy+4]];s+=`<polygon points="${bx-18},${cy+8} ${bx-13},${cy-6} ${bx-6},${cy+2} ${bx},${cy-14} ${bx+6},${cy+2} ${bx+13},${cy-6} ${bx+18},${cy+8}" fill="url(#${u}f)" stroke="#05070c" stroke-width="1.2"/>`;cr.forEach(c=>{s+=`<circle cx="${f1(c[0])}" cy="${f1(c[1]-2)}" r="2.6" fill="${t==5?'#ff3d5a':T.ac}" stroke="#05070c" stroke-width=".7"/>`})}
+ else if(t>=1)s+=`<polygon points="${bx},${by-R-6} ${bx+5},${by-R+1} ${bx},${by-R+7} ${bx-5},${by-R+1}" fill="${T.ac}" stroke="#05070c" stroke-width="1"/>`;
+ if(t>=2)s+=`<circle cx="260" cy="${30-pk+9}" r="${t>=5?5.5:4}" fill="${t==5?'#ff3d5a':T.ac}" stroke="#05070c" stroke-width="1"/>`;
+ if(t>=5)[[200,22],[320,22],[260,164],[500,70],[500,116]].forEach((q,i)=>{s+=`<polygon points="${pts(star(q[0],q[1],4,7,1.6,0))}" fill="#fff"><animate attributeName="opacity" values="0;1;0" dur="${(1.6+i*.35).toFixed(2)}s" begin="${(i*.4).toFixed(1)}s" repeatCount="indefinite"/></polygon>`});
+ return s+`</svg>`}
+function mount(el,o){const k=JSON.stringify(o);if(el._ghk!==k){el._ghk=k;el.innerHTML=svg(o)}}
+return{TI,tierOf,svg,mount}})();
+
 ;(function(){const TI=[['ROOKIE',0,'#8da3bd','I'],['PRO',100,'#3de0ff','II'],['STAR',300,'#7a5cff','III'],['ALL-STAR',700,'#ff4fd8','IV'],['SUPERSTAR',1500,'#ff8a3d','V'],['LEGEND',3000,'#ff3d5a','VI']];let rp=0;try{rp=+localStorage.getItem('gh_rep')||0}catch(e){}
-const g=$('gb'),nt=$('ntag'),v=V(),hv=V();let msg='',mt=0,lm=0,bt=0,bl=[];
+const g=$('gb'),g2=$('gb2'),nt=$('ntag'),v=V(),hv=V(),vl=V(),vr=V();let msg='',mt=0,lm=0,bt=0,bl=[];
 const tier=()=>{let i=0;while(i<5&&rp>=TI[i+1][1])i++;return i};
 window.repAdd=n=>{rp+=n;msg='+'+n+' REP';mt=1.4;try{localStorage.setItem('gh_rep',rp)}catch(e){}};
 setInterval(()=>{if(sco.m<lm)lm=0;if(sco.m>lm){repAdd(10*(sco.m-lm));lm=sco.m}},300);
-(function f(){requestAnimationFrame(f);const i=tier(),t=TI[i],n=TI[Math.min(5,i+1)],pc=i==5?100:(rp-t[1])/(n[1]-t[1])*100;if(mt>0)mt-=.016;
-g.style.setProperty('--tc',t[2]);$('gbi').style.width=pc+'%';$('gbt').textContent=mt>0?msg:t[0]+' · '+rp+' REP';$('gbb').textContent=t[3];$('gbn').textContent=nt.textContent||'PLAYER';
-v.set(P.position.x,GY,P.position.z).project(cam);
-const SC=.2,bw=460*SC,bh=124*SC,W=innerWidth,H=innerHeight,cx=(v.x*.5+.5)*W,fy=(-v.y*.5+.5)*H;hv.set(P.position.x,GY+2.3,P.position.z).project(cam);const hy=(-hv.y*.5+.5)*H;
+(function f(){requestAnimationFrame(f);if(mt>0)mt-=.016;
+const W=innerWidth,H=innerHeight,show=!!g;
+/* the nameplates are small and sit on the floor under each player's feet: width follows the camera depth (about 1.8 m of court) */
+const sizeAt=(x,z)=>{vl.set(x-.9,GY,z).project(cam);vr.set(x+.9,GY,z).project(cam);return cl(Math.abs(vr.x-vl.x)*.5*W,84,150)};
+const bw=sizeAt(P.position.x,P.position.z),SC=bw/520,bh=190*SC;
+GHB.mount(g,{name:nt.textContent||'PLAYER',rep:rp,uid:'hp',flash:mt>0?msg:''});
+v.set(P.position.x,GY,P.position.z).project(cam);hv.set(P.position.x,GY+2.3,P.position.z).project(cam);
+const cx=(v.x*.5+.5)*W,fy=(-v.y*.5+.5)*H,hy=(-hv.y*.5+.5)*H;
 if(--bt<=0){bt=6;bl=[...document.querySelectorAll('.tb,#gear,#mapb,#tbtn,#mmq,#hud,#pn,#mp,#mm,#ld')].filter(e=>{const c=getComputedStyle(e);return c.display!='none'&&c.visibility!='hidden'}).map(e=>e.getBoundingClientRect()).filter(r=>r.width>0&&r.height>0)}
 const hit=(x,y)=>bl.some(r=>x<r.right+10&&x+bw>r.left-10&&y<r.bottom+10&&y+bh>r.top-10),
  cand=[[cx-bw/2,fy+2],[cx-bw/2,fy+bh+14],[cx-bw/2,hy-bh-8],[cx+34,fy-bh],[cx-bw-34,fy-bh],[cx-bw/2,hy-bh*2-16],[cx-bw/2,fy+bh*2+22]];
 let pl=null;for(const c of cand){const x=cl(c[0],4,W-bw-4),y=cl(c[1],4,H-bh-4);if(!hit(x,y)){pl=[x,y];break}}
-if(pl){g.style.transform=`translate(${pl[0]}px,${pl[1]}px) scale(${SC})`;g.style.opacity=v.z<1?1:0}else g.style.opacity=0})()})();
+if(pl){g.style.transform=`translate(${pl[0]}px,${pl[1]}px) scale(${SC})`;g.style.opacity=v.z<1?1:0}else g.style.opacity=0;
+/* defender nameplate, same design, under his feet */
+const dOn=look.def!='off'&&dfr.P.visible!==false,dd=window.GH_DEF||{name:'DEFENDER',rep:700};
+if(g2){if(!dOn)g2.style.opacity=0;else{
+ GHB.mount(g2,{name:dd.name,rep:dd.rep,uid:'hd',pos:dd.pos||'C',ovr:dd.ovr||STAT.interiorD,tag:'RIM PROTECTOR'});
+ const bw2=sizeAt(D.x,D.z),SC2=bw2/520,bh2=190*SC2;vl.set(D.x,GY,D.z).project(cam);
+ const dx=(vl.x*.5+.5)*W,dy=(-vl.y*.5+.5)*H;let x2=cl(dx-bw2/2,4,W-bw2-4),y2=cl(dy+2,4,H-bh2-4);
+ if(pl&&x2<pl[0]+bw&&x2+bw2>pl[0]&&y2<pl[1]+bh&&y2+bh2>pl[1]){y2=pl[1]+bh+3;if(y2+bh2>H-4)y2=Math.max(4,pl[1]-bh2-3)}   /* never stack on top of your own plate */
+ g2.style.transform=`translate(${x2}px,${y2}px) scale(${SC2})`;g2.style.opacity=vl.z<1?1:0}}
+})()})();
 
 ;var JF=[
 /*1 Classic one-hand*/{j:1,l:0,t:0,h:0,f:0,kk:0,lh:0,g:[.12,1.6,-.2],r:[.1,2.3,-.3],ah:.05,so:[0,.02,0],go:[-.2,-.06,.03],fo:[0,-.1,-.12],gf:[-.1,-.5,.06]},
@@ -1185,6 +1317,7 @@ if(pl){g.style.transform=`translate(${pl[0]}px,${pl[1]}px) scale(${SC})`;g.style
 #gh-leader-list .gh-stats{display:flex;justify-content:center;gap:7px;flex-wrap:wrap;margin-top:9px}
 #gh-leader-list .gh-stat{padding:5px 8px;border-radius:8px;background:#ffffff0c;border:1px solid #ffffff12;font-size:11px;color:#dce6ff}
 #gh-leader-list .gh-rep-banner{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:1px;padding:9px 11px;border-radius:10px;background:linear-gradient(90deg,#202a45,#171d31);border:1px solid var(--rep-color,#67e8f9)55;color:var(--rep-color,#67e8f9);font-weight:900;letter-spacing:.6px}
+#gh-leader-list .gh-rep-banner.gh-b2k{display:block;padding:6px 8px 20px;border:0;background:none;margin-top:6px}
 #gh-leader-list .gh-rep-banner small{color:#d9e1f5;font-weight:700;letter-spacing:0}
 .gh-card{display:flex;align-items:center;gap:12px;padding:12px;border-radius:14px;background:#ffffff0d;border:1px solid #ffffff20}
 .gh-card canvas{width:82px;height:82px;border-radius:12px;background:#111827;flex:none}
@@ -1286,7 +1419,7 @@ if(pl){g.style.transform=`translate(${pl[0]}px,${pl[1]}px) scale(${SC})`;g.style
    const info=document.createElement('div');info.className='gh-info';const name=document.createElement('b');name.textContent=e.name+(e.player?' · YOU':'');
    const type=document.createElement('small');type.style.cssText='display:block;color:#9ba9c6;margin-top:4px';type.textContent=e.player?'HUMAN PLAYER':'TEST DUMMY · DEMO PROFILE';
    const stats=document.createElement('div');stats.className='gh-stats';const repStat=document.createElement('span');repStat.className='gh-stat';repStat.textContent=(Number(e.rep)||0).toLocaleString()+' REP';const champStat=document.createElement('span');champStat.className='gh-stat';champStat.textContent='🏆 '+(Number(e.championships)||0)+' championships';stats.append(repStat,champStat);info.append(name,type,stats);
-   const banner=document.createElement('div');banner.className='gh-rep-banner';banner.style.setProperty('--rep-color',tier[2]);const tierName=document.createElement('span');tierName.textContent='✦ '+tier[0];const repText=document.createElement('small');repText.textContent=(Number(e.rep)||0).toLocaleString()+' REP';banner.append(tierName,repText);card.append(fw,info,banner);list.append(card)
+   const banner=document.createElement('div');banner.className='gh-rep-banner gh-b2k';banner.style.setProperty('--rep-color',tier[2]);banner.innerHTML=GHB.svg({name:e.name,rep:Number(e.rep)||0,uid:'lb'+i});card.append(fw,info,banner);list.append(card)
   });
  }
  function renderAvatars(){
@@ -1426,7 +1559,7 @@ const pickSpot=()=>{const a=(Math.random()<.5?-1:1)*(.15+Math.random()*1.15),r=7
 function giveBall(to,msg,col,repos){
  if(repos===undefined)repos=true;
  prevFl=false;fl=false;dk=null;mvA=null;mq.length=0;ch=0;shT=0;cel=0;ft=0;
- if(S=='sh'||S=='ch'||S=='dk'||S=='fr')S='dr';
+ if(S=='sh'||S=='ch'||S=='dk'||S=='fr'||S=='pf')S='dr';ppf=null;
  D.k=null;D.ank=0;D.stun=0;D.j=-1;D.jh=0;D.up=0;D.rush=0;D.done=false;D.dkj=0;pf=null;pend=null;c.swatT=0;
  P.rotation.x=0;P.rotation.z=0;dfr.P.rotation.x=0;dfr.P.rotation.z=0;con=0;
  sc.t=SC0;sc.tick=99;
@@ -1626,7 +1759,7 @@ upd=function(dt){
   c.swatCD=Math.max(0,c.swatCD-dt);
   if(prevFl&&!fl&&!CP&&!pend&&!over)setPend('c');   /* your shot / dunk is finished: CPU ball */
   prevFl=fl;
-  if(pend&&!fl&&!D.k&&!pf&&S!='sh'&&S!='dk'&&S!='ch'){pendT-=dt;if(pendT<=0)resolve()}
+  if(pend&&!fl&&!D.k&&!pf&&!ppf&&S!='sh'&&S!='dk'&&S!='ch'){pendT-=dt;if(pendT<=0)resolve()}
   /* shot clock */
   if(sc.hold>0&&!pend&&!fl)sc.hold-=dt;
   sc.on=!over&&!pend&&!fl&&!pf&&sc.hold<=0&&(CP?c.ph=='play':(S=='dr'||S=='ch'||S=='fr'));
@@ -1645,7 +1778,7 @@ upd=function(dt){
 
 /* ---- tournament flow ---- */
 const begin=r=>{
- STAT.interiorD=LV[r];c.name=pr(NM);c.score=0;over=false;pf=null;pend=null;c.poster=false;
+ STAT.interiorD=LV[r];c.name=pr(NM);window.GH_DEF={name:c.name,rep:[60,200,500,1100,2400][r],pos:'PF',ovr:LV[r]};c.score=0;over=false;pf=null;pend=null;c.poster=false;
  dfr.apply(Object.assign({},look,{skin:pr(skins),hair:pr(['buzz','short','afro','bun','long','mohawk','cornrows']),hc:pr(['#17120f','#3b2417','#caa24b','#8a8a8a']),jc:pr(rk),jc2:pr(rk),sh:pr(rk),num:Math.random()*99|0,top:'tank'}));
  window.DEF.reroll();   /* a different one of your models each game */
  sco.p=0;sco.m=0;sco.a=0;hud();
@@ -1656,7 +1789,7 @@ const begin=r=>{
  sc.hold=Math.max(sc.hold,2.3);   /* clock waits for the intro */
 };
 function end(){
- T=null;CP=false;over=false;pf=null;pend=null;c.ph='idle';sc.on=false;
+ T=null;CP=false;over=false;pf=null;pend=null;c.ph='idle';sc.on=false;window.GH_DEF=null;
  P.rotation.x=0;P.rotation.z=0;dfr.P.rotation.x=0;dfr.P.rotation.z=0;
  STAT.interiorD=72;lab.style.display='none';cut.style.display='none';sb.style.display='none';cd.style.display='none';b.textContent='🏆 TOURNAMENT';
 }

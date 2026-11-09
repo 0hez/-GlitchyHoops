@@ -159,7 +159,9 @@ addEventListener('pointerdown',()=>{if(over)reset()});
 (async()=>{
   try{
     msg.textContent='Loading road…';
-    const road=(await new THREE.GLTFLoader().loadAsync('interstate_95_highway.glb')).scene;
+    const gb=await (await fetch('interstate_95_highway.glb')).arrayBuffer();
+    {const dv=new DataView(gb),jl=dv.getUint32(12,true),o=20+jl;dv.setUint8(o+7,0);} /* your GLB's BIN chunk tag is malformed; repair it */
+    const road=(await new Promise((ok,no)=>new THREE.GLTFLoader().parse(gb,'',ok,no))).scene;
     let bx=new THREE.Box3().setFromObject(road),sz=bx.getSize(V());
     if(sz.z>sz.x)road.rotation.y=Math.PI/2;
     road.updateMatrixWorld(true);bx=new THREE.Box3().setFromObject(road);const c=bx.getCenter(V());

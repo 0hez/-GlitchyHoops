@@ -39,7 +39,7 @@ canvas{display:block;width:100%;height:100%}
 <div id="hud"><div class="bar" id="p1bar"><i></i></div><div class="bar" id="p2bar"><i></i></div></div>
 <div id="msg" class="f">Loading…</div>
 <div id="top" class="f"><div class="t" data-a="menu">☰ MENU</div><div class="t" data-a="maps">🗺 MAPS</div><div class="t" data-a="swap">👥 SWITCH</div><div class="t" data-a="restart">🔄</div><div class="t" data-a="settings">⚙</div></div>
-<div id="dbg">v3 starting…</div>
+<div id="dbg">v4 starting…</div>
 <div id="pn" class="f"><div id="card"></div></div>
 <div id="ctl">
  <div class="g"><div class="b" data-k="L">◀</div><div class="b" data-k="R">▶</div></div>
@@ -226,7 +226,7 @@ class Fighter{
     this.input={L:0,R:0,P:0,K:0,B:0};this.initAnim();
   }
   initAnim(){
-    if(!CL.idle){this.why='no idle clip';return}if(!this.b.Hips){this.why='no Hips; bones: '+Object.keys(this.b).slice(0,4).join(',');return}
+    if(!Object.keys(CL).length){this.why='no clips loaded';return}if(!this.b.Hips){this.why='no Hips; bones: '+Object.keys(this.b).slice(0,4).join(',');return}
     const byN={};this.model.traverse(o=>{if(o.isBone)byN[N(o.name)]=o});
     const hy=this.b.Hips.position.y;this.mixer=new THREE.AnimationMixer(this.model);this.A={};this.w={};
     for(const k in CL){
@@ -242,7 +242,7 @@ class Fighter{
       if(k!=='idle'){a.setLoop(THREE.LoopOnce,1);a.clampWhenFinished=true}
       this.A[k]=a;this.w[k]=k==='idle'?1:0;this.nt=(this.nt||0)+tr.length;
     }
-    this.A.idle.play();
+    if(this.A.idle)this.A.idle.play();else this.why='idle clip missing (procedural idle used)';
   }
   animStep(dt){
     const tgt=this.act==='punch'?'punch':this.act==='ko'?'ko':'idle';
@@ -289,7 +289,7 @@ class Fighter{
     const b=this.b,r=this.root;
     if(this.mixer)this.animStep(dt);
     r.position.set(this.x,gy,0);r.rotation.set(0,this.dir>0?Math.PI/2:-Math.PI/2,0);
-    if(this.mixer&&!PROC.includes(this.act)){r.updateMatrixWorld(true);return}
+    if(this.mixer&&!PROC.includes(this.act)&&this.A[this.act==='punch'||this.act==='ko'?this.act:'idle']){r.updateMatrixWorld(true);return}
     /* fallback / procedural poses (block, kick, hit — no clip for these) */
     for(const n in this.rest)b[n].quaternion.copy(this.rest[n]);
     if(this.mixer&&this.restP)b.Hips.position.copy(this.restP);
@@ -395,9 +395,9 @@ addEventListener('pointerdown',e=>{if(over&&!paused&&!e.target.closest('#top,#ct
     const m1=await loadFBX('Ch11'),m2=await loadFBX('Ch24');
     P1=new Fighter(m1,-1.5,1);P2=new Fighter(m2,1.5,-1);
     const m=MAPS[S.map];setMap(m&&(m.g||m.build)?S.map:'dojo');applyS();
-    $('dbg').textContent='v3 · clips '+Object.keys(CL).join('/')+' · mixer '+!!P1.mixer+'/'+!!P2.mixer+' · tracks '+(P1.nt||0)+'/'+(P2.nt||0)+(P1.why?' · '+P1.why:'')+(AE.length?'\n'+AE.join('\n'):'');
+    $('dbg').textContent='v4 · clips '+Object.keys(CL).join('/')+' · mixer '+!!P1.mixer+'/'+!!P2.mixer+' · tracks '+(P1.nt||0)+'/'+(P2.nt||0)+(P1.why?' · '+P1.why:'')+(AE.length?'\n'+AE.join('\n'):'');
     msg.textContent='FIGHT!\nanims: '+Object.keys(CL).length+'/3 · tracks bound: '+(P1.nt||0)+'/'+(P2.nt||0)+(AE.length?'\n'+AE.join('\n'):'');setTimeout(()=>{if(!over)msg.textContent=''},3500);
     requestAnimationFrame(loop);
-  }catch(e){$('dbg').textContent='v3 ERROR '+e.message+(AE.length?'\n'+AE.join('\n'):'');msg.textContent='Load failed:\n'+e.message+'\n\nServe this folder over http and keep all model files next to index.html.'}
+  }catch(e){$('dbg').textContent='v4 ERROR '+e.message+(AE.length?'\n'+AE.join('\n'):'');msg.textContent='Load failed:\n'+e.message+'\n\nServe this folder over http and keep all model files next to index.html.'}
 })();
 </script></body></html>

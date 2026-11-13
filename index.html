@@ -52,15 +52,15 @@ canvas{display:block;width:100%;height:100%}
    (all the fight animations are embedded in this file)   (serve the folder, e.g. `python3 -m http.server`) */
 const $=id=>document.getElementById(id), msg=$('msg');
 const V=(x,y,z)=>new THREE.Vector3(x,y,z);
-let S={diff:1,cam:1,shadow:1,touch:1,map:'highway',style:3};
+let S={diff:1,cam:1,shadow:1,touch:1,vib:1,gs:50,map:'highway',style:3};
 try{Object.assign(S,JSON.parse(localStorage.getItem('sf95')||'{}'))}catch(e){}
 if(S.v!==2){S.style=4;S.v=2}
 let crashed=false,LV=0;
 try{
-  LV=+(localStorage.getItem('sf95lv')||0);if(localStorage.getItem('sf95up')||localStorage.getItem('sf95try'))LV=Math.min(3,LV+1);
-  localStorage.setItem('sf95lv',LV);localStorage.setItem('sf95up','1');
-  setTimeout(()=>{try{localStorage.removeItem('sf95up');localStorage.setItem('sf95lv',0)}catch(e){}},20000);
-  addEventListener('pagehide',()=>{try{localStorage.removeItem('sf95up')}catch(e){}});
+  LV=+(localStorage.getItem('sf96lv')||0);if(localStorage.getItem('sf96up')||localStorage.getItem('sf96try'))LV=Math.min(3,LV+1);
+  localStorage.setItem('sf96lv',LV);localStorage.setItem('sf96up','1');
+  setTimeout(()=>{try{localStorage.removeItem('sf96up');localStorage.setItem('sf96lv',0)}catch(e){}},20000);
+  addEventListener('pagehide',()=>{try{localStorage.removeItem('sf96up')}catch(e){}});
 }catch(e){}
 delete S.lite;
 if(LV>=1){crashed=true;S.lite=1;S.shadow=0;S.map='dojo'}
@@ -183,7 +183,7 @@ function setMap(id){
   if(cur&&cur.g)cur.g.visible=false;
   if(!m.g){m.g=new THREE.Group();m.build(m.g,m)}
   if(!m.g.parent)scene.add(m.g);
-  m.g.visible=true;cur=m;S.map=id;gy=m.gy||0;save();try{localStorage.setItem('sf95try',id);setTimeout(()=>localStorage.removeItem('sf95try'),5000)}catch(e){}
+  m.g.visible=true;cur=m;S.map=id;gy=m.gy||0;save();try{localStorage.setItem('sf96try',id);setTimeout(()=>localStorage.removeItem('sf96try'),5000)}catch(e){}
   scene.background=m.bg?(m.bgT||(m.bgT=m.bg())):new THREE.Color(m.sky);
   scene.fog=new THREE.Fog(m.fog.length?(m.bg?0xe9a07a:m.sky):m.sky,m.fog[0],m.fog[1]);
   hemi.color.set(m.hemi[0]);hemi.groundColor.set(m.hemi[1]);hemi.intensity=m.hemi[2];
@@ -257,6 +257,11 @@ const sparkTex=tex(64,64,(c)=>{const g=c.createRadialGradient(32,32,0,32,32,32);
 function spark(p,col,n){for(let i=0;i<n;i++){const m=new THREE.SpriteMaterial({map:sparkTex,color:col,blending:THREE.AdditiveBlending,transparent:true,depthWrite:false}),sp=new THREE.Sprite(m);sp.position.copy(p);sp.scale.setScalar(i?.22:.8);scene.add(sp);fxs.push({sp,t:0,life:i?.32:.16,big:!i,v:i?V((Math.random()-.5)*5,Math.random()*3.5+.5,(Math.random()-.5)*3):V(0,0,0)})}}
 function fxStep(dt){for(let i=fxs.length-1;i>=0;i--){const f=fxs[i];f.t+=dt;const k=f.t/f.life;f.sp.position.addScaledVector(f.v,dt);f.v.y-=8*dt;f.sp.material.opacity=Math.max(0,1-k);if(f.big)f.sp.scale.setScalar(.5+k*.9);if(k>=1){scene.remove(f.sp);f.sp.material.dispose();fxs.splice(i,1)}}}
 
+/* ---------- haptics (Android vibrate; iPhone Safari 17.4+ switch-tick workaround) ---------- */
+const hx=document.createElement('label');hx.style.cssText='position:fixed;left:-99px;top:-99px;opacity:0;pointer-events:none';hx.innerHTML='<input type="checkbox" switch>';document.body.appendChild(hx);
+function buzz(p){if(!S.vib)return;try{if(navigator.vibrate){navigator.vibrate(p);return}}catch(e){}try{hx.click()}catch(e){}}
+/* game speed bar 1-100: 50 = normal (1x), 1 = 0.25x, 100 = 2x */
+const gameSpeed=()=>{const v=Math.max(1,Math.min(100,+S.gs||50));return v<=50?.25+(v-1)/49*.75:1+(v-50)/50};
 class Fighter{
   constructor(model,x,dir){
     this.model=model;this.root=new THREE.Group();this.root.rotation.order='YXZ';this.root.add(model);scene.add(this.root);
@@ -337,13 +342,13 @@ this.mixer=new THREE.AnimationMixer(this.model);this.A={};this.w={};
   hurt(d,from,pt,kind){
     if(this.act==='down'||this.act==='ko')return;
     const blk=this.act==='block'&&this.dir*from<0,hv=kind==='kick';
-    if(blk){d*=0.15;this.vx=from*1.8;this.bl=.22;spark(pt,0x7ab8ff,5)}
+    if(blk){buzz(8);d*=0.15;this.vx=from*1.8;this.bl=.22;spark(pt,0x7ab8ff,5)}
     else{
-      this.act='hit';this.t=0;this.vx=from*(hv?5.5:3.6);spark(pt,0xffb347,hv?10:7);shake=Math.max(shake,hv?.12:.07);freeze=hv?.07:.045;
+      buzz(hv?32:this===P1?24:18);this.act='hit';this.t=0;this.vx=from*(hv?5.5:3.6);spark(pt,0xffb347,hv?10:7);shake=Math.max(shake,hv?.12:.07);freeze=hv?.07:.045;
       /* every clean hit to the face = a random head-hit reaction, starting on the contact frame */
       this.hits++;this.hitT=3; /* a knockdown every 3-4 clean hits */
       if(this.hp-d>0&&this.hits>=this.kdN&&this.A&&this.A.ko&&this.A.standup){ /* took too much, knocked down mid-fight: same KO clip, then gets back up */
-        this.hits=0;this.kdN=3+((Math.random()*2)|0);this.ph=0;this.act='down';this.buf=null;this.vx=from*5;freeze=.1;shake=Math.max(shake,.15);
+        buzz(55);this.hits=0;this.kdN=3+((Math.random()*2)|0);this.ph=0;this.act='down';this.buf=null;this.vx=from*5;freeze=.1;shake=Math.max(shake,.15);
         const kc=this.A.ko.getClip().duration-CM.ko.t0,sp=Math.min(2.2,Math.max(1.4,kc/.9));
         this.dur=kc/sp;this.play('ko',0,CM.ko.t0,sp);
       }else{
@@ -352,7 +357,7 @@ this.mixer=new THREE.AnimationMixer(this.model);this.A={};this.w={};
     }
     this.hp=Math.max(0,this.hp-d);
     if(this.hp<=0){ /* the finishing blow knocks them down on the contact frame */
-      this.act='ko';this.t=0;this.vx=from*6;freeze=.14;shake=.2;if(!this.play('ko',0,CM.ko.t0))this.ck=null}
+      buzz(90);this.act='ko';this.t=0;this.vx=from*6;freeze=.14;shake=.2;if(!this.play('ko',0,CM.ko.t0))this.ck=null}
   }
   update(dt,foe){
     this.foe=foe;this.bl=Math.max(0,this.bl-dt);this.tm+=dt;this.t+=dt;const i=this.input;
@@ -386,8 +391,7 @@ this.mixer=new THREE.AnimationMixer(this.model);this.A={};this.w={};
     this.x+=this.vx*dt;this.vx*=Math.exp(-9*dt);
     if(this.act==='ko')this.ko=Math.min(1,this.ko+dt*2.5);
     this.x=Math.max(-6,Math.min(6,this.x));
-    if(Math.abs(this.x-foe.x)<1.0)this.x=foe.x-this.dir*1.0;
-    this.x=Math.max(-6.5,Math.min(6.5,this.x));
+    const lim=foe.x-this.dir*1.0;if((this.x-lim)*this.dir>0)this.x=lim; /* solid body: can never overlap or cross the other fighter */
   }
   setDir(bone,child,v){
     bone.updateWorldMatrix(true,false);child.updateWorldMatrix(true,false);
@@ -477,9 +481,9 @@ let last=performance.now();
 function loop(now){
   requestAnimationFrame(loop);const rdt=Math.min(0.05,(now-last)/1000);last=now;const dt=(paused||freeze>0)?0:rdt;if(freeze>0&&!paused)freeze-=rdt;
   const i=P1.input;i.L=held.L|0;i.R=held.R|0;i.PL=held.PL|0;i.PR=held.PR|0;i.K=held.K|0;i.B=held.B|0;
-  if(!paused){ai(P2,P1,dt);P1.update(dt,P2);P2.update(dt,P1)}
-  P1.pose(gy,dt);P2.pose(gy,dt);
-  if(cur&&cur.tick)cur.tick(now/1000,rdt);fxStep(rdt);
+  const GS=gameSpeed(),sdt=dt*GS,ns=Math.max(1,Math.ceil(sdt/.022)),h=sdt/ns;
+  for(let q=0;q<ns;q++){if(!paused){ai(P2,P1,h);P1.update(h,P2);P2.update(h,P1)}P1.pose(gy,h);P2.pose(gy,h)}
+  if(cur&&cur.tick)cur.tick(now/1000,rdt);fxStep(rdt*GS);
   $('p1bar').firstChild.style.width=P1.hp+'%';$('p2bar').firstChild.style.width=P2.hp+'%';
   if(!over&&(P1.hp<=0||P2.hp<=0)){over=true;msg.textContent=(P1.hp<=0?'YOU LOSE':'YOU WIN')+'\n\nTap to rematch'}
   const mid=(P1.x+P2.x)/2,sp=Math.abs(P1.x-P2.x);
@@ -493,7 +497,7 @@ const seg=(label,key,opts)=>`<div class="row"><label>${label}</label><div class=
 const VIEWS={
   menu:()=>`<h2>PAUSED</h2><div class="m" data-a="close">▶ RESUME</div><div class="m alt" data-a="maps">🗺 CHOOSE MAP</div><div class="m alt" data-a="swap">👥 SWITCH FIGHTER</div><div class="m alt" data-a="restart">🔄 RESTART FIGHT</div><div class="m alt" data-a="settings">⚙ SETTINGS</div><div class="hint">Keys: A / D move · J or U left punch · I right punch · K kick · L block · 1-5 punch style · tap punch / kick / block to chain combos</div>`,
   maps:()=>`<h2>CHOOSE MAP</h2><div class="mg">${Object.entries(MAPS).filter(([k,m])=>m.g||m.build).map(([k,m])=>`<div class="mc ${k===S.map?'sel':''}" data-a="map" data-v="${k}"><b>${m.e}</b><span>${m.n}</span><small>${m.d}</small></div>`).join('')}</div><div class="m alt" data-a="close" style="margin-top:14px">◀ BACK TO FIGHT</div>`,
-  settings:()=>`<h2>SETTINGS</h2>${seg('PUNCH STYLE','style',[['HOOK',0],['HOOK 2',1],['QUICK',2],['CROSS',3],['COMBO',4]])}${seg('AI DIFFICULTY','diff',[['EASY',.5],['NORMAL',1],['HARD',1.6]])}${seg('CAMERA DISTANCE','cam',[['CLOSE',.8],['NORMAL',1],['FAR',1.35]])}${seg('SHADOWS','shadow',[['ON',1],['OFF',0]])}${seg('TOUCH BUTTONS','touch',[['SHOW',1],['HIDE',0]])}<div class="m alt" data-a="menu">◀ BACK</div>`
+  settings:()=>`<h2>SETTINGS</h2>${seg('PUNCH STYLE','style',[['HOOK',0],['HOOK 2',1],['QUICK',2],['CROSS',3],['COMBO',4]])}${seg('AI DIFFICULTY','diff',[['EASY',.5],['NORMAL',1],['HARD',1.6]])}${seg('CAMERA DISTANCE','cam',[['CLOSE',.8],['NORMAL',1],['FAR',1.35]])}${seg('SHADOWS','shadow',[['ON',1],['OFF',0]])}${seg('TOUCH BUTTONS','touch',[['SHOW',1],['HIDE',0]])}${seg('VIBRATION ON PUNCHES','vib',[['ON',1],['OFF',0]])}<div class="row"><label>GAME SPEED: <b id="gsv">${+S.gs||50}</b> <span style="opacity:.6">(50 = normal)</span></label><input id="gs" type="range" min="1" max="100" step="1" value="${+S.gs||50}" style="width:100%;touch-action:none;accent-color:#ffd400"></div><div class="m alt" data-a="menu">◀ BACK</div>`
 };
 let ft;function flash(t){if(over)return;msg.textContent=t;clearTimeout(ft);ft=setTimeout(()=>{if(!over)msg.textContent=''},900)}
 function applyS(){sun.castShadow=!!S.shadow;$('ctl').style.display=S.touch?'flex':'none';$('sty').textContent='🥊 '+(STYLE_NAMES[S.style]||'COMBO');save()}
@@ -503,13 +507,14 @@ function doAct(e){
   const el=e.target.closest('[data-a]');if(!el)return;const a=el.dataset.a;
   if(a==='close')close();
   else if(a==='map'){setMap(el.dataset.v);reset();close()}
-  else if(a==='set'){S[el.dataset.k]=+el.dataset.v;applyS();open('settings')}
+  else if(a==='set'){S[el.dataset.k]=+el.dataset.v;applyS();open('settings');if(el.dataset.k==='vib')buzz(35)}
   else if(a==='style'){S.style=((+S.style||0)+1)%5;applyS();flash('PUNCH STYLE: '+STYLE_NAMES[S.style])}
   else if(a==='swap'){swap();close()}
   else if(a==='restart'){reset();close()}
   else open(a);
 }
 $('top').addEventListener('click',doAct);card.addEventListener('click',doAct);
+card.addEventListener('input',e=>{if(e.target.id==='gs'){S.gs=+e.target.value;$('gsv').textContent=S.gs;save()}});
 pn.addEventListener('click',e=>{if(e.target===pn)close()});
 
 document.querySelectorAll('.b').forEach(e=>{
@@ -525,7 +530,7 @@ addEventListener('pointerdown',e=>{if(over&&!paused&&!e.target.closest('#top,#ct
 
 (async()=>{
   try{
-    if(LV<2)await loadAnims();
+    await loadAnims(); /* animations always load */
     try{
       if(LV>=1)throw new Error('skipped in safe mode');
       msg.textContent='Loading road…';
@@ -545,6 +550,8 @@ addEventListener('pointerdown',e=>{if(over&&!paused&&!e.target.closest('#top,#ct
     const m=MAPS[S.map];setMap(m&&(m.g||m.build)?S.map:'dojo');applyS();
     msg.textContent='FIGHT!';setTimeout(()=>{if(!over)msg.textContent=''},1500);
     requestAnimationFrame(loop);
+    setTimeout(()=>{try{localStorage.removeItem('sf96up');localStorage.setItem('sf96lv',0)}catch(e){}},2500); /* it loaded fine: clear the crash counter */
+    if(AE.length||P1.why||!P1.A){msg.textContent='Animation problem:\n'+(P1.why||'')+' '+AE.slice(0,3).join(' | ');msg.style.fontSize='13px';setTimeout(()=>{if(!over)msg.textContent='';msg.style.fontSize=''},12000)}
   }catch(e){console.error(e);msg.textContent='Load failed:\n'+e.message+'\n\nServe this folder over http and keep all model files next to index.html.'}
 })();
 </script></body></html>

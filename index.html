@@ -39,7 +39,7 @@ canvas{display:block;width:100%;height:100%}
 <div id="hud"><div class="bar" id="p1bar"><i></i></div><div class="bar" id="p2bar"><i></i></div></div>
 <div id="msg" class="f">Loading…</div>
 <div id="top" class="f"><div class="t" data-a="menu">☰ MENU</div><div class="t" data-a="maps">🗺 MAPS</div><div class="t" data-a="swap">👥 SWITCH</div><div class="t" data-a="restart">🔄</div><div class="t" data-a="settings">⚙</div></div>
-<div id="dbg">v5 starting…</div>
+<div id="dbg">v6 starting…</div>
 <div id="pn" class="f"><div id="card"></div></div>
 <div id="ctl">
  <div class="g"><div class="b" data-k="L">◀</div><div class="b" data-k="R">▶</div></div>
@@ -214,8 +214,13 @@ async function loadAnims(){
   }
 }
 const N=n=>n.replace(/[^a-zA-Z]/g,'').replace(/^mixamorig/,'');
+const N2=n=>n.replace(/^mixamorig\d*:?/i,'');
 const A=new THREE.Vector3(),B=new THREE.Vector3(),Pq=new THREE.Quaternion();
 const PROC=['block','kick','hit'];
+let shake=0,freeze=0;const fxs=[];
+const sparkTex=tex(64,64,(c)=>{const g=c.createRadialGradient(32,32,0,32,32,32);g.addColorStop(0,'rgba(255,255,255,1)');g.addColorStop(.35,'rgba(255,210,90,.9)');g.addColorStop(1,'rgba(255,90,0,0)');c.fillStyle=g;c.fillRect(0,0,64,64)});
+function spark(p,col,n){for(let i=0;i<n;i++){const m=new THREE.SpriteMaterial({map:sparkTex,color:col,blending:THREE.AdditiveBlending,transparent:true,depthWrite:false}),sp=new THREE.Sprite(m);sp.position.copy(p);sp.scale.setScalar(i?.22:.8);scene.add(sp);fxs.push({sp,t:0,life:i?.32:.16,big:!i,v:i?V((Math.random()-.5)*5,Math.random()*3.5+.5,(Math.random()-.5)*3):V(0,0,0)})}}
+function fxStep(dt){for(let i=fxs.length-1;i>=0;i--){const f=fxs[i];f.t+=dt;const k=f.t/f.life;f.sp.position.addScaledVector(f.v,dt);f.v.y-=8*dt;f.sp.material.opacity=Math.max(0,1-k);if(f.big)f.sp.scale.setScalar(.5+k*.9);if(k>=1){scene.remove(f.sp);f.sp.material.dispose();fxs.splice(i,1)}}}
 
 class Fighter{
   constructor(model,x,dir){
@@ -225,16 +230,16 @@ class Fighter{
     this.b={};this.rest={};model.traverse(o=>{if(o.isBone){const n=N(o.name);this.b[n]=o;this.rest[n]=o.quaternion.clone()}});
     this.restP=this.b.Hips&&this.b.Hips.position.clone();
     this.x=x;this.dir=dir;this.hp=100;this.act='idle';this.pa='idle';this.t=0;this.dur=1;this.done=false;this.hand=0;this.move=0;this.ko=0;this.tm=Math.random()*9;
-    this.input={L:0,R:0,P:0,K:0,B:0};this.initAnim();
+    this.input={L:0,R:0,P:0,K:0,B:0};this.vx=0;this.bl=0;this.foe=null;this.initAnim();this.initFists();
   }
   initAnim(){
     if(!Object.keys(CL).length){this.why='no clips loaded';return}if(!this.b.Hips){this.why='no Hips; bones: '+Object.keys(this.b).slice(0,4).join(',');return}
-    const byN={};this.model.traverse(o=>{if(o.isBone)byN[N(o.name)]=o});
+    const byN={};this.model.traverse(o=>{if(o.isBone)byN[N2(o.name)]=o});
     const hy=this.b.Hips.position.y;this.mixer=new THREE.AnimationMixer(this.model);this.A={};this.w={};
     for(const k in CL){
       const src=CL[k],tr=[];
       for(const t of src.tracks){
-        const i=t.name.lastIndexOf('.'),n=N(t.name.slice(0,i)),p=t.name.slice(i+1),bn=byN[n];
+        const i=t.name.lastIndexOf('.'),n=N2(t.name.slice(0,i)),p=t.name.slice(i+1),bn=byN[n];
         if(!bn||p==='scale')continue;
         let v=t.values;
         if(p==='position'){if(n!=='Hips')continue;const s=(hy/t.values[1])||1;v=t.values.map((a,j)=>j%3===1?a*s:(a-t.values[j%3])*s)}
@@ -254,13 +259,15 @@ class Fighter{
     this.mixer.update(dt);
   }
   start(a){if(this.act!=='idle'||this.hp<=0)return;this.act=a;this.t=0;this.done=false;this.dur=a==='punch'?(this.A&&this.A.punch?0.6:0.34):0.5;if(a==='punch')this.hand^=1}
-  hurt(d,from){
-    if(this.act==='block'&&this.dir*from<0){d*=0.15}else{this.act='hit';this.t=0;this.dur=0.35}
-    this.hp=Math.max(0,this.hp-d);this.x+=from*0.25;
-    if(this.hp<=0){this.act='ko';this.t=0}
+  hurt(d,from,pt,kind){
+    const blk=this.act==='block'&&this.dir*from<0,hv=kind==='kick';
+    if(blk){d*=0.15;this.vx=from*1.8;this.bl=.22;spark(pt,0x7ab8ff,5)}
+    else{this.act='hit';this.t=0;this.dur=hv?.55:.42;this.vx=from*(hv?5.5:3.6);spark(pt,0xffb347,hv?10:7);shake=Math.max(shake,hv?.12:.07);freeze=hv?.09:.06}
+    this.hp=Math.max(0,this.hp-d);
+    if(this.hp<=0){this.act='ko';this.t=0;this.vx=from*6;freeze=.14;shake=.2}
   }
   update(dt,foe){
-    this.tm+=dt;this.t+=dt;const i=this.input;
+    this.foe=foe;this.bl=Math.max(0,this.bl-dt);this.tm+=dt;this.t+=dt;const i=this.input;
     if(this.act==='idle'||this.act==='block'){
       if(i.B&&this.act==='idle')this.act='block';
       if(this.act==='block'&&!i.B)this.act='idle';
@@ -269,14 +276,13 @@ class Fighter{
       if(this.act==='idle'){this.move=i.R-i.L;this.x+=this.move*2.2*dt}
     }else if(this.act==='punch'||this.act==='kick'){
       const k=this.t/this.dur;
-      if(!this.done&&k>0.45){this.done=true;
-        const d=foe.x-this.x,reach=this.act==='punch'?1.25:1.5;
-        if(Math.sign(d)===this.dir&&Math.abs(d)<reach&&foe.act!=='ko')foe.hurt(this.act==='punch'?7:11,this.dir)}
+      if(!this.done&&k>0.85)this.done=true;
       if(k>=1)this.act='idle';
     }else if(this.act==='hit'&&this.t>=this.dur)this.act='idle';
+    this.x+=this.vx*dt;this.vx*=Math.exp(-9*dt);
     if(this.act==='ko')this.ko=Math.min(1,this.ko+dt*2.5);
     this.x=Math.max(-6,Math.min(6,this.x));
-    if(Math.abs(this.x-foe.x)<0.8)this.x=foe.x-this.dir*0.8;
+    if(Math.abs(this.x-foe.x)<1.0)this.x=foe.x-this.dir*1.0;
     this.x=Math.max(-6.5,Math.min(6.5,this.x));
   }
   setDir(bone,child,v){
@@ -287,7 +293,30 @@ class Fighter{
     bone.parent.getWorldQuaternion(Pq);
     bone.quaternion.premultiply(Pq).premultiply(D).premultiply(Pq.invert());
   }
-  pose(gy,dt){
+  initFists(){
+    this.fg={};this.fs={};this.nf=0;this.root.updateMatrixWorld(true);
+    this.model.traverse(o=>{if(!o.isBone)return;const m=/^mixamorig\d*:?(Left|Right)Hand(Thumb|Index|Middle|Ring|Pinky)(\d)$/.exec(o.name);if(m&&+m[3]<=3)(this.fg[m[1]]=this.fg[m[1]]||[]).push({b:o,f:m[2],i:+m[3],q0:o.quaternion.clone()})});
+    const pick=(sd,f,i)=>{const e=(this.fg[sd]||[]).find(x=>x.f===f&&x.i===i);return e&&e.b},w=o=>o.getWorldPosition(V());
+    for(const sd in this.fg){
+      const I=pick(sd,'Index',1),Pk=pick(sd,'Pinky',1),M=pick(sd,'Middle',1),M2=pick(sd,'Middle',2),hd=this.b[sd+'Hand'],fa=this.b[sd+'ForeArm'];
+      if(!I||!Pk||!M||!M2||!hd||!fa)continue;
+      const ax=w(I).sub(w(Pk)).normalize(),fd=w(M2).sub(w(M)).normalize(),u=w(hd).sub(w(fa)).normalize();
+      let want=V(0,-1,0);if(Math.abs(u.y)>.6){want=(this.b.Hips?w(this.b.Hips):V(0,0,0)).sub(w(hd));want.y=0;want.normalize()}
+      this.fs[sd]=fd.clone().applyAxisAngle(ax,.4).dot(want)>fd.dot(want)?1:-1;
+      for(const e of this.fg[sd]){const q=new THREE.Quaternion();e.b.getWorldQuaternion(q);e.ax=ax.clone().applyQuaternion(q.invert());this.nf++}
+    }
+  }
+  fists(){const Q=new THREE.Quaternion();for(const sd in this.fs){const sg=this.fs[sd];for(const e of this.fg[sd]){const a=e.f==='Thumb'?[.15,.35,.35][e.i-1]:[1.3,1.7,1.1][e.i-1];e.b.quaternion.copy(e.q0).multiply(Q.setFromAxisAngle(e.ax,sg*a))}}}
+  kickPhase(k){return{ch:k<.3?k/.3:k<.62?1:Math.max(0,1-(k-.62)/.38),ex:k<.3?0:k<.48?(k-.3)/.18:k<.62?1:Math.max(0,1-(k-.62)/.3)}}
+  contact(){
+    const f=this.foe;if(!f||this.done||(this.act!=='punch'&&this.act!=='kick')||f.act==='ko'||this.t/this.dur<.12)return;
+    const dist=(f.x-this.x)*this.dir;if(dist<0.3||dist>2)return;
+    const bs=this.act==='punch'?[this.b.LeftHand,this.b.RightHand]:[this.b.RightFoot];let best=-9,bp=null;
+    for(const b of bs){b.getWorldPosition(A);const e=(A.x-this.x)*this.dir;if(e>best){best=e;bp=A.clone()}}
+    if(best>=dist-(this.act==='punch'?.3:.28)){this.done=true;bp.x=f.x-this.dir*.3;bp.z=.15;f.hurt(this.act==='punch'?7:11,this.dir,bp,this.act)}
+  }
+  pose(gy,dt){this.pose0(gy,dt);this.fists();this.root.updateMatrixWorld(true);this.contact()}
+  pose0(gy,dt){
     const b=this.b,r=this.root;
     if(this.mixer)this.animStep(dt);
     r.position.set(this.x,gy,0);r.rotation.set(0,this.dir>0?Math.PI/2:-Math.PI/2,0);
@@ -296,8 +325,10 @@ class Fighter{
     for(const n in this.rest)b[n].quaternion.copy(this.rest[n]);
     if(this.mixer&&this.restP)b.Hips.position.copy(this.restP);
     const k=Math.min(1,this.t/this.dur),pk=Math.sin(Math.PI*k),bob=Math.sin(this.tm*4)*0.04;
-    if(this.act==='hit')r.rotation.x=-0.25*Math.sin(Math.PI*k);
-    if(this.act==='kick')r.rotation.x=-0.12*pk;
+    const kk=this.kickPhase(k);
+    if(this.act==='hit')r.rotation.x=-0.38*Math.sin(Math.PI*Math.min(1,k*1.25));
+    if(this.act==='kick')r.rotation.x=-0.2*kk.ex;
+    if(this.act==='block'&&this.bl>0)r.rotation.x=-0.14*Math.min(1,this.bl*6);
     if(this.act==='ko'){r.rotation.x=-1.5*this.ko;r.position.y=gy+0.12*this.ko}
     r.updateMatrixWorld(true);
     for(const [side,s] of [['Left',1],['Right',-1]]){
@@ -305,12 +336,13 @@ class Fighter{
       let U=V(s*.3,-.75,.4+bob),F=V(s*.05,.6+bob,.8);
       if(this.act==='block'){U=V(s*.15,-.3,.9);F=V(-s*.1,1,.25)}
       if(this.act==='hit'||this.act==='ko'){U=V(s*.5,-.7,-.3);F=V(s*.3,-.8,-.2)}
+      if(this.act==='kick'){U=V(s*.25,-.55,.6);F=V(-s*.05,.9,.45)}
       if(isP){U.lerp(V(s*.05,-.05,1),pk);F.lerp(V(0,0,1),pk)}
       this.setDir(b[side+'Arm'],b[side+'ForeArm'],U);
       this.setDir(b[side+'ForeArm'],b[side+'Hand'],F);
       let lU=V(s*.1,-1,s*.25-.1),lF=V(s*.08,-1,-s*.1);
       if(this.move)lU.z+=Math.sin(this.tm*10+(s>0?0:Math.PI))*0.5*this.dir*this.move*this.dir;
-      if(this.act==='kick'&&side==='Right'){lU.lerp(V(0,.1,1),pk);lF.lerp(V(0,.05,1),pk)}
+      if(this.act==='kick'&&side==='Right'){lU.lerp(V(0,.55,.85),kk.ch).lerp(V(0,.3,1),kk.ex*.6);lF.lerp(V(0,-.9,-.2),kk.ch).lerp(V(0,.1,1),kk.ex)}
       this.setDir(b[side+'UpLeg'],b[side+'Leg'],lU);
       this.setDir(b[side+'Leg'],b[side+'Foot'],lF);
     }
@@ -321,7 +353,7 @@ let P1,P2,over=false,paused=false,held={};
 function ai(f,foe,dt){
   const i=f.input;i.L=i.R=i.P=i.K=i.B=0;if(over)return;
   const d=Math.abs(f.x-foe.x);
-  if(d>1.4)i[f.dir>0?'R':'L']=1;
+  if(d>1.2)i[f.dir>0?'R':'L']=1;
   else if(d<1.0&&Math.random()<dt*1.2)i[f.dir>0?'L':'R']=1;
   if(d<1.5){
     if((foe.act==='punch'||foe.act==='kick')&&Math.random()<Math.min(.9,.6*S.diff))f.blockT=0.35;
@@ -329,19 +361,19 @@ function ai(f,foe,dt){
   }
   if(f.blockT>0){f.blockT-=dt;i.B=1}
 }
-function reset(){P1.hp=P2.hp=100;P1.x=-1.5;P2.x=1.5;P1.act=P2.act='idle';P1.ko=P2.ko=0;over=false;msg.textContent='FIGHT!';setTimeout(()=>{if(!over)msg.textContent=''},900)}
+function reset(){P1.hp=P2.hp=100;P1.x=-1.5;P2.x=1.5;P1.act=P2.act='idle';P1.ko=P2.ko=0;P1.vx=P2.vx=P1.bl=P2.bl=0;over=false;msg.textContent='FIGHT!';setTimeout(()=>{if(!over)msg.textContent=''},900)}
 function swap(){[P1,P2]=[P2,P1];P1.dir=1;P2.dir=-1;reset()}
 let last=performance.now();
 function loop(now){
-  requestAnimationFrame(loop);const rdt=Math.min(0.05,(now-last)/1000);last=now;const dt=paused?0:rdt;
+  requestAnimationFrame(loop);const rdt=Math.min(0.05,(now-last)/1000);last=now;const dt=(paused||freeze>0)?0:rdt;if(freeze>0&&!paused)freeze-=rdt;
   const i=P1.input;i.L=held.L|0;i.R=held.R|0;i.P=held.P|0;i.K=held.K|0;i.B=held.B|0;
   if(!paused){ai(P2,P1,dt);P1.update(dt,P2);P2.update(dt,P1)}
   P1.pose(gy,dt);P2.pose(gy,dt);
-  if(cur&&cur.tick)cur.tick(now/1000,rdt);
+  if(cur&&cur.tick)cur.tick(now/1000,rdt);fxStep(rdt);
   $('p1bar').firstChild.style.width=P1.hp+'%';$('p2bar').firstChild.style.width=P2.hp+'%';
   if(!over&&(P1.hp<=0||P2.hp<=0)){over=true;msg.textContent=(P1.hp<=0?'YOU LOSE':'YOU WIN')+'\n\nTap to rematch'}
   const mid=(P1.x+P2.x)/2,sp=Math.abs(P1.x-P2.x);
-  cam.position.set(mid,gy+1.5,(3.4+sp*0.55)*S.cam);cam.lookAt(mid,gy+1,0);
+  cam.position.set(mid,gy+1.5,(3.4+sp*0.55)*S.cam);if(shake>.002){cam.position.x+=(Math.random()-.5)*shake;cam.position.y+=(Math.random()-.5)*shake;shake*=.86}cam.lookAt(mid,gy+1,0);
   renderer.render(scene,cam);
 }
 
@@ -397,9 +429,9 @@ addEventListener('pointerdown',e=>{if(over&&!paused&&!e.target.closest('#top,#ct
     const m1=await loadFBX('Ch11'),m2=await loadFBX('Ch24');
     P1=new Fighter(m1,-1.5,1);P2=new Fighter(m2,1.5,-1);
     const m=MAPS[S.map];setMap(m&&(m.g||m.build)?S.map:'dojo');applyS();
-    $('dbg').textContent=(crashed?'RECOVERED FROM CRASH – lite mode · ':'')+'v5 · clips '+Object.keys(CL).join('/')+' · mixer '+!!P1.mixer+'/'+!!P2.mixer+' · tracks '+(P1.nt||0)+'/'+(P2.nt||0)+(P1.why?' · '+P1.why:'')+(AE.length?'\n'+AE.join('\n'):'');
+    $('dbg').textContent=(crashed?'RECOVERED FROM CRASH – lite mode · ':'')+'v6 · clips '+Object.keys(CL).join('/')+' · mixer '+!!P1.mixer+'/'+!!P2.mixer+' · tracks '+(P1.nt||0)+'/'+(P2.nt||0)+' · fingers '+(P1.nf||0)+'/'+(P2.nf||0)+(P1.why?' · '+P1.why:'')+(AE.length?'\n'+AE.join('\n'):'');
     msg.textContent='FIGHT!\nanims: '+Object.keys(CL).length+'/3 · tracks bound: '+(P1.nt||0)+'/'+(P2.nt||0)+(AE.length?'\n'+AE.join('\n'):'');setTimeout(()=>{if(!over)msg.textContent=''},3500);
     requestAnimationFrame(loop);
-  }catch(e){$('dbg').textContent='v5 ERROR '+e.message+(AE.length?'\n'+AE.join('\n'):'');msg.textContent='Load failed:\n'+e.message+'\n\nServe this folder over http and keep all model files next to index.html.'}
+  }catch(e){$('dbg').textContent='v6 ERROR '+e.message+(AE.length?'\n'+AE.join('\n'):'');msg.textContent='Load failed:\n'+e.message+'\n\nServe this folder over http and keep all model files next to index.html.'}
 })();
 </script></body></html>

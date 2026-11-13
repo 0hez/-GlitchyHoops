@@ -36,11 +36,15 @@ canvas{display:block;width:100%;height:100%}
 #pwb{--p:0deg;background:conic-gradient(#ffb347 var(--p),#00000066 0)!important;position:fixed;right:14px;bottom:calc(env(safe-area-inset-bottom,0px) + 118px);width:92px;height:92px;border-color:#ffb347;font-size:13px;z-index:6}
 #pwb.on{filter:brightness(1.4)}#pwb.rdy{box-shadow:0 0 18px 6px #ffb347;animation:pls .45s infinite alternate}#pwl{white-space:pre;pointer-events:none}
 @keyframes pls{to{filter:brightness(1.5)}}
-.col{flex:1;min-width:0}.pb{height:8px;margin-top:4px;background:#102;border:2px solid #fff8}.pb i{display:block;height:100%;width:0;background:linear-gradient(90deg,#ffb347,#ff6a00)}#p2pw i{margin-left:auto}.pb.full i{background:#fff;animation:pls .45s infinite alternate}
+.col{flex:1;min-width:0}.bar{position:relative}
+.rc{position:absolute;top:0;bottom:0;width:0;background:repeating-linear-gradient(45deg,#ffe45c 0 5px,#b9a21c 5px 10px)}
+#mid{width:70px;text-align:center;font-family:Impact,'Arial Narrow Bold',sans-serif;flex:none}#timer{font-size:30px;line-height:24px;margin-top:-3px;text-shadow:2px 2px 0 #c1121f}#pips{font-size:12px;letter-spacing:1px;margin-top:2px}
+.cmb{position:fixed;top:calc(env(safe-area-inset-top,0px) + 128px);font-family:Impact,sans-serif;font-size:28px;line-height:1.05;color:#ffd400;text-shadow:2px 2px 0 #c1121f;white-space:pre;pointer-events:none;z-index:4;opacity:0;transition:opacity .15s}#cmbL{left:14px}#cmbR{right:14px;text-align:right}.pb{height:8px;margin-top:4px;background:#102;border:2px solid #fff8}.pb i{display:block;height:100%;width:0;background:linear-gradient(90deg,#ffb347,#ff6a00)}#p2pw i{margin-left:auto}.pb.full i{background:#fff;animation:pls .45s infinite alternate}
 .mc img{width:76px;height:76px;border-radius:10px;object-fit:cover;align-self:center;border:2px solid #ffd400}
 .hint{font-size:12px;opacity:.6;text-align:center;margin-top:10px}
 </style></head><body>
-<div id="hud"><div class="col"><div class="bar" id="p1bar"><i></i></div><div class="pb" id="p1pw"><i></i></div></div><div class="col"><div class="bar" id="p2bar"><i></i></div><div class="pb" id="p2pw"><i></i></div></div></div>
+<div id="hud"><div class="col"><div class="bar" id="p1bar"><i></i><b class="rc"></b></div><div class="pb" id="p1pw"><i></i></div></div><div id="mid"><div id="timer">60</div><div id="pips"></div></div><div class="col"><div class="bar" id="p2bar"><i></i><b class="rc"></b></div><div class="pb" id="p2pw"><i></i></div></div></div>
+<div class="cmb f" id="cmbL"></div><div class="cmb f" id="cmbR"></div>
 <div id="msg" class="f">Loading…</div>
 <div id="top" class="f"><div class="t" data-a="menu">☰ MENU</div><div class="t" data-a="maps">🗺 MAPS</div><div class="t" data-a="swap">👥 SWITCH</div><div class="t" data-a="select">🧍 SELECT</div><div class="t" id="pwt" data-a="powers">⚡ POWER</div><div class="t" data-a="restart">🔄</div><div class="t" data-a="settings">⚙</div><div class="t" id="sty" data-a="style">🥊 COMBO</div></div>
 <div id="pn" class="f"><div id="card"></div></div>
@@ -271,7 +275,7 @@ async function restoreTex(model){
   }
   for(let i=TQ.length-1;i>=0;i--)if(jobs.some(j=>j.q===TQ[i]))TQ.splice(i,1);
 }
-function stripTex(model){model.traverse(o=>{if(o.isMesh)[].concat(o.material).forEach(m=>{for(const k in m){const t=m[k];if(t&&t.isTexture&&k!=='map')m[k]=null}m.needsUpdate=true})})}
+function stripTex(model){model.traverse(o=>{if(o.isMesh)[].concat(o.material).forEach(m=>{for(const k in m){const t=m[k];if(t&&t.isTexture&&k!=='map')m[k]=null}if(m.shininess!==undefined)m.shininess=14;if(m.specular&&m.specular.setScalar)m.specular.setScalar(.12);m.needsUpdate=true})})}
 /* ---------- fighters ---------- */
 async function shrinkTex(model){
   const max=LV>=3?256:LV>=1?384:512,seen=new Set(),ts=[];
@@ -418,7 +422,7 @@ async function loadFBX(prefix){
   }
   stage('parse '+prefix);NOTEX=!HQ;
   let model;try{model=new THREE.FBXLoader().parse(BUFS[prefix],'')}finally{NOTEX=false}
-  if(!HQ){stripTex(model);stage('textures '+prefix);await restoreTex(model);TQ.length=0}else await shrinkTex(model);
+  if(!HQ){stripTex(model);stage('textures '+prefix);await new Promise(r=>setTimeout(r,120));await restoreTex(model);TQ.length=0}else await shrinkTex(model);
   delete BUFS[prefix];stage('parsed '+prefix);return model;
 }
 async function setFighter(which,id){
@@ -437,7 +441,7 @@ class Fighter{
     this.b={};this.rest={};model.traverse(o=>{if(o.isBone){const n=N(o.name);this.b[n]=o;this.rest[n]=o.quaternion.clone()}});
     this.restP=this.b.Hips&&this.b.Hips.position.clone();
     this.x=x;this.dir=dir;this.hp=100;this.act='idle';this.ck=null;this.rq=null;this.atk=0;this.dmg=7;this.ks=0;this.t=0;this.dur=1;this.done=false;this.hand=0;this.move=0;this.ko=0;this.tm=Math.random()*9;this.hits=0;this.hitT=0;this.kdN=5;this.ph=0;this.cc=0;this.cd=9;this.lh=0;this.buf=null;this.pi={};
-    this.input={L:0,R:0,PL:0,PR:0,K:0,B:0,PW:0};this.pcd=0;this.pm=0;this.fz=0;this.hk=0;this.pw=null;this.pf=0;this.tk='n';this.vx=0;this.bl=0;this.foe=null;this.initAnim();this.initFists();
+    this.input={L:0,R:0,PL:0,PR:0,K:0,B:0,PW:0};this.hpP=100;this.rec=0;this.rt=0;this.cmb=0;this.cmbT=-1;this.cmbD=0;this.dsh=null;this.pcd=0;this.pm=0;this.fz=0;this.hk=0;this.pw=null;this.pf=0;this.tk='n';this.vx=0;this.bl=0;this.foe=null;this.initAnim();this.initFists();
   }
   initAnim(){
     if(!Object.keys(CL).length){this.why='no clips loaded';return}if(!this.b.Hips){this.why='no Hips; bones: '+Object.keys(this.b).slice(0,4).join(',');return}
@@ -472,6 +476,11 @@ this.mixer=new THREE.AnimationMixer(this.model);this.A={};this.w={};
     if(this.A.idle)this.A.idle.play();else this.why='idle clip missing (procedural idle used)';
   }
 
+  doDash(sg){ /* dash can be chained: a new one may start once the last is ~55% done */
+    if(this.act!=='idle'||this.fz>0||this.hp<=0)return false;
+    if(this.dsh&&this.dsh.t<this.dsh.dur*.55)return false;
+    this.dsh={sg,t:0,dur:.24};spark(V(this.x,gy+.25,0),0xffffff,3);buzz(12);return true;
+  }
   gain(a){if(this.pw||this.hp<=0)return;this.pm=Math.min(100,this.pm+a)}
   startPower(){
     const id=this===P1?PWR[(+S.pw||0)%PWR.length].id:PWR[(Math.random()*PWR.length)|0].id;
@@ -598,6 +607,7 @@ this.mixer=new THREE.AnimationMixer(this.model);this.A={};this.w={};
     const blk=this.act==='block'&&this.dir*from<0,hv=kind==='kick';
     if(blk){if(this.foe)this.foe.gain(2);buzz(8);d*=0.15;this.vx=from*1.8;this.bl=.22;spark(pt,0x7ab8ff,5)}
     else{
+      this.cmb=this.cmbT>0?this.cmb+1:1;if(this.cmb===1)this.cmbD=0;this.cmbT=1.1;d*=Math.max(.35,1-.12*(this.cmb-1));this.cmbD+=d; /* combo damage scaling: long strings hit weaker, like other fighters */
       if(this.foe)this.foe.gain(d*1.5);this.gain(d*.5); /* attacker charges fast, victim a little: same for everyone */
       buzz(hv?32:this===P1?24:18);this.act='hit';this.t=0;this.vx=from*(hv?5.5:3.6);spark(pt,0xffb347,hv?10:7);shake=Math.max(shake,hv?.12:.07);freeze=hv?.07:.045;
       /* every clean hit to the face = a random head-hit reaction, starting on the contact frame */
@@ -615,7 +625,13 @@ this.mixer=new THREE.AnimationMixer(this.model);this.A={};this.w={};
       buzz(90);this.act='ko';this.t=0;this.vx=from*6;freeze=.14;shake=.2;if(!this.play('ko',0,CM.ko.t0))this.ck=null}
   }
   update(dt,foe){
-    this.foe=foe;this.pcd=Math.max(0,this.pcd-dt);if(this.fz>0){this.fz-=dt;return}this.bl=Math.max(0,this.bl-dt);this.tm+=dt;this.t+=dt;const i=this.input;
+    this.foe=foe;this.pcd=Math.max(0,this.pcd-dt);this.cmbT=Math.max(-1,this.cmbT-dt);
+    /* recoverable health (Marvel / Tekken style): part of each hit's damage is only 'grey' and slowly comes back if you are not hit again */
+    if(this.hp<this.hpP){this.rec=Math.min(100-this.hp,this.rec+(this.hpP-this.hp)*.5);this.rt=2.2}else if(this.hp>this.hpP)this.rec=0;
+    this.hpP=this.hp;
+    if(this.hp<=0)this.rec=0;else if(this.rec>0){this.rt-=dt;if(this.rt<=0&&!over&&this.act!=='hit'&&this.act!=='down'&&this.act!=='ko'){const g=Math.min(this.rec,5*dt);this.hp+=g;this.rec-=g;this.hpP=this.hp}}
+    if(this.act!=='idle')this.dsh=null;
+    if(this.fz>0){this.fz-=dt;return}this.bl=Math.max(0,this.bl-dt);this.tm+=dt;this.t+=dt;const i=this.input;
     this.hitT-=dt;if(this.hitT<=0)this.hits=0;
     for(const k of['PL','PR','K','B']){if(i[k]&&!this.pi[k])this.buf={k,t:.4}}
     if(i.PW&&!this.pi.PW&&(this.act==='idle'||this.act==='block')&&this.pm>=100&&this.pcd<=0)this.startPower();for(const k in i)this.pi[k]=i[k];
@@ -628,7 +644,8 @@ this.mixer=new THREE.AnimationMixer(this.model);this.A={};this.w={};
       else if(this.act==='idle'&&(i.B||(this.buf&&this.buf.k==='B')))this.enterBlock();
       else if(this.act==='block'&&!i.B&&this.t>=.3)this.act='idle';
       this.move=0;
-      if(this.act==='idle'){this.move=i.R-i.L;this.x+=this.move*2.2*dt}
+      if(this.act==='idle'){this.move=i.R-i.L;this.x+=this.move*2.2*dt;
+        const D=this.dsh;if(D){D.t+=dt;const k=Math.min(1,D.t/D.dur);this.x+=D.sg*(11*(1-k)*(1-k)+1.5)*dt;this.move=D.sg;if(k>=1)this.dsh=null}}
     }else if(this.act==='punch'||this.act==='kick'){
       const k=this.t/this.dur;
       if(!this.done&&k>0.85)this.done=true;
@@ -738,6 +755,7 @@ let P1,P2,over=false,paused=false,held={};
 function ai(f,foe,dt){
   const i=f.input;i.L=i.R=i.PL=i.PR=i.K=i.B=i.PW=0;if(over)return;
   const d=Math.abs(f.x-foe.x);
+  if(f.act==='idle'){if(d>2.4&&Math.random()<dt*.35*S.diff)f.doDash(f.dir);else if(d<1.1&&(foe.act==='punch'||foe.act==='kick')&&Math.random()<dt*1.2*S.diff)f.doDash(-f.dir)}
   if(d>.95)i[f.dir>0?'R':'L']=1;
   if(!over&&f.act==='idle'&&f.pm>=100&&f.pcd<=0&&d>1.2&&foe.act!=='ko'&&foe.act!=='down'&&Math.random()<dt*.7*S.diff)i.PW=1;
   else if(d<.72&&Math.random()<dt*.4)i[f.dir>0?'L':'R']=1;
@@ -749,17 +767,36 @@ function ai(f,foe,dt){
   }
   if(f.blockT>0){f.blockT-=dt;i.B=1}
 }
-function reset(){clearPowerFx();for(const f of[P1,P2]){f.pw=null;f.fz=0;f.pcd=0;f.pm=0;f.hk=0;f.tk='x'}P1.hp=P2.hp=100;P1.x=-.8;P2.x=.8;P1.act=P2.act='idle';P1.snapIdle();P2.snapIdle();P1.ko=P2.ko=0;P1.hits=P2.hits=0;P1.vx=P2.vx=P1.bl=P2.bl=0;over=false;msg.textContent='FIGHT!';setTimeout(()=>{if(!over)msg.textContent=''},900)}
+const RD={n:1,w1:0,w2:0,time:60,lock:0,ph:0,nt:0,cb:null};let matchOver=false;
+function reset(){RD.n=1;RD.w1=RD.w2=0;startRound()}
+function endRound(w,why){ /* w: 1 = you, 2 = opponent, 0 = draw */
+  over=true;if(w!==2)RD.w1++;if(w!==1)RD.w2++;
+  const perfect=(w===1&&P1.hp>=99.9)||(w===2&&P2.hp>=99.9),head=why==='TIME'?'TIME!':'K.O.!';freeze=Math.max(freeze,.25);
+  if(RD.w1>=2||RD.w2>=2){matchOver=true;msg.textContent=head+'\n'+(RD.w1>RD.w2?'YOU WIN':RD.w1<RD.w2?'YOU LOSE':'DRAW')+(perfect?'\nFLAWLESS VICTORY':'')+'\n\nTap to rematch'}
+  else{msg.textContent=head+'\n'+(w===1?'YOU WIN THE ROUND':w===2?'YOU LOSE THE ROUND':'DRAW')+(perfect?'\nPERFECT':'');RD.nt=2.6;RD.cb=()=>{RD.n++;startRound()}}
+}
+function startRound(){clearPowerFx();for(const f of[P1,P2]){f.pw=null;f.fz=0;f.pcd=0;f.pm=0;f.rec=0;f.rt=0;f.cmb=0;f.cmbT=-1;f.hpP=100;f.dsh=null;f.hk=0;f.tk='x'}P1.hp=P2.hp=100;P1.x=-.8;P2.x=.8;P1.act=P2.act='idle';P1.snapIdle();P2.snapIdle();P1.ko=P2.ko=0;P1.hits=P2.hits=0;P1.vx=P2.vx=P1.bl=P2.bl=0;over=false;matchOver=false;RD.time=60;RD.lock=1.4;RD.ph=0;RD.nt=0;RD.cb=null;msg.textContent='ROUND '+RD.n}
 function swap(){[P1,P2]=[P2,P1];P1.dir=1;P2.dir=-1;reset()}
 let last=performance.now();
+const R1=$('p1bar').lastChild,R2=$('p2bar').lastChild,TM=$('timer'),PP=$('pips'),CL_=$('cmbL'),CR_=$('cmbR');let lastT=-1,lastP='';
+function hudUpdate(){
+  R1.style.left=P1.hp+'%';R1.style.width=P1.rec+'%';R2.style.right=P2.hp+'%';R2.style.width=P2.rec+'%';
+  const t=Math.max(0,Math.ceil(RD.time));if(t!==lastT){lastT=t;TM.textContent=t;TM.style.color=t<=10?'#ff5252':'#fff'}
+  const pp=p=>'●'.repeat(p)+'○'.repeat(Math.max(0,2-p)),ps=pp(RD.w1)+' · '+pp(RD.w2);if(ps!==lastP){lastP=ps;PP.textContent=ps}
+  for(const[el,v]of[[CL_,P2],[CR_,P1]]){const on=v.cmb>=2&&v.cmbT>-.9;el.style.opacity=on?1:0;if(on)el.textContent=v.cmb+' HITS\n'+Math.round(v.cmbD)+' DMG'}
+}
 function loop(now){
   requestAnimationFrame(loop);const rdt=Math.min(0.05,(now-last)/1000);last=now;const dt=(paused||freeze>0)?0:rdt;if(freeze>0&&!paused)freeze-=rdt;
   const i=P1.input;i.L=held.L|0;i.R=held.R|0;i.PL=held.PL|0;i.PR=held.PR|0;i.K=held.K|0;i.B=held.B|0;i.PW=held.PW|0;
+  const LK=RD.lock>0;if(LK){for(const k in i)i[k]=0;if(!paused){RD.lock-=dt;if(RD.lock<=.7&&!RD.ph){RD.ph=1;if(!over)msg.textContent='FIGHT!'}if(RD.lock<=0&&!over)msg.textContent=''}}
+  else if(!over&&!paused)RD.time-=dt;
+  if(RD.nt>0&&!paused){RD.nt-=rdt;if(RD.nt<=0){RD.nt=0;const cb=RD.cb;RD.cb=null;if(cb)cb()}}
   const GS=gameSpeed(),sdt=dt*GS,ns=Math.max(1,Math.ceil(sdt/.022)),h=sdt/ns;
-  for(let q=0;q<ns;q++){if(!paused){ai(P2,P1,h);P1.update(h,P2);P2.update(h,P1)}P1.pose(gy,h);P2.pose(gy,h)}
+  for(let q=0;q<ns;q++){if(!paused){if(LK){for(const k in P2.input)P2.input[k]=0}else ai(P2,P1,h);P1.update(h,P2);P2.update(h,P1)}P1.pose(gy,h);P2.pose(gy,h)}
   if(cur&&cur.tick)cur.tick(now/1000,rdt);fxStep(rdt*GS);projStep(dt*GS);vfxStep(rdt*GS);updPW();
   $('p1bar').firstChild.style.width=P1.hp+'%';$('p2bar').firstChild.style.width=P2.hp+'%';
-  if(!over&&(P1.hp<=0||P2.hp<=0)){over=true;msg.textContent=(P1.hp<=0?'YOU LOSE':'YOU WIN')+'\n\nTap to rematch'}
+  if(!over){if(P1.hp<=0||P2.hp<=0)endRound(P1.hp<=0&&P2.hp<=0?0:P1.hp<=0?2:1,'KO');else if(RD.time<=0)endRound(P1.hp>P2.hp?1:P2.hp>P1.hp?2:0,'TIME')}
+  hudUpdate();
   const mid=(P1.x+P2.x)/2,sp=Math.abs(P1.x-P2.x);
   cam.position.set(mid,gy+1.5,(3.4+sp*0.55)*S.cam);if(shake>.002){cam.position.x+=(Math.random()-.5)*shake;cam.position.y+=(Math.random()-.5)*shake;shake*=.86}cam.lookAt(mid,gy+1,0);
   renderer.render(scene,cam);
@@ -806,19 +843,19 @@ document.querySelectorAll('.b').forEach(e=>{
   e.addEventListener('pointerdown',ev=>{ev.preventDefault();held[k]=1;e.classList.add('on');dashTry(k)});
   ['pointerup','pointerleave','pointercancel'].forEach(t=>e.addEventListener(t,()=>{held[k]=0;e.classList.remove('on')}));
 });
-const tapT={L:0,R:0};
+const tapT={L:0,R:0},lastD={L:0,R:0};
 function dashTry(k){
   if(k!=='L'&&k!=='R')return;const n=performance.now();
-  if(n-tapT[k]<320){tapT[k]=0;
-    if(P1&&!over&&!paused&&P1.act==='idle'&&n-(P1.dashT||0)>450){P1.dashT=n;P1.vx+=(k==='R'?1:-1)*15;try{buzz(20)}catch(e){}spark(V(P1.x,gy+.3,0),0xffffff,3)}
-  }else tapT[k]=n;
+  if(!P1||over||paused||RD.lock>0)return;
+  if(n-tapT[k]<320||n-lastD[k]<380){tapT[k]=0;if(P1.doDash(k==='R'?1:-1))lastD[k]=n}
+  else tapT[k]=n;
 }
 const KM={ArrowLeft:'L',a:'L',ArrowRight:'R',d:'R',j:'PL',u:'PL',i:'PR',k:'K',l:'B',p:'PW'},kn=e=>e.key.length===1?e.key.toLowerCase():e.key;
 addEventListener('keydown',e=>{const k=kn(e);if(KM[k]){if(!e.repeat)dashTry(KM[k]);held[KM[k]]=1}if(k==='Escape')paused?close():open('menu');
   if(k==='o'){S.pw=((+S.pw||0)+1)%PWR.length;applyS();flash('POWER: '+PWR[S.pw].n)}
   if(k>='1'&&k<='5'){S.style=+k-1;applyS();flash('PUNCH STYLE: '+STYLE_NAMES[S.style])}});
 addEventListener('keyup',e=>{const k=kn(e);if(KM[k])held[KM[k]]=0});
-addEventListener('pointerdown',e=>{if(over&&!paused&&!e.target.closest('#top,#ctl,#pwb'))reset()});
+addEventListener('pointerdown',e=>{if(over&&matchOver&&!paused&&!e.target.closest('#top,#ctl,#pwb'))reset()});
 
 (async()=>{
   try{
@@ -826,7 +863,7 @@ addEventListener('pointerdown',e=>{if(over&&!paused&&!e.target.closest('#top,#ct
     stage('anims');await loadAnims(); /* animations always load */
     const m1=await loadFBX('Ch11'),m2=await loadFBX('Ch24');
     P1=new Fighter(m1,-.8,1);P2=new Fighter(m2,.8,-1);P1.cid='Ch11';P2.cid='Ch24';
-    setMap('dojo');applyS();msg.textContent='FIGHT!';requestAnimationFrame(loop);
+    setMap('dojo');applyS();RD.lock=99;msg.textContent='Loading road…';requestAnimationFrame(loop);
     try{
       if(LV>=1)throw new Error('skipped after a crash (safe mode)');try{localStorage.setItem('sf96try','1')}catch(e){}
       msg.textContent='Loading road…';stage('road');
@@ -843,7 +880,7 @@ addEventListener('pointerdown',e=>{if(over&&!paused&&!e.target.closest('#top,#ct
     }catch(e){console.warn('highway map not loaded',e);HWERR=(e&&e.message)||String(e)}
     try{localStorage.removeItem('sf96try')}catch(e){}stage('ok');
     const m=MAPS[userMap];setMap(m&&(m.g||m.build)&&LV<1?userMap:'dojo');applyS();probeRoster();
-    msg.textContent='FIGHT!';setTimeout(()=>{if(!over)msg.textContent=''},1500);
+    startRound();
     setTimeout(()=>{try{localStorage.removeItem('sf96up');localStorage.setItem('sf96lv',0)}catch(e){}},2500); /* it loaded fine: clear the crash counter */
     if(HWERR)setTimeout(()=>{if(!over){msg.textContent='Highway map did not load:\n'+HWERR+'\n(keep interstate_95_highway.glb next to index.html)';msg.style.fontSize='13px';setTimeout(()=>{if(!over)msg.textContent='';msg.style.fontSize=''},9000)}},1700);
     if(AE.length||P1.why||!P1.A){msg.textContent='Animation problem:\n'+(P1.why||'')+' '+AE.slice(0,3).join(' | ');msg.style.fontSize='13px';setTimeout(()=>{if(!over)msg.textContent='';msg.style.fontSize=''},12000)}

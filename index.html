@@ -196,6 +196,14 @@ function setMap(id){
   sun.color.set(m.sun[0]);sun.intensity=m.sun[1];sun.position.set(...m.sun[2]);
 }
 
+/* ---------- low-memory mode: fighters skip their embedded (huge) texture images ---------- */
+const HQ=/[?&]hq=1/.test(location.search);let NOTEX=false;
+const stage=n=>{try{localStorage.setItem('sf_stage',n)}catch(e){}};
+(()=>{const il=THREE.ImageLoader.prototype.load;
+ THREE.ImageLoader.prototype.load=function(url,onLoad){
+  if(NOTEX&&typeof url==='string'&&url.indexOf('blob:')===0){const c=document.createElement('canvas');c.width=c.height=2;const x=c.getContext('2d');x.fillStyle='#c8b8a8';x.fillRect(0,0,2,2);if(onLoad)setTimeout(()=>onLoad(c),0);return c}
+  return il.apply(this,arguments)}})();
+function stripTex(model){model.traverse(o=>{if(o.isMesh)[].concat(o.material).forEach(m=>{for(const k in m){const t=m[k];if(t&&t.isTexture&&k!=='map')m[k]=null}m.needsUpdate=true})})}
 /* ---------- fighters ---------- */
 async function shrinkTex(model){
   const max=LV>=3?256:LV>=1?384:512,seen=new Set(),ts=[];
@@ -322,7 +330,7 @@ async function loadFBX(prefix){
   if(!BUFS[prefix]){
     const bufs=[];
     for(let i=1;i<=10;i++){
-      msg.textContent=`Loading ${prefix} ${i}…`;
+      msg.textContent=`Loading ${prefix} ${i}…`;stage('download '+prefix+' '+i);
       let r=await fetch(`${prefix}_part${i}.bin`);
       if(!r.ok||/html/i.test(r.headers.get('content-type')||'')){
         if(i===1){r=await fetch(prefix+'.fbx');if(!r.ok)throw new Error(prefix+' not found');bufs.push(await r.arrayBuffer())}
@@ -333,7 +341,10 @@ async function loadFBX(prefix){
     bufs.forEach(b=>{all.set(new Uint8Array(b),o);o+=b.byteLength});
     BUFS[prefix]=all.buffer;
   }
-  const model=new THREE.FBXLoader().parse(BUFS[prefix],'');await shrinkTex(model);return model;
+  stage('parse '+prefix);NOTEX=!HQ;
+  let model;try{model=new THREE.FBXLoader().parse(BUFS[prefix],'')}finally{NOTEX=false}
+  if(!HQ)stripTex(model);else await shrinkTex(model);
+  delete BUFS[prefix];stage('parsed '+prefix);return model;
 }
 async function setFighter(which,id){
   const model=await loadFBX(id),old=which==='p1'?P1:P2;
@@ -727,13 +738,14 @@ addEventListener('pointerdown',e=>{if(over&&!paused&&!e.target.closest('#top,#ct
 
 (async()=>{
   try{
-    await loadAnims(); /* animations always load */
+    try{const ls=localStorage.getItem('sf_stage');if(ls&&crashed){msg.textContent='Last crash during: '+ls;await new Promise(r=>setTimeout(r,2500))}}catch(e){}
+    stage('anims');await loadAnims(); /* animations always load */
     const m1=await loadFBX('Ch11'),m2=await loadFBX('Ch24');
     P1=new Fighter(m1,-.8,1);P2=new Fighter(m2,.8,-1);P1.cid='Ch11';P2.cid='Ch24';
     setMap('dojo');applyS();msg.textContent='FIGHT!';requestAnimationFrame(loop);
     try{
       if(LV>=1)throw new Error('skipped after a crash (safe mode)');try{localStorage.setItem('sf96try','1')}catch(e){}
-      msg.textContent='Loading road…';
+      msg.textContent='Loading road…';stage('road');
       const gb=await (await fetch('interstate_95_highway.glb')).arrayBuffer();
       {const dv=new DataView(gb),jl=dv.getUint32(12,true),o=20+jl;dv.setUint8(o+7,0);} /* repair malformed BIN chunk tag */
       const road=(await new Promise((ok,no)=>new THREE.GLTFLoader().parse(gb,'',ok,no))).scene;
@@ -745,7 +757,7 @@ addEventListener('pointerdown',e=>{if(over&&!paused&&!e.target.closest('#top,#ct
       const hit=new THREE.Raycaster(V(0,500,0),V(0,-1,0)).intersectObject(road,true)[0];
       MAPS.highway.g=road;MAPS.highway.gy=hit?hit.point.y:0;
     }catch(e){console.warn('highway map not loaded',e);HWERR=(e&&e.message)||String(e)}
-    try{localStorage.removeItem('sf96try')}catch(e){}
+    try{localStorage.removeItem('sf96try')}catch(e){}stage('ok');
     const m=MAPS[userMap];setMap(m&&(m.g||m.build)&&LV<1?userMap:'dojo');applyS();probeRoster();
     msg.textContent='FIGHT!';setTimeout(()=>{if(!over)msg.textContent=''},1500);
     setTimeout(()=>{try{localStorage.removeItem('sf96up');localStorage.setItem('sf96lv',0)}catch(e){}},2500); /* it loaded fine: clear the crash counter */

@@ -39,7 +39,7 @@ canvas{display:block;width:100%;height:100%}
 <div id="hud"><div class="bar" id="p1bar"><i></i></div><div class="bar" id="p2bar"><i></i></div></div>
 <div id="msg" class="f">Loading…</div>
 <div id="top" class="f"><div class="t" data-a="menu">☰ MENU</div><div class="t" data-a="maps">🗺 MAPS</div><div class="t" data-a="swap">👥 SWITCH</div><div class="t" data-a="restart">🔄</div><div class="t" data-a="settings">⚙</div></div>
-<div id="dbg">v4 starting…</div>
+<div id="dbg">v5 starting…</div>
 <div id="pn" class="f"><div id="card"></div></div>
 <div id="ctl">
  <div class="g"><div class="b" data-k="L">◀</div><div class="b" data-k="R">▶</div></div>
@@ -56,9 +56,10 @@ const $=id=>document.getElementById(id), msg=$('msg');
 const V=(x,y,z)=>new THREE.Vector3(x,y,z);
 let S={diff:1,cam:1,shadow:1,touch:1,map:'highway'};
 try{Object.assign(S,JSON.parse(localStorage.getItem('sf95')||'{}'))}catch(e){}
+let crashed=false;try{const t=localStorage.getItem('sf95try');if(t){crashed=true;S.lite=1;S.shadow=0;S.map=t==='dojo'?'highway':'dojo'}}catch(e){}
 const save=()=>{try{localStorage.setItem('sf95',JSON.stringify(S))}catch(e){}};
 const renderer=new THREE.WebGLRenderer({antialias:true});
-renderer.setPixelRatio(Math.min(devicePixelRatio,2));renderer.shadowMap.enabled=true;
+renderer.setPixelRatio(Math.min(devicePixelRatio,S.lite?1:1.5));renderer.shadowMap.enabled=true;
 document.body.prepend(renderer.domElement);
 const scene=new THREE.Scene();
 const cam=new THREE.PerspectiveCamera(45,1,0.1,500);
@@ -109,8 +110,8 @@ const MAPS={
   const C=mat(0xffffff,{map:tex(256,256,(c,w,h)=>{noise('#5a5f68',1500,.09)(c,w,h);c.fillStyle='rgba(0,0,0,.4)';c.fillRect(0,0,w,2);c.fillRect(0,0,2,h)},10,5),roughness:.45,metalness:.1}),E=mat(0x6f747d);
   pl(g,44,22,C,0,2);bo(g,44,1.1,.5,E,0,0,-8);bo(g,.5,1.1,22,E,-22,0,2);bo(g,.5,1.1,22,E,22,0,2);
   const win=tex(64,128,(c,w,h)=>{c.fillStyle='#070a14';c.fillRect(0,0,w,h);for(let y=0;y<8;y++)for(let x=0;x<4;x++){const l=Math.random()<.4;c.fillStyle=l?(Math.random()<.7?'#ffd98a':'#9fd8ff'):'#10182b';c.fillRect(x*16+3,y*16+3,10,10)}});
-  for(let i=0;i<70;i++){const w=4+Math.random()*7,h=12+Math.random()*40,t=win.clone();t.needsUpdate=true;t.repeat.set(Math.ceil(w/3),Math.ceil(h/4));
-   const b=bo(g,w,h,w*.8,mat(0xffffff,{map:t,emissiveMap:t,emissive:0xffffff,emissiveIntensity:.9}),-75+i*2.2+Math.random()*2,0,-18-Math.random()*70);b.castShadow=false}
+  const nb=S.lite?26:42;for(let i=0;i<nb;i++){const w=4+Math.random()*7,h=12+Math.random()*40,t=win.clone();t.needsUpdate=true;t.repeat.set(Math.ceil(w/3),Math.ceil(h/4));
+   const b=bo(g,w,h,w*.8,mat(0xffffff,{map:t,emissiveMap:t,emissive:0xffffff,emissiveIntensity:.9}),-75+i*150/nb+Math.random()*2,0,-18-Math.random()*70);b.castShadow=false}
   const G=mat(0x8a8f98,{metalness:.5,roughness:.5});
   for(const x of[-7,-3.5,6]){bo(g,1.5,.9,1,G,x,0,-6);cy(g,.35,.35,.05,mat(0x222),x,.9,-6)}
   bo(g,3,2.8,2.6,mat(0x50555e),-13,0,-5.5);bo(g,.9,1.9,.1,mat(0x2a2d33),-13,0,-4.15);cy(g,.1,.1,.2,mat(0xfff0b0,glow(0xfff0b0,2)),-13,2.1,-4.1,8);lamp(g,0xffe9a8,.8,10,-13,2.2,-3.5);
@@ -160,10 +161,11 @@ const MAPS={
   add(g,new THREE.ConeGeometry(9.5,3.2,4),mat(0x2e3138),0,6.6,-17,0,Math.PI/4,0).scale.set(1.3,1,.75);
   const toro=(x,z)=>{bo(g,.9,.3,.9,S2,x,0,z);cy(g,.2,.2,1.1,S2,x,.3,z,8);bo(g,.7,.6,.7,mat(0xffe6b0,glow(0xffcc77,1.3)),x,1.4,z);cone(g,.8,.55,S2,x,2,z,4,Math.PI/4);bo(g,.9,.2,.9,mat(0xf6fafc),x,2.45,z)};
   toro(-5.8,-4);toro(5.8,-4);toro(-9,-7);toro(9,-7);lamp(g,0xffcc77,.9,10,-5.8,1.6,-3.4);lamp(g,0xffcc77,.9,10,5.8,1.6,-3.4);
-  const pine=(x,z,s)=>{const q=new THREE.Group();q.position.set(x,0,z);q.scale.setScalar(s);g.add(q);cy(q,.22,.3,1.6,mat(0x4a3322),0,0,0,8);for(let i=0;i<4;i++){cone(q,1.7-i*.35,2,mat(0x24503a),0,1.2+i*1.1,0,9);cone(q,1.45-i*.32,.7,mat(0xf6fafc),0,2.15+i*1.1,0,9)}};
-  for(let i=0;i<55;i++){let x=(Math.random()<.5?-1:1)*(13+Math.random()*40),z=-4-Math.random()*50;if(Math.abs(x)<22&&z<-12&&z>-22)x*=1.6;pine(x,z,.9+Math.random()*.9)}
+  const pm=mat(0x24503a),sm=mat(0xf6fafc),tm=mat(0x4a3322),pg=[],sg=[];for(let i=0;i<4;i++){pg.push(new THREE.ConeGeometry(1.7-i*.35,2,9));sg.push(new THREE.ConeGeometry(1.45-i*.32,.7,9))}const tg=new THREE.CylinderGeometry(.22,.3,1.6,8);
+  const pine=(x,z,s)=>{const q=new THREE.Group();q.position.set(x,0,z);q.scale.setScalar(s);g.add(q);const t=new THREE.Mesh(tg,tm);t.position.y=.8;q.add(t);for(let i=0;i<4;i++){const c=new THREE.Mesh(pg[i],pm);c.position.y=2.2+i*1.1;q.add(c);const d=new THREE.Mesh(sg[i],sm);d.position.y=2.5+i*1.1;q.add(d)}};
+  for(let i=0,np=S.lite?22:38;i<np;i++){let x=(Math.random()<.5?-1:1)*(13+Math.random()*40),z=-4-Math.random()*50;if(Math.abs(x)<22&&z<-12&&z>-22)x*=1.6;pine(x,z,.9+Math.random()*.9)}
   for(let i=0;i<8;i++){const x=-130+i*38+Math.random()*15,h=40+Math.random()*30;cone(g,34,h,mat(0x6a7a90,{roughness:1}),x,-1,-140-Math.random()*30,7);cone(g,13,h*.36,mat(0xffffff),x,h*.64-1,-140,7)}
-  const N=700,pa=new Float32Array(N*3);for(let i=0;i<N;i++){pa[i*3]=(Math.random()-.5)*60;pa[i*3+1]=Math.random()*14;pa[i*3+2]=-35+Math.random()*45}
+  const N=S.lite?250:550,pa=new Float32Array(N*3);for(let i=0;i<N;i++){pa[i*3]=(Math.random()-.5)*60;pa[i*3+1]=Math.random()*14;pa[i*3+2]=-35+Math.random()*45}
   const gg=new THREE.BufferGeometry();gg.setAttribute('position',new THREE.BufferAttribute(pa,3));g.add(new THREE.Points(gg,new THREE.PointsMaterial({color:0xffffff,size:.13})));
   m.tick=(t,dt)=>{for(let i=0;i<N;i++){pa[i*3+1]-=dt*(.8+(i%5)*.15);pa[i*3]+=Math.sin(t+i)*dt*.3;if(pa[i*3+1]<0)pa[i*3+1]=14}gg.attributes.position.needsUpdate=true}
  }}
@@ -174,7 +176,7 @@ function setMap(id){
   if(cur&&cur.g)cur.g.visible=false;
   if(!m.g){m.g=new THREE.Group();m.build(m.g,m)}
   if(!m.g.parent)scene.add(m.g);
-  m.g.visible=true;cur=m;S.map=id;gy=m.gy||0;save();
+  m.g.visible=true;cur=m;S.map=id;gy=m.gy||0;save();try{localStorage.setItem('sf95try',id);setTimeout(()=>localStorage.removeItem('sf95try'),5000)}catch(e){}
   scene.background=m.bg?(m.bgT||(m.bgT=m.bg())):new THREE.Color(m.sky);
   scene.fog=new THREE.Fog(m.fog.length?(m.bg?0xe9a07a:m.sky):m.sky,m.fog[0],m.fog[1]);
   hemi.color.set(m.hemi[0]);hemi.groundColor.set(m.hemi[1]);hemi.intensity=m.hemi[2];
@@ -196,7 +198,7 @@ const FILES={idle:'Fighting_Idle',punch:'Hook',ko:'Knocked_Out'};
 async function loadAnims(){
   for(const k in FILES){
     let buf=null;
-    try{const bin=atob(FBX64[k]),u=new Uint8Array(bin.length);for(let i=0;i<bin.length;i++)u[i]=bin.charCodeAt(i);buf=u.buffer}catch(e){AE.push(k+' decode: '+e.message)}
+    try{const bin=atob(FBX64[k]),u=new Uint8Array(bin.length);for(let i=0;i<bin.length;i++)u[i]=bin.charCodeAt(i);buf=u.buffer;FBX64[k]=null}catch(e){AE.push(k+' decode: '+e.message)}
     for(let attempt=0;attempt<2&&!CL[k];attempt++){
       try{
         if(attempt===1){const r=await fetch(FILES[k]+'.fbx');if(!r.ok)throw new Error('file '+r.status);buf=await r.arrayBuffer()}
@@ -395,9 +397,9 @@ addEventListener('pointerdown',e=>{if(over&&!paused&&!e.target.closest('#top,#ct
     const m1=await loadFBX('Ch11'),m2=await loadFBX('Ch24');
     P1=new Fighter(m1,-1.5,1);P2=new Fighter(m2,1.5,-1);
     const m=MAPS[S.map];setMap(m&&(m.g||m.build)?S.map:'dojo');applyS();
-    $('dbg').textContent='v4 · clips '+Object.keys(CL).join('/')+' · mixer '+!!P1.mixer+'/'+!!P2.mixer+' · tracks '+(P1.nt||0)+'/'+(P2.nt||0)+(P1.why?' · '+P1.why:'')+(AE.length?'\n'+AE.join('\n'):'');
+    $('dbg').textContent=(crashed?'RECOVERED FROM CRASH – lite mode · ':'')+'v5 · clips '+Object.keys(CL).join('/')+' · mixer '+!!P1.mixer+'/'+!!P2.mixer+' · tracks '+(P1.nt||0)+'/'+(P2.nt||0)+(P1.why?' · '+P1.why:'')+(AE.length?'\n'+AE.join('\n'):'');
     msg.textContent='FIGHT!\nanims: '+Object.keys(CL).length+'/3 · tracks bound: '+(P1.nt||0)+'/'+(P2.nt||0)+(AE.length?'\n'+AE.join('\n'):'');setTimeout(()=>{if(!over)msg.textContent=''},3500);
     requestAnimationFrame(loop);
-  }catch(e){$('dbg').textContent='v4 ERROR '+e.message+(AE.length?'\n'+AE.join('\n'):'');msg.textContent='Load failed:\n'+e.message+'\n\nServe this folder over http and keep all model files next to index.html.'}
+  }catch(e){$('dbg').textContent='v5 ERROR '+e.message+(AE.length?'\n'+AE.join('\n'):'');msg.textContent='Load failed:\n'+e.message+'\n\nServe this folder over http and keep all model files next to index.html.'}
 })();
 </script></body></html>

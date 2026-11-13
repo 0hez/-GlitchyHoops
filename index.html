@@ -71,8 +71,8 @@ delete S.lite;
 if(LV>=1){crashed=true;S.lite=1;S.shadow=0}
 if(LV>=2)S.map='dojo'; /* only the last-resort safe mode drops the highway (and it is never saved over your choice) */
 const save=()=>{try{localStorage.setItem('sf95',JSON.stringify(Object.assign({},S,{lite:0,map:userMap})))}catch(e){}};
-const renderer=new THREE.WebGLRenderer({antialias:LV<2});
-renderer.setPixelRatio(Math.min(devicePixelRatio,S.lite?1:1.5));renderer.shadowMap.enabled=true;
+const renderer=new THREE.WebGLRenderer({antialias:false,powerPreference:'high-performance'});
+renderer.setPixelRatio(1);renderer.shadowMap.enabled=true;
 document.body.prepend(renderer.domElement);
 const scene=new THREE.Scene();
 const cam=new THREE.PerspectiveCamera(45,1,0.1,500);
@@ -198,7 +198,7 @@ function setMap(id){
 
 /* ---------- fighters ---------- */
 async function shrinkTex(model){
-  const max=LV>=3?384:LV>=2?512:1024,seen=new Set(),ts=[];
+  const max=LV>=3?256:LV>=1?384:512,seen=new Set(),ts=[];
   model.traverse(o=>{if(o.isMesh)[].concat(o.material).forEach(m=>{for(const k in m){const t=m[k];if(t&&t.isTexture&&!seen.has(t)){seen.add(t);ts.push(t)}}})});
   for(const t of ts){
     const im=t.image;if(!im)continue;
@@ -224,7 +224,7 @@ const HITS=['hit1','hit2'];
 async function loadAnims(){
   for(const k in FILES){
     let buf=null;
-    try{const bin=atob(FBX64[k]),u=new Uint8Array(bin.length);for(let i=0;i<bin.length;i++)u[i]=bin.charCodeAt(i);buf=u.buffer;FBX64[k]=null}catch(e){AE.push(k+' decode: '+e.message)}
+    try{buf=await (await fetch('data:application/octet-stream;base64,'+FBX64[k])).arrayBuffer();FBX64[k]=null}catch(e){AE.push(k+' decode: '+e.message)}
     for(let attempt=0;attempt<2&&!CL[k];attempt++){
       try{
         if(attempt===1){const r=await fetch(FILES[k]+'.fbx');if(!r.ok)throw new Error('file '+r.status);buf=await r.arrayBuffer()}
@@ -333,7 +333,7 @@ async function loadFBX(prefix){
     bufs.forEach(b=>{all.set(new Uint8Array(b),o);o+=b.byteLength});
     BUFS[prefix]=all.buffer;
   }
-  const model=new THREE.FBXLoader().parse(BUFS[prefix].slice(0),'');await shrinkTex(model);return model;
+  const model=new THREE.FBXLoader().parse(BUFS[prefix],'');await shrinkTex(model);return model;
 }
 async function setFighter(which,id){
   const model=await loadFBX(id),old=which==='p1'?P1:P2;
@@ -728,8 +728,11 @@ addEventListener('pointerdown',e=>{if(over&&!paused&&!e.target.closest('#top,#ct
 (async()=>{
   try{
     await loadAnims(); /* animations always load */
+    const m1=await loadFBX('Ch11'),m2=await loadFBX('Ch24');
+    P1=new Fighter(m1,-.8,1);P2=new Fighter(m2,.8,-1);P1.cid='Ch11';P2.cid='Ch24';
+    setMap('dojo');applyS();msg.textContent='FIGHT!';requestAnimationFrame(loop);
     try{
-      if(LV>=2)throw new Error('skipped in safe mode');
+      if(LV>=1)throw new Error('skipped after a crash (safe mode)');try{localStorage.setItem('sf96try','1')}catch(e){}
       msg.textContent='Loading road…';
       const gb=await (await fetch('interstate_95_highway.glb')).arrayBuffer();
       {const dv=new DataView(gb),jl=dv.getUint32(12,true),o=20+jl;dv.setUint8(o+7,0);} /* repair malformed BIN chunk tag */
@@ -738,15 +741,13 @@ addEventListener('pointerdown',e=>{if(over&&!paused&&!e.target.closest('#top,#ct
       if(sz.z>sz.x)road.rotation.y=Math.PI/2;
       road.updateMatrixWorld(true);bx=new THREE.Box3().setFromObject(road);const c=bx.getCenter(V());
       road.position.set(-c.x,0,-c.z);road.updateMatrixWorld(true);
-      road.traverse(o=>{if(o.isMesh)o.receiveShadow=true});road.visible=false;scene.add(road);
+      await shrinkTex(road);road.traverse(o=>{if(o.isMesh)o.receiveShadow=true});road.visible=false;scene.add(road);
       const hit=new THREE.Raycaster(V(0,500,0),V(0,-1,0)).intersectObject(road,true)[0];
       MAPS.highway.g=road;MAPS.highway.gy=hit?hit.point.y:0;
     }catch(e){console.warn('highway map not loaded',e);HWERR=(e&&e.message)||String(e)}
-    const m1=await loadFBX('Ch11'),m2=await loadFBX('Ch24');
-    P1=new Fighter(m1,-.8,1);P2=new Fighter(m2,.8,-1);P1.cid='Ch11';P2.cid='Ch24';
-    const m=MAPS[S.map];setMap(m&&(m.g||m.build)?S.map:'dojo');applyS();probeRoster();
+    try{localStorage.removeItem('sf96try')}catch(e){}
+    const m=MAPS[userMap];setMap(m&&(m.g||m.build)&&LV<1?userMap:'dojo');applyS();probeRoster();
     msg.textContent='FIGHT!';setTimeout(()=>{if(!over)msg.textContent=''},1500);
-    requestAnimationFrame(loop);
     setTimeout(()=>{try{localStorage.removeItem('sf96up');localStorage.setItem('sf96lv',0)}catch(e){}},2500); /* it loaded fine: clear the crash counter */
     if(HWERR)setTimeout(()=>{if(!over){msg.textContent='Highway map did not load:\n'+HWERR+'\n(keep interstate_95_highway.glb next to index.html)';msg.style.fontSize='13px';setTimeout(()=>{if(!over)msg.textContent='';msg.style.fontSize=''},9000)}},1700);
     if(AE.length||P1.why||!P1.A){msg.textContent='Animation problem:\n'+(P1.why||'')+' '+AE.slice(0,3).join(' | ');msg.style.fontSize='13px';setTimeout(()=>{if(!over)msg.textContent='';msg.style.fontSize=''},12000)}

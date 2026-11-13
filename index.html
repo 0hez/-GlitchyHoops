@@ -54,6 +54,8 @@ const $=id=>document.getElementById(id), msg=$('msg');
 const V=(x,y,z)=>new THREE.Vector3(x,y,z);
 let S={diff:1,cam:1,shadow:1,touch:1,vib:1,gs:50,map:'highway',style:3};
 try{Object.assign(S,JSON.parse(localStorage.getItem('sf95')||'{}'))}catch(e){}
+if(S.mv!==1){S.map='highway';S.mv=1} /* one-time: bring the highway back as the default map */
+let userMap=S.map,HWERR='';
 if(S.v!==2){S.style=4;S.v=2}
 let crashed=false,LV=0;
 try{
@@ -63,8 +65,9 @@ try{
   addEventListener('pagehide',()=>{try{localStorage.removeItem('sf96up')}catch(e){}});
 }catch(e){}
 delete S.lite;
-if(LV>=1){crashed=true;S.lite=1;S.shadow=0;S.map='dojo'}
-const save=()=>{try{localStorage.setItem('sf95',JSON.stringify(Object.assign({},S,{lite:0})))}catch(e){}};
+if(LV>=1){crashed=true;S.lite=1;S.shadow=0}
+if(LV>=2)S.map='dojo'; /* only the last-resort safe mode drops the highway (and it is never saved over your choice) */
+const save=()=>{try{localStorage.setItem('sf95',JSON.stringify(Object.assign({},S,{lite:0,map:userMap})))}catch(e){}};
 const renderer=new THREE.WebGLRenderer({antialias:LV<2});
 renderer.setPixelRatio(Math.min(devicePixelRatio,S.lite?1:1.5));renderer.shadowMap.enabled=true;
 document.body.prepend(renderer.domElement);
@@ -183,7 +186,7 @@ function setMap(id){
   if(cur&&cur.g)cur.g.visible=false;
   if(!m.g){m.g=new THREE.Group();m.build(m.g,m)}
   if(!m.g.parent)scene.add(m.g);
-  m.g.visible=true;cur=m;S.map=id;gy=m.gy||0;save();try{localStorage.setItem('sf96try',id);setTimeout(()=>localStorage.removeItem('sf96try'),5000)}catch(e){}
+  m.g.visible=true;cur=m;S.map=id;gy=m.gy||0;save();
   scene.background=m.bg?(m.bgT||(m.bgT=m.bg())):new THREE.Color(m.sky);
   scene.fog=new THREE.Fog(m.fog.length?(m.bg?0xe9a07a:m.sky):m.sky,m.fog[0],m.fog[1]);
   hemi.color.set(m.hemi[0]);hemi.groundColor.set(m.hemi[1]);hemi.intensity=m.hemi[2];
@@ -262,6 +265,7 @@ const hx=document.createElement('label');hx.style.cssText='position:fixed;left:-
 function buzz(p){if(!S.vib)return;try{if(navigator.vibrate){navigator.vibrate(p);return}}catch(e){}try{hx.click()}catch(e){}}
 /* game speed bar 1-100: 50 = normal (1x), 1 = 0.25x, 100 = 2x */
 const gameSpeed=()=>{const v=Math.max(1,Math.min(100,+S.gs||50));return v<=50?.25+(v-1)/49*.75:1+(v-50)/50};
+const BP_T=new THREE.Vector3(),BP_H=new THREE.Vector3(),BP_D=new THREE.Vector3(),BP_E=new THREE.Vector3();
 class Fighter{
   constructor(model,x,dir){
     this.model=model;this.root=new THREE.Group();this.root.rotation.order='YXZ';this.root.add(model);scene.add(this.root);
@@ -269,7 +273,7 @@ class Fighter{
     model.traverse(o=>{if(o.isMesh){o.castShadow=true;o.frustumCulled=false}});
     this.b={};this.rest={};model.traverse(o=>{if(o.isBone){const n=N(o.name);this.b[n]=o;this.rest[n]=o.quaternion.clone()}});
     this.restP=this.b.Hips&&this.b.Hips.position.clone();
-    this.x=x;this.dir=dir;this.hp=100;this.act='idle';this.ck=null;this.rq=null;this.atk=0;this.dmg=7;this.ks=0;this.t=0;this.dur=1;this.done=false;this.hand=0;this.move=0;this.ko=0;this.tm=Math.random()*9;this.hits=0;this.hitT=0;this.kdN=3+((Math.random()*2)|0);this.ph=0;this.cc=0;this.cd=9;this.lh=0;this.buf=null;this.pi={};
+    this.x=x;this.dir=dir;this.hp=100;this.act='idle';this.ck=null;this.rq=null;this.atk=0;this.dmg=7;this.ks=0;this.t=0;this.dur=1;this.done=false;this.hand=0;this.move=0;this.ko=0;this.tm=Math.random()*9;this.hits=0;this.hitT=0;this.kdN=5;this.ph=0;this.cc=0;this.cd=9;this.lh=0;this.buf=null;this.pi={};
     this.input={L:0,R:0,PL:0,PR:0,K:0,B:0};this.vx=0;this.bl=0;this.foe=null;this.initAnim();this.initFists();
   }
   initAnim(){
@@ -346,9 +350,9 @@ this.mixer=new THREE.AnimationMixer(this.model);this.A={};this.w={};
     else{
       buzz(hv?32:this===P1?24:18);this.act='hit';this.t=0;this.vx=from*(hv?5.5:3.6);spark(pt,0xffb347,hv?10:7);shake=Math.max(shake,hv?.12:.07);freeze=hv?.07:.045;
       /* every clean hit to the face = a random head-hit reaction, starting on the contact frame */
-      this.hits++;this.hitT=3; /* a knockdown every 3-4 clean hits */
+      this.hits++;this.hitT=4; /* knocked down after 5 clean hits */
       if(this.hp-d>0&&this.hits>=this.kdN&&this.A&&this.A.ko&&this.A.standup){ /* took too much, knocked down mid-fight: same KO clip, then gets back up */
-        buzz(55);this.hits=0;this.kdN=3+((Math.random()*2)|0);this.ph=0;this.act='down';this.buf=null;this.vx=from*5;freeze=.1;shake=Math.max(shake,.15);
+        buzz(55);this.hits=0;this.kdN=5;this.ph=0;this.act='down';this.buf=null;this.vx=from*5;freeze=.1;shake=Math.max(shake,.15);
         const kc=this.A.ko.getClip().duration-CM.ko.t0,sp=Math.min(2.2,Math.max(1.4,kc/.9));
         this.dur=kc/sp;this.play('ko',0,CM.ko.t0,sp);
       }else{
@@ -427,9 +431,24 @@ this.mixer=new THREE.AnimationMixer(this.model);this.A={};this.w={};
       hd.getWorldPosition(B);B.y+=.07;
       if(A.distanceTo(B)<(pu?.5:.58)){hit=true;bp=B.clone()}
     }else if((A.x-this.x)*this.dir>=dist-(pu?.3:.28)){hit=true;bp=A.clone()}
-    if(hit){this.done=true;bp.x-=this.dir*.2;bp.z=.15;f.hurt(this.dmg,this.dir,bp,this.act)}
+    let body=false;
+    if(!hit&&f.b.Spine){ /* body test: landing on the chest / stomach counts too, so the arm stops on contact */
+      f.b.Spine.getWorldPosition(B);
+      if(A.distanceTo(B)<(pu?.45:.55)){hit=true;body=true;bp=B.clone()}
+    }
+    if(hit){this.done=true;bp.x-=this.dir*.2;bp.z=.15;f.hurt(body?this.dmg*.8:this.dmg,this.dir,bp,this.act)}
   }
-  pose(gy,dt){this.pose0(gy,dt);this.fists();this.root.updateMatrixWorld(true);this.contact()}
+  /* arms / legs can never sink into the other fighter: if a hand or foot reaches their body, this fighter is pushed back so it stops on the surface */
+  bodyPush(){
+    const f=this.foe;if(!f||(this.act!=='punch'&&this.act!=='kick'))return;
+    const fb=f.b,b=this.b;if(!fb.Hips||!fb.Head)return;
+    fb.Hips.getWorldPosition(BP_H);fb.Head.getWorldPosition(BP_D);BP_E.subVectors(BP_D,BP_H);const L2=BP_E.lengthSq()||1;let pen=0;
+    for(const n of['LeftHand','RightHand','LeftFoot','RightFoot']){const o=b[n];if(!o)continue;
+      o.getWorldPosition(BP_T);BP_T.sub(BP_H);const t=Math.max(0,Math.min(1,BP_T.dot(BP_E)/L2));BP_T.addScaledVector(BP_E,-t);
+      pen=Math.max(pen,.23-BP_T.length())}
+    if(pen>0){this.x=Math.max(-6,Math.min(6,this.x-this.dir*Math.min(.3,pen*1.1)));this.root.position.x=this.x;this.root.updateMatrixWorld(true)}
+  }
+  pose(gy,dt){this.pose0(gy,dt);this.fists();this.root.updateMatrixWorld(true);this.bodyPush();this.contact()}
   pose0(gy,dt){
     const b=this.b,r=this.root;
     if(this.mixer)this.animStep(dt);
@@ -506,7 +525,7 @@ function close(){paused=false;pn.style.display='none'}
 function doAct(e){
   const el=e.target.closest('[data-a]');if(!el)return;const a=el.dataset.a;
   if(a==='close')close();
-  else if(a==='map'){setMap(el.dataset.v);reset();close()}
+  else if(a==='map'){userMap=el.dataset.v;setMap(el.dataset.v);reset();close()}
   else if(a==='set'){S[el.dataset.k]=+el.dataset.v;applyS();open('settings');if(el.dataset.k==='vib')buzz(35)}
   else if(a==='style'){S.style=((+S.style||0)+1)%5;applyS();flash('PUNCH STYLE: '+STYLE_NAMES[S.style])}
   else if(a==='swap'){swap();close()}
@@ -532,7 +551,7 @@ addEventListener('pointerdown',e=>{if(over&&!paused&&!e.target.closest('#top,#ct
   try{
     await loadAnims(); /* animations always load */
     try{
-      if(LV>=1)throw new Error('skipped in safe mode');
+      if(LV>=2)throw new Error('skipped in safe mode');
       msg.textContent='Loading road…';
       const gb=await (await fetch('interstate_95_highway.glb')).arrayBuffer();
       {const dv=new DataView(gb),jl=dv.getUint32(12,true),o=20+jl;dv.setUint8(o+7,0);} /* repair malformed BIN chunk tag */
@@ -544,13 +563,14 @@ addEventListener('pointerdown',e=>{if(over&&!paused&&!e.target.closest('#top,#ct
       road.traverse(o=>{if(o.isMesh)o.receiveShadow=true});road.visible=false;scene.add(road);
       const hit=new THREE.Raycaster(V(0,500,0),V(0,-1,0)).intersectObject(road,true)[0];
       MAPS.highway.g=road;MAPS.highway.gy=hit?hit.point.y:0;
-    }catch(e){console.warn('highway map not loaded',e)}
+    }catch(e){console.warn('highway map not loaded',e);HWERR=(e&&e.message)||String(e)}
     const m1=await loadFBX('Ch11'),m2=await loadFBX('Ch24');
     P1=new Fighter(m1,-1.5,1);P2=new Fighter(m2,1.5,-1);
     const m=MAPS[S.map];setMap(m&&(m.g||m.build)?S.map:'dojo');applyS();
     msg.textContent='FIGHT!';setTimeout(()=>{if(!over)msg.textContent=''},1500);
     requestAnimationFrame(loop);
     setTimeout(()=>{try{localStorage.removeItem('sf96up');localStorage.setItem('sf96lv',0)}catch(e){}},2500); /* it loaded fine: clear the crash counter */
+    if(HWERR)setTimeout(()=>{if(!over){msg.textContent='Highway map did not load:\n'+HWERR+'\n(keep interstate_95_highway.glb next to index.html)';msg.style.fontSize='13px';setTimeout(()=>{if(!over)msg.textContent='';msg.style.fontSize=''},9000)}},1700);
     if(AE.length||P1.why||!P1.A){msg.textContent='Animation problem:\n'+(P1.why||'')+' '+AE.slice(0,3).join(' | ');msg.style.fontSize='13px';setTimeout(()=>{if(!over)msg.textContent='';msg.style.fontSize=''},12000)}
   }catch(e){console.error(e);msg.textContent='Load failed:\n'+e.message+'\n\nServe this folder over http and keep all model files next to index.html.'}
 })();
